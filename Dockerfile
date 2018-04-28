@@ -29,7 +29,7 @@ RUN rpm --import /etc/pki/rpm-gpg/RPM* \
 RUN cd /etc/yum.repos.d
 #RUN mv CentOS-Base.repo CentOS-Base.repo.bk
 RUN wget http://mirrors.163.com/.help/CentOS7-Base-163.repo
-RUN mv CentOS7-Base-163.repo CentOS-Base.repo
+RUN mv CentOS7-Base-163.repo CentOS-Base.repo && yum clean all
 
 
 # -----------------------------------------------------------------------------
