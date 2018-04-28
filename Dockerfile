@@ -17,7 +17,7 @@ RUN rpm --import /etc/pki/rpm-gpg/RPM* \
     && curl --silent --location https://raw.githubusercontent.com/nodesource/distributions/master/rpm/setup_6.x | bash - \
     && yum -y update \
     && yum groupinstall -y "Development tools" \
-    && yum install -y gcc-c++ zlib-devel bzip2-devel openssl \
+    && yum install -y gcc gcc-c++ zlib-devel bzip2-devel openssl which \
     openssl-devel ncurses-devel sqlite-devel wget \
     && rm -rf /var/cache/{yum,ldconfig}/* \
     && rm -rf /etc/ld.so.cache \
