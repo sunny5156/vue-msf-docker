@@ -35,7 +35,7 @@ RUN mv CentOS7-Base-163.repo CentOS-Base.repo && yum clean all
 # -----------------------------------------------------------------------------
 # Update Python to 2.7.x
 # -----------------------------------------------------------------------------
-RUN yum -y install python-pip
+#RUN yum -y install python-pip
 
 # -----------------------------------------------------------------------------
 # Devel libraries for delelopment tools like php & nginx ...
