@@ -26,16 +26,16 @@ RUN rpm --import /etc/pki/rpm-gpg/RPM* \
 # -----------------------------------------------------------------------------
 # Change yum repos
 # -----------------------------------------------------------------------------
-RUN cd /etc/yum.repos.d
+#RUN cd /etc/yum.repos.d
 #RUN mv CentOS-Base.repo CentOS-Base.repo.bk
-RUN wget http://mirrors.163.com/.help/CentOS7-Base-163.repo
-RUN mv CentOS7-Base-163.repo CentOS-Base.repo && yum clean all
+#RUN wget http://mirrors.163.com/.help/CentOS7-Base-163.repo
+#RUN mv CentOS7-Base-163.repo CentOS-Base.repo && yum clean all
 
 
 # -----------------------------------------------------------------------------
 # Update Python to 2.7.x
 # -----------------------------------------------------------------------------
-#RUN yum -y install python-pip
+RUN easy_install pip
 
 # -----------------------------------------------------------------------------
 # Devel libraries for delelopment tools like php & nginx ...
@@ -56,7 +56,7 @@ RUN yum -y install \
     libxslt-devel expat-devel unixODBC-devel \
     openssl-devel libmcrypt-devel freetds-devel \
     pcre-devel openldap openldap-devel libc-client-devel \
-    jemalloc jemalloc-devel inotify-tools apr-util yum-utils tree \
+    jemalloc jemalloc-devel inotify-tools nodejs apr-util yum-utils tree \
     && ln -s /usr/lib64/libc-client.so /usr/lib/libc-client.so \
     && rm -rf /var/cache/{yum,ldconfig}/* \
     && rm -rf /etc/ld.so.cache \
@@ -68,17 +68,17 @@ RUN yum -y install \
 
 # https://nodejs.org/dist/v8.11.1/node-v8.11.1.tar.gz
 
-ENV nodejsversion 8.11.1
-ENV NODEJS_INSTALL_DIR ${HOME}/nodejs
-RUN cd ${SRC_DIR} \
-    && ls -l \
-    && wget -q -O node-v${nodejsversion}.tar.gz https://nodejs.org/dist/v8.11.1/node-v${nodejsversion}.tar.gz \
-    && tar xzf node-v${nodejsversion}.tar.gz \
-    && cd node-v${nodejsversion} \
-    && ./configure \
-    && make 1>/dev/null \
-    && make install \
-    && cp ${NODEJS_INSTALL_DIR}/node /usr/sbin/
+#ENV nodejsversion 8.11.1
+#ENV NODEJS_INSTALL_DIR ${HOME}/nodejs
+#RUN cd ${SRC_DIR} \
+#    && ls -l \
+#    && wget -q -O node-v${nodejsversion}.tar.gz https://nodejs.org/dist/v8.11.1/node-v${nodejsversion}.tar.gz \
+#    && tar xzf node-v${nodejsversion}.tar.gz \
+#    && cd node-v${nodejsversion} \
+#    && ./configure \
+#    && make 1>/dev/null \
+#    && make install \
+#    && cp ${NODEJS_INSTALL_DIR}/node /usr/sbin/
 
 # -----------------------------------------------------------------------------
 # Install supervisor and distribute ...
