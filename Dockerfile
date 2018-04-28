@@ -216,8 +216,8 @@ RUN cd ${SRC_DIR} \
     && make install \
     && echo "/usr/local/lib64" >> /etc/ld.so.conf.d/local.conf \
     && echo "/usr/local/src/libmcrypt-2.5.8/lib/.libs" >> /etc/ld.so.conf.d/local.conf \
-    && chmod gu+x /etc/ld.so.conf.d/local.conf \
-    && ldconfig -v
+    && chmod gu+x /etc/ld.so.conf.d/local.conf 
+#    && ldconfig -v
 
 # -----------------------------------------------------------------------------
 # Install re2c for PHP
