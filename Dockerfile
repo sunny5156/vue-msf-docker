@@ -14,7 +14,7 @@ RUN mkdir -p ${SRC_DIR}
 # Install Development tools
 # -----------------------------------------------------------------------------
 RUN rpm --import /etc/pki/rpm-gpg/RPM* \
-    && curl --silent --location https://raw.githubusercontent.com/nodesource/distributions/master/rpm/setup_6.x | bash - \
+    && curl --silent --location https://raw.githubusercontent.com/nodesource/distributions/master/rpm/setup_7.x | bash - \
     && yum -y update \
     && yum groupinstall -y "Development tools" \
     && yum install -y gcc gcc-c++ zlib-devel bzip2-devel openssl which \
