@@ -36,7 +36,7 @@ RUN rpm --import /etc/pki/rpm-gpg/RPM* \
 # Update Python to 2.7.x
 # -----------------------------------------------------------------------------
 RUN cd ${SRC_DIR} \
-	&& wget https://bootstrap.pypa.io/ez_setup.py -O - | python \
+RUN wget https://bootstrap.pypa.io/ez_setup.py -O - | python \
     && easy_install pip \
 
 # -----------------------------------------------------------------------------
