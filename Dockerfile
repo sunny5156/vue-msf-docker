@@ -23,6 +23,13 @@ RUN rpm --import /etc/pki/rpm-gpg/RPM* \
     && rm -rf /etc/ld.so.cache \
     && yum clean all
 
+# -----------------------------------------------------------------------------
+# Change yum repos
+# -----------------------------------------------------------------------------
+RUN cd /etc/yum.repos.d
+RUN mv CentOS-Base.repo CentOS-Base.repo.bk
+RUN wget http://mirrors.163.com/.help/CentOS7-Base-163.repo
+RUN mv CentOS7-Base-163.repo CentOS-Base.repo
 
 
 # -----------------------------------------------------------------------------
