@@ -24,9 +24,27 @@ RUN rpm --import /etc/pki/rpm-gpg/RPM* \
     && yum clean all
 
 # -----------------------------------------------------------------------------
+# Install NodeJS
+# -----------------------------------------------------------------------------
+
+# https://nodejs.org/dist/v8.11.1/node-v8.11.1.tar.gz
+
+ENV nodejsversion 8.11.1
+ENV NODEJS_INSTALL_DIR ${HOME}/nodejs
+RUN cd ${SRC_DIR} \
+    && ls -l \
+    && wget -q -O node-v${nodejsversion}.tar.gz https://nodejs.org/dist/v8.11.1/node-v${nodejsversion}.tar.gz \
+    && tar xzf node-v${nodejsversion}.tar.gz \
+    && cd node-v${nodejsversion} \
+    && ./configure \
+    && make 1>/dev/null \
+    && make install \
+    && cp ${NODEJS_INSTALL_DIR}/node /usr/sbin/
+
+# -----------------------------------------------------------------------------
 # Update Python to 2.7.x
 # -----------------------------------------------------------------------------
-RUN yum -y install python-pip
+RUN yum -y install python2-pip
 
 # -----------------------------------------------------------------------------
 # Devel libraries for delelopment tools like php & nginx ...
@@ -47,7 +65,7 @@ RUN yum -y install \
     libxslt-devel expat-devel unixODBC-devel \
     openssl-devel libmcrypt-devel freetds-devel \
     pcre-devel openldap openldap-devel libc-client-devel \
-    jemalloc jemalloc-devel inotify-tools nodejs apr-util yum-utils tree \
+    jemalloc jemalloc-devel inotify-tools apr-util yum-utils tree \
     && ln -s /usr/lib64/libc-client.so /usr/lib/libc-client.so \
     && rm -rf /var/cache/{yum,ldconfig}/* \
     && rm -rf /etc/ld.so.cache \
@@ -480,24 +498,6 @@ RUN cd ${SRC_DIR} \
 # Install Node and apidoc and nodemon
 # -----------------------------------------------------------------------------
 RUN npm install apidoc nodemon -g
-
-# -----------------------------------------------------------------------------
-# Install NodeJS
-# -----------------------------------------------------------------------------
-
-# https://nodejs.org/dist/v8.11.1/node-v8.11.1.tar.gz
-
-ENV nodejsversion 8.11.1
-ENV NODEJS_INSTALL_DIR ${HOME}/nodejs
-RUN cd ${SRC_DIR} \
-    && ls -l \
-    && wget -q -O node-v${nodejsversion}.tar.gz https://nodejs.org/dist/v8.11.1/node-v${nodejsversion}.tar.gz \
-    && tar xzf node-v${nodejsversion}.tar.gz \
-    && cd node-v${nodejsversion} \
-    && ./configure \
-    && make 1>/dev/null \
-    && make install \
-    && cp ${NODEJS_INSTALL_DIR}/node /usr/sbin/
 
 
 # -----------------------------------------------------------------------------
