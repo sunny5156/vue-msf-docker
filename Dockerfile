@@ -28,7 +28,7 @@ RUN rpm --import /etc/pki/rpm-gpg/RPM* \
 # -----------------------------------------------------------------------------
 # Update Python to 2.7.x
 # -----------------------------------------------------------------------------
-RUN yum -y install python2-pip
+RUN yum -y install python-pip
 
 # -----------------------------------------------------------------------------
 # Devel libraries for delelopment tools like php & nginx ...
