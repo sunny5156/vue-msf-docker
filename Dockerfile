@@ -30,6 +30,7 @@ RUN rpm --import /etc/pki/rpm-gpg/RPM* \
 #RUN mv CentOS-Base.repo CentOS-Base.repo.bk
 #RUN wget http://mirrors.163.com/.help/CentOS7-Base-163.repo
 #RUN mv CentOS7-Base-163.repo CentOS-Base.repo && yum clean all
+RUN wget -O /etc/yum.repos.d/CentOS-Base.repo http://mirrors.aliyun.com/repo/Centos-7.repo
 
 
 # -----------------------------------------------------------------------------
@@ -207,16 +208,16 @@ RUN cd ${SRC_DIR} \
 # -----------------------------------------------------------------------------
 # Install libmcrypt using by php-mcrypt
 # -----------------------------------------------------------------------------
-RUN cd ${SRC_DIR} \
-    && wget -q -O libmcrypt-2.5.8.tar.gz https://nchc.dl.sourceforge.net/project/mcrypt/Libmcrypt/2.5.8/libmcrypt-2.5.8.tar.gz \
-    && tar xzf libmcrypt-2.5.8.tar.gz \
-    && cd libmcrypt-2.5.8 \
-    && ./configure 1>/dev/null \
-    && make 1>/dev/null \
-    && make install \
-    && echo "/usr/local/lib64" >> /etc/ld.so.conf.d/local.conf \
-    && echo "/usr/local/src/libmcrypt-2.5.8/lib/.libs" >> /etc/ld.so.conf.d/local.conf \
-    && chmod gu+x /etc/ld.so.conf.d/local.conf 
+#RUN cd ${SRC_DIR} \
+#    && wget -q -O libmcrypt-2.5.8.tar.gz https://nchc.dl.sourceforge.net/project/mcrypt/Libmcrypt/2.5.8/libmcrypt-2.5.8.tar.gz \
+#    && tar xzf libmcrypt-2.5.8.tar.gz \
+#    && cd libmcrypt-2.5.8 \
+#    && ./configure 1>/dev/null \
+#    && make 1>/dev/null \
+#    && make install \
+#    && echo "/usr/local/lib64" >> /etc/ld.so.conf.d/local.conf \
+#    && echo "/usr/local/src/libmcrypt-2.5.8/lib/.libs" >> /etc/ld.so.conf.d/local.conf \
+#    && chmod gu+x /etc/ld.so.conf.d/local.conf 
 #    && ldconfig -v
 
 # -----------------------------------------------------------------------------
