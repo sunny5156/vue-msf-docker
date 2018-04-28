@@ -5,7 +5,7 @@ MAINTAINER sunny5156 <sunny5156@qq.com>
 # -----------------------------------------------------------------------------
 # Make src dir
 # -----------------------------------------------------------------------------
-ENV HOME /vue-msf/
+ENV HOME /vue-msf
 ENV SRC_DIR $HOME/src
 RUN mkdir -p ${SRC_DIR}
 #ADD src ${SRC_DIR}
