@@ -37,5 +37,5 @@ if [ -f /vue-msf/bin/init.sh ]; then
     su worker -c '/vue-msf/bin/init.sh'
 fi
 
-echo 'supervisord -c /vue-msf/supervisor/supervisord.conf'
-supervisord -c /vue-msf/supervisor/supervisord.conf
+#echo 'supervisord -c /vue-msf/supervisor/supervisord.conf'
+#supervisord -c /vue-msf/supervisor/supervisord.conf

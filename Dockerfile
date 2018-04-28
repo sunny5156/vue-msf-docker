@@ -36,9 +36,9 @@ RUN rpm --import /etc/pki/rpm-gpg/RPM* \
 # Update Python to 2.7.x
 # -----------------------------------------------------------------------------
 RUN cd ${SRC_DIR} \
-#RUN wget https://bootstrap.pypa.io/ez_setup.py
-ADD config/easy_install/ez_setup.py  ${SRC_DIR}/ez_setup.py
-RUN python ${SRC_DIR}/ez_setup.py 
+#RUN wget https://bootstrap.pypa.io/ez_setup.py -O - | python 
+#ADD config/easy_install/ez_setup.py  ${SRC_DIR}/ez_setup.py
+#RUN python ${SRC_DIR}/ez_setup.py 
 #easy_install pip \
 
 # -----------------------------------------------------------------------------
@@ -87,8 +87,8 @@ RUN yum -y install \
 # -----------------------------------------------------------------------------
 # Install supervisor and distribute ...
 # -----------------------------------------------------------------------------
-RUN pip install supervisor distribute \
-    && rm -rf /tmp/*
+#RUN pip install supervisor distribute \
+#    && rm -rf /tmp/*
 
 # -----------------------------------------------------------------------------
 # Configure, timezone/sshd/passwd/networking
