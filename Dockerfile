@@ -23,23 +23,7 @@ RUN rpm --import /etc/pki/rpm-gpg/RPM* \
     && rm -rf /etc/ld.so.cache \
     && yum clean all
 
-# -----------------------------------------------------------------------------
-# Install NodeJS
-# -----------------------------------------------------------------------------
 
-# https://nodejs.org/dist/v8.11.1/node-v8.11.1.tar.gz
-
-ENV nodejsversion 8.11.1
-ENV NODEJS_INSTALL_DIR ${HOME}/nodejs
-RUN cd ${SRC_DIR} \
-    && ls -l \
-    && wget -q -O node-v${nodejsversion}.tar.gz https://nodejs.org/dist/v8.11.1/node-v${nodejsversion}.tar.gz \
-    && tar xzf node-v${nodejsversion}.tar.gz \
-    && cd node-v${nodejsversion} \
-    && ./configure \
-    && make 1>/dev/null \
-    && make install \
-    && cp ${NODEJS_INSTALL_DIR}/node /usr/sbin/
 
 # -----------------------------------------------------------------------------
 # Update Python to 2.7.x
@@ -70,6 +54,24 @@ RUN yum -y install \
     && rm -rf /var/cache/{yum,ldconfig}/* \
     && rm -rf /etc/ld.so.cache \
     && yum clean all
+    
+# -----------------------------------------------------------------------------
+# Install NodeJS
+# -----------------------------------------------------------------------------
+
+# https://nodejs.org/dist/v8.11.1/node-v8.11.1.tar.gz
+
+ENV nodejsversion 8.11.1
+ENV NODEJS_INSTALL_DIR ${HOME}/nodejs
+RUN cd ${SRC_DIR} \
+    && ls -l \
+    && wget -q -O node-v${nodejsversion}.tar.gz https://nodejs.org/dist/v8.11.1/node-v${nodejsversion}.tar.gz \
+    && tar xzf node-v${nodejsversion}.tar.gz \
+    && cd node-v${nodejsversion} \
+    && ./configure \
+    && make 1>/dev/null \
+    && make install \
+    && cp ${NODEJS_INSTALL_DIR}/node /usr/sbin/
 
 # -----------------------------------------------------------------------------
 # Install supervisor and distribute ...
