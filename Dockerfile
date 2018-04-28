@@ -38,7 +38,8 @@ RUN rpm --import /etc/pki/rpm-gpg/RPM* \
 RUN cd ${SRC_DIR} \
 #RUN wget https://bootstrap.pypa.io/ez_setup.py
 ADD config/easy_install/ez_setup.py  ${SRC_DIR}/ez_setup.py
-RUN python ${SRC_DIR}/ez_setup.py && easy_install pip \
+RUN python ${SRC_DIR}/ez_setup.py 
+#easy_install pip \
 
 # -----------------------------------------------------------------------------
 # Devel libraries for delelopment tools like php & nginx ...
