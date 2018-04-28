@@ -36,8 +36,8 @@ RUN rpm --import /etc/pki/rpm-gpg/RPM* \
 # Update Python to 2.7.x
 # -----------------------------------------------------------------------------
 RUN cd ${SRC_DIR} \
-RUN wget https://bootstrap.pypa.io/ez_setup.py -O - | python \
-    && easy_install pip \
+RUN wget https://bootstrap.pypa.io/ez_setup.py
+RUN python ez_setup.py && easy_install pip \
 
 # -----------------------------------------------------------------------------
 # Devel libraries for delelopment tools like php & nginx ...
