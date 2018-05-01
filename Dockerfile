@@ -39,8 +39,9 @@ RUN rpm --import /etc/pki/rpm-gpg/RPM* \
 # Install Python PIP & Supervisor
 # -----------------------------------------------------------------------------
 RUN cd ${SRC_DIR} \
+RUN curl https://pypi.org/simple/pip/
 RUN yum install -y python-setuptools \
-    #&& yum clean all \
+    && yum clean all \
     && easy_install pip \
     && pip install supervisor distribute
 
