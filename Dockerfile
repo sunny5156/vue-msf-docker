@@ -13,14 +13,14 @@ RUN mkdir -p ${SRC_DIR}
 
 
 # -----------------------------------------------------------------------------
-# Install Development tools
+# Install Development tools {epel-release}
 # -----------------------------------------------------------------------------
 RUN rpm --import /etc/pki/rpm-gpg/RPM* \
     && curl --silent --location https://raw.githubusercontent.com/nodesource/distributions/master/rpm/setup_7.x | bash - \
     && curl --silent --location https://rpm.nodesource.com/setup_8.x | bash - \
     && yum -y update \
     && yum groupinstall -y "Development tools" \
-    && yum install -y epel-release cc gcc gcc-c++ zlib-devel bzip2-devel openssl openssl-devel ncurses-devel sqlite-devel wget sudo net-tools \
+    && yum install -y  cc gcc gcc-c++ zlib-devel bzip2-devel openssl openssl-devel ncurses-devel sqlite-devel wget sudo net-tools \
     && rm -rf /var/cache/{yum,ldconfig}/* \
     && rm -rf /etc/ld.so.cache \
     && yum clean all
@@ -298,7 +298,7 @@ RUN cd ${SRC_DIR} \
 # -----------------------------------------------------------------------------
 # Install yaml and PHP yaml extension
 # -----------------------------------------------------------------------------
-RUN cd $SRC_DIR \
+RUN cd ${SRC_DIR} \
     && wget -q -O yaml-0.1.7.tar.gz http://pyyaml.org/download/libyaml/yaml-0.1.7.tar.gz \
     && tar xzf yaml-0.1.7.tar.gz \
     && cd yaml-0.1.7 \
@@ -309,11 +309,11 @@ RUN cd $SRC_DIR \
     && wget -q -O yaml-2.0.2.tgz https://pecl.php.net/get/yaml-2.0.2.tgz \
     && tar xzf yaml-2.0.2.tgz \
     && cd yaml-2.0.2 \
-    && $PHP_INSTALL_DIR/bin/phpize \
-    && ./configure --with-yaml=/usr/local --with-php-config=$PHP_INSTALL_DIR/bin/php-config \
+    && ${PHP_INSTALL_DIR}/bin/phpize \
+    && ./configure --with-yaml=/usr/local --with-php-config=${PHP_INSTALL_DIR}/bin/php-config \
     && make >/dev/null \
     && make install \
-    && rm -rf $SRC_DIR/yaml-*
+    && rm -rf ${SRC_DIR}/yaml-*
 
 # -----------------------------------------------------------------------------
 # Install PHP mongodb extensions
