@@ -40,7 +40,7 @@ RUN rpm --import /etc/pki/rpm-gpg/RPM* \
 # -----------------------------------------------------------------------------
 RUN cd ${SRC_DIR} \
 RUN yum install -y python-setuptools \
-    && yum clean all \
+    #&& yum clean all \
     && easy_install pip \
     && pip install supervisor distribute
 
