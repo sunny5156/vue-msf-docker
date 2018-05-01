@@ -71,7 +71,7 @@ RUN yum -y install \
 
 RUN echo "root:123456" | chpasswd
 
-#ENTRYPOINT ["/run.sh"]
+##ENTRYPOINT ["/run.sh"]
 
 EXPOSE 22 80 443 8080 8000
-CMD ["/usr/sbin/sshd", "-D"]
+##CMD ["/usr/sbin/sshd", "-D"]
