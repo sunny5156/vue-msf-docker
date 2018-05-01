@@ -20,7 +20,7 @@ RUN rpm --import /etc/pki/rpm-gpg/RPM* \
     && curl --silent --location https://rpm.nodesource.com/setup_8.x | bash - \
     && yum -y update \
     && yum groupinstall -y "Development tools" \
-    && yum install -y cc gcc gcc-c++ zlib-devel bzip2-devel openssl which openssl-devel ncurses-devel sqlite-devel wget sudo net-tools \
+    && yum install -y epel-release cc gcc gcc-c++ zlib-devel bzip2-devel openssl openssl-devel ncurses-devel sqlite-devel wget sudo net-tools \
     && rm -rf /var/cache/{yum,ldconfig}/* \
     && rm -rf /etc/ld.so.cache \
     && yum clean all
@@ -39,10 +39,6 @@ RUN rpm --import /etc/pki/rpm-gpg/RPM* \
 # Update Python to 2.7.x
 # -----------------------------------------------------------------------------
 RUN cd ${SRC_DIR} \
-#RUN wget https://bootstrap.pypa.io/ez_setup.py -O - | python 
-#ADD config/easy_install/ez_setup.py  ${SRC_DIR}/ez_setup.py
-#RUN python ${SRC_DIR}/ez_setup.py 
-#easy_install pip \
 #RUN yum install -y python-setuptools; yum clean all
 #RUN easy_install pip
 #RUN pip install supervisor
@@ -50,7 +46,7 @@ RUN cd ${SRC_DIR} \
 # -----------------------------------------------------------------------------
 # Devel libraries for delelopment tools like php & nginx ...
 # -----------------------------------------------------------------------------
-RUN sudo yum -y install \
+RUN yum -y install \
     tar gzip bzip2 unzip file perl-devel perl-ExtUtils-Embed \
     pcre openssh-server openssh sudo \
     screen vim git telnet expat \
@@ -213,22 +209,23 @@ RUN cd ${SRC_DIR} \
 # -----------------------------------------------------------------------------
 # Install libmcrypt using by php-mcrypt
 # -----------------------------------------------------------------------------
-#RUN cd ${SRC_DIR} \
-#    && wget -q -O libmcrypt-2.5.8.tar.gz https://nchc.dl.sourceforge.net/project/mcrypt/Libmcrypt/2.5.8/libmcrypt-2.5.8.tar.gz \
-#    && tar xzf libmcrypt-2.5.8.tar.gz \
-#    && cd libmcrypt-2.5.8 \
-#    && ./configure 1>/dev/null \
-#    && make 1>/dev/null \
-#    && make install \
-#    && echo "/usr/local/lib64" >> /etc/ld.so.conf.d/local.conf \
-#    && echo "/usr/local/src/libmcrypt-2.5.8/lib/.libs" >> /etc/ld.so.conf.d/local.conf \
-#    && chmod gu+x /etc/ld.so.conf.d/local.conf 
-#    && ldconfig -v
+RUN cd ${SRC_DIR} \
+    && wget -q -O libmcrypt-2.5.7.tar.gz ftp://mcrypt.hellug.gr/pub/crypto/mcrypt/attic/libmcrypt/libmcrypt-2.5.7.tar.gz \
+    && tar xzf libmcrypt-2.5.7.tar.gz \
+    && cd libmcrypt-2.5.7 \
+    && ./configure 1>/dev/null \
+    && make 1>/dev/null \
+    && make install \
+    && echo "/usr/local/lib" >> /etc/ld.so.conf.d/local.conf \
+    && echo "/usr/local/lib64" >> /etc/ld.so.conf.d/local.conf \
+    && echo "/usr/local/src/libmcrypt-2.5.8/lib/.libs" >> /etc/ld.so.conf.d/local.conf \
+    && chmod gu+x /etc/ld.so.conf.d/local.conf \
+    && ldconfig -v
 
 # -----------------------------------------------------------------------------
 # Install re2c for PHP
 # -----------------------------------------------------------------------------
-run cd $SRC_DIR \
+RUN cd $SRC_DIR \
     && wget -q -O re2c-1.0.tar.gz https://excellmedia.dl.sourceforge.net/project/re2c/old/re2c-1.0.tar.gz \
     && tar xzf re2c-1.0.tar.gz \
     && cd re2c-1.0 \
