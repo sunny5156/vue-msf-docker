@@ -104,7 +104,7 @@ RUN yum -y install \
 #        -e 's/#UsePrivilegeSeparation.*/UsePrivilegeSeparation no/g' \
 #        -e 's/^#UseDNS yes/UseDNS no/g' \
 #        /etc/ssh/sshd_config \
-#    && echo "root" | passwd --stdin root \
+#    && echo "123456" | passwd --stdin root \
 #    && ssh-keygen -q -b 1024 -N '' -t rsa -f /etc/ssh/ssh_host_rsa_key \
 #    && ssh-keygen -q -b 1024 -N '' -t dsa -f /etc/ssh/ssh_host_dsa_key \
 #    && echo "NETWORKING=yes" > /etc/sysconfig/network
@@ -148,7 +148,7 @@ RUN cd ${SRC_DIR} \
     && export LUAJIT_LIB=${HOME}/luajit/lib \
     && export LUAJIT_INC=${HOME}/luajit/include/luajit-2.0 \
     && cd ${SRC_DIR}/nginx-${nginx_version} \
-    && ./configure --prefix=$NGINX_INSTALL_DIR --with-http_stub_status_module --with-http_ssl_module \
+    && ./configure --prefix=${NGINX_INSTALL_DIR} --with-http_stub_status_module --with-http_ssl_module \
        --add-module=../nginx-http-concat/nginx-http-concat-master --add-module=../nginx-logid/nginx-logid-master \
        --with-ld-opt="-Wl,-rpath,${HOME}/luajit/lib" --add-module=../ngx_devel_kit-0.3.0 --add-module=../lua-nginx-module-0.10.11 1>/dev/null \
     && make 1>/dev/null \
@@ -507,7 +507,7 @@ RUN cd ${SRC_DIR} \
     && tar zxf git-2.14.1.tar.gz \
     && cd git-2.14.1 \
     && make configure \
-    && ./configure --without-iconv --prefix=/usr/local/ --with-curl=${CURL_INSTALL_DIR} \
+    && ./configure --without-iconv --prefix=/usr/local/ --with-curl=/usr/bin/curl \
     && make \
     && make install \
     && rm -rf $SRC_DIR/git-2*
@@ -522,13 +522,13 @@ RUN npm install apidoc nodemon -g
 # Copy Config
 # -----------------------------------------------------------------------------
 ADD run.sh /
-ADD config /home/super/
+ADD config /vue-msf/
 
 # -----------------------------------------------------------------------------
 # Add user admin
 # -----------------------------------------------------------------------------
 RUN useradd -M -u 1000 super \
-    && echo "super" | passwd --stdin super \
+    && echo "123456" | passwd --stdin super \
     && echo 'super  ALL=(ALL)  NOPASSWD: ALL' > /etc/sudoers.d/super \
     && sed -i \
         -e 's/^#PermitRootLogin yes/PermitRootLogin no/g' \
@@ -545,9 +545,6 @@ RUN useradd -M -u 1000 super \
 # -----------------------------------------------------------------------------
 RUN rm -rf ${SRC_DIR}/*
 RUN rm -rf /tmp/*
-
-RUN echo "root:123456" | chpasswd
-
 
 ENTRYPOINT ["/run.sh"]
 
