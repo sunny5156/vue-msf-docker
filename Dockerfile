@@ -1,4 +1,4 @@
-FROM centos:7.2
+FROM centos:7.2.1511
 
 MAINTAINER sunny5156 <sunny5156@qq.com>
 
