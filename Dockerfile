@@ -16,13 +16,13 @@ RUN mkdir -p ${SRC_DIR}
 # Install Development tools
 # -----------------------------------------------------------------------------
 RUN rpm --import /etc/pki/rpm-gpg/RPM* \
-    && curl --silent --location https://raw.githubusercontent.com/nodesource/distributions/master/rpm/setup_7.x | bash - ;\
-    && yum -y update ;\
-    && yum groupinstall -y "Development tools" ;\
-    && yum install -y cc gcc gcc-c++ zlib-devel bzip2-devel openssl which openssl-devel ncurses-devel sqlite-devel wget ;\
-    && rm -rf /var/cache/{yum,ldconfig}/* ;\
-    && rm -rf /etc/ld.so.cache ;\
-    && yum clean all;
+    && curl --silent --location https://raw.githubusercontent.com/nodesource/distributions/master/rpm/setup_7.x | bash - \
+    && yum -y update \
+    && yum groupinstall -y "Development tools" \
+    && yum install -y cc gcc gcc-c++ zlib-devel bzip2-devel openssl which openssl-devel ncurses-devel sqlite-devel wget sudo net-tools \
+    && rm -rf /var/cache/{yum,ldconfig}/* \
+    && rm -rf /etc/ld.so.cache \
+    && yum clean all
 
 # -----------------------------------------------------------------------------
 # Change yum repos
@@ -46,7 +46,7 @@ RUN cd ${SRC_DIR} \
 # -----------------------------------------------------------------------------
 # Devel libraries for delelopment tools like php & nginx ...
 # -----------------------------------------------------------------------------
-RUN yum -y install \
+RUN sudo yum -y install \
     tar gzip bzip2 unzip file perl-devel perl-ExtUtils-Embed \
     pcre openssh-server openssh sudo \
     screen vim git telnet expat \
@@ -62,9 +62,9 @@ RUN yum -y install \
     libxslt-devel expat-devel unixODBC-devel \
     openssl-devel libmcrypt-devel freetds-devel \
     pcre-devel openldap openldap-devel libc-client-devel \
-    jemalloc jemalloc-devel inotify-tools nodejs apr-util yum-utils tree sudo net-tools \
+    jemalloc jemalloc-devel inotify-tools nodejs apr-util yum-utils tree\
     && ln -s /usr/lib64/libc-client.so /usr/lib/libc-client.so \
-    && rm -rf /var/cache/{yum,ldconfig}/* \
+    #&& rm -rf /var/cache/{yum,ldconfig}/* \
     && rm -rf /etc/ld.so.cache \
     && yum clean all
     
