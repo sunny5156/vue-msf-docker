@@ -20,10 +20,16 @@ RUN rpm --import /etc/pki/rpm-gpg/RPM* \
     && curl --silent --location https://rpm.nodesource.com/setup_8.x | bash - \
     && yum -y update \
     && yum groupinstall -y "Development tools" \
-    && yum install -y  cc gcc gcc-c++ zlib-devel bzip2-devel openssl openssl-devel ncurses-devel sqlite-devel wget sudo net-tools \
+    && yum install -y cc gcc gcc-c++ zlib-devel bzip2-devel openssl openssl-devel ncurses-devel sqlite-devel wget net-tools \
     && rm -rf /var/cache/{yum,ldconfig}/* \
     && rm -rf /etc/ld.so.cache \
     && yum clean all
+    
+# -----------------------------------------------------------------------------
+# Install Sudo
+# -----------------------------------------------------------------------------
+RUN yum -y install sudo \
+    && echo 'includedir /etc/sudoers.d' >> /etc/sudoersrs
 
 # -----------------------------------------------------------------------------
 # Change yum repos
@@ -550,4 +556,3 @@ ENTRYPOINT ["/run.sh"]
 
 EXPOSE 22 80 443 8080 8000
 CMD ["/usr/sbin/sshd", "-D"]
-
