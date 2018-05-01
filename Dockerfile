@@ -36,12 +36,13 @@ RUN rpm --import /etc/pki/rpm-gpg/RPM* \
 
 
 # -----------------------------------------------------------------------------
-# Update Python to 2.7.x
+# Install Python PIP & Supervisor
 # -----------------------------------------------------------------------------
 RUN cd ${SRC_DIR} \
-#RUN yum install -y python-setuptools; yum clean all
-#RUN easy_install pip
-#RUN pip install supervisor
+RUN yum install -y python-setuptools \
+    && yum clean all \
+    && easy_install pip \
+    && pip install supervisor distribute
 
 # -----------------------------------------------------------------------------
 # Devel libraries for delelopment tools like php & nginx ...
