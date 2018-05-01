@@ -323,7 +323,7 @@ RUN cd ${SRC_DIR} \
     && tar zxf mongodb-1.3.2.tgz \
     && cd mongodb-1.3.2 \
     && ${PHP_INSTALL_DIR}/bin/phpize \
-    && ./configure --with-php-config=$PHP_INSTALL_DIR/bin/php-config 1>/dev/null \
+    && ./configure --with-php-config=${PHP_INSTALL_DIR}/bin/php-config 1>/dev/null \
     && make clean \
     && make \
     && make install \
