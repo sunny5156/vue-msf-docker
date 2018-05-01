@@ -340,7 +340,7 @@ RUN cd ${SRC_DIR} \
     && tar zxf redis-3.1.3.tgz \
     && cd redis-3.1.3 \
     && ${PHP_INSTALL_DIR}/bin/phpize \
-    && ./configure --with-php-config=$PHP_INSTALL_DIR/bin/php-config 1>/dev/null \
+    && ./configure --with-php-config=${PHP_INSTALL_DIR}/bin/php-config 1>/dev/null \
     && make clean \
     && make 1>/dev/null \
     && make install \
@@ -354,7 +354,7 @@ RUN cd ${SRC_DIR} \
     && tar zxf imagick-3.4.3.tgz \
     && cd imagick-3.4.3 \
     && ${PHP_INSTALL_DIR}/bin/phpize \
-    && ./configure --with-php-config=$PHP_INSTALL_DIR/bin/php-config \
+    && ./configure --with-php-config=${PHP_INSTALL_DIR}/bin/php-config \
     --with-imagick 1>/dev/null \
     && make clean \
     && make 1>/dev/null \
@@ -369,7 +369,7 @@ RUN cd ${SRC_DIR} \
     && tar zxf xdebug-2.5.5.tgz \
     && cd xdebug-2.5.5 \
     && ${PHP_INSTALL_DIR}/bin/phpize \
-    && ./configure --with-php-config=$PHP_INSTALL_DIR/bin/php-config 1>/dev/null \
+    && ./configure --with-php-config=${PHP_INSTALL_DIR}/bin/php-config 1>/dev/null \
     && make clean \
     && make 1>/dev/null \
     && make install \
@@ -383,7 +383,7 @@ RUN cd ${SRC_DIR} \
     && tar zxf igbinary-2.0.1.tgz \
     && cd igbinary-2.0.1 \
     && ${PHP_INSTALL_DIR}/bin/phpize \
-    && ./configure --with-php-config=$PHP_INSTALL_DIR/bin/php-config 1>/dev/null \
+    && ./configure --with-php-config=${PHP_INSTALL_DIR}/bin/php-config 1>/dev/null \
     && make clean \
     && make 1>/dev/null \
     && make install \
@@ -397,8 +397,8 @@ RUN cd ${SRC_DIR} \
     && tar xzf memcached-3.0.3.tgz \
     && cd memcached-3.0.3 \
     && ${PHP_INSTALL_DIR}/bin/phpize \
-    && ./configure --enable-memcached --with-php-config=$PHP_INSTALL_DIR/bin/php-config \
-       --with-libmemcached-dir=$LIB_MEMCACHED_INSTALL_DIR --disable-memcached-sasl 1>/dev/null \
+    && ./configure --enable-memcached --with-php-config=${PHP_INSTALL_DIR}/bin/php-config \
+       --with-libmemcached-dir=${LIB_MEMCACHED_INSTALL_DIR} --disable-memcached-sasl 1>/dev/null \
     && make 1>/dev/null \
     && make install \
     && rm -rf ${SRC_DIR}/memcached-*
@@ -411,7 +411,7 @@ RUN cd ${SRC_DIR} \
     && tar zxf yac-2.0.2.tgz\
     && cd yac-2.0.2 \
     && ${PHP_INSTALL_DIR}/bin/phpize \
-    && ./configure --with-php-config=$PHP_INSTALL_DIR/bin/php-config \
+    && ./configure --with-php-config=${PHP_INSTALL_DIR}/bin/php-config \
     && make 1>/dev/null \
     && make install \
     && rm -rf $SRC_DIR/yac-*
@@ -425,7 +425,7 @@ RUN cd ${SRC_DIR} \
     && tar zxf swoole-${swooleVersion}.tar.gz \
     && cd swoole-src-${swooleVersion}/ \
     && ${PHP_INSTALL_DIR}/bin/phpize \
-    && ./configure --with-php-config=$PHP_INSTALL_DIR/bin/php-config --enable-async-redis --enable-openssl \
+    && ./configure --with-php-config=${PHP_INSTALL_DIR}/bin/php-config --enable-async-redis --enable-openssl \
     && make clean 1>/dev/null \
     && make 1>/dev/null \
     && make install \
@@ -439,7 +439,7 @@ RUN cd ${SRC_DIR} \
     && tar zxf inotify-2.0.0.tgz \
     && cd inotify-2.0.0 \
     && ${PHP_INSTALL_DIR}/bin/phpize \
-    && ./configure --with-php-config=$PHP_INSTALL_DIR/bin/php-config 1>/dev/null \
+    && ./configure --with-php-config=${PHP_INSTALL_DIR}/bin/php-config 1>/dev/null \
     && make clean \
     && make 1>/dev/null \
     && make install \
@@ -457,14 +457,14 @@ RUN cd ${SRC_DIR} \
 # Install php composer
 # -----------------------------------------------------------------------------
 RUN cd ${SRC_DIR} \
-    && curl -sS https://getcomposer.org/installer | $PHP_INSTALL_DIR/bin/php \
+    && curl -sS https://getcomposer.org/installer | ${PHP_INSTALL_DIR}/bin/php \
     && chmod +x composer.phar \
     && mv composer.phar ${PHP_INSTALL_DIR}/bin/composer
 
 # -----------------------------------------------------------------------------
 # Install PhpDocumentor
 # -----------------------------------------------------------------------------
-RUN $PHP_INSTALL_DIR/bin/pear install -a PhpDocumentor
+RUN ${PHP_INSTALL_DIR}/bin/pear install -a PhpDocumentor
 
 RUN cd ${PHP_INSTALL_DIR} \
     && bin/php bin/composer self-update \
@@ -543,13 +543,11 @@ RUN useradd -M -u 1000 super \
 # -----------------------------------------------------------------------------
 RUN rm -rf ${SRC_DIR}/*
 RUN rm -rf /tmp/*
-    
-#RUN sed -i 's/UsePAM yes/UsePAM no/g' /etc/ssh/sshd_config
 
 RUN echo "root:123456" | chpasswd
 
 
-##ENTRYPOINT ["/run.sh"]
+ENTRYPOINT ["/run.sh"]
 
 EXPOSE 22 80 443 8080 8000
 CMD ["/usr/sbin/sshd", "-D"]
