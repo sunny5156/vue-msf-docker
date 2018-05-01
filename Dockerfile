@@ -17,7 +17,6 @@ RUN mkdir -p ${SRC_DIR}
 # -----------------------------------------------------------------------------
 RUN rpm --import /etc/pki/rpm-gpg/RPM* \
     && curl --silent --location https://raw.githubusercontent.com/nodesource/distributions/master/rpm/setup_7.x | bash - \
-    && curl --silent --location https://deb.nodesource.com/setup_8.x | bash - \
     && yum -y update \
     && yum groupinstall -y "Development tools" \
     && yum install -y cc gcc gcc-c++ zlib-devel bzip2-devel openssl which openssl-devel ncurses-devel sqlite-devel wget sudo net-tools \
@@ -63,7 +62,7 @@ RUN sudo yum -y install \
     libxslt-devel expat-devel unixODBC-devel \
     openssl-devel libmcrypt-devel freetds-devel \
     pcre-devel openldap openldap-devel libc-client-devel \
-    jemalloc jemalloc-devel inotify-tools nodejs apr-util yum-utils tree\
+    jemalloc jemalloc-devel inotify-tools  apr-util yum-utils tree\
     && ln -s /usr/lib64/libc-client.so /usr/lib/libc-client.so \
     #&& rm -rf /var/cache/{yum,ldconfig}/* \
     && rm -rf /etc/ld.so.cache \
