@@ -43,8 +43,8 @@ RUN cd ${SRC_DIR} \
 #ADD config/easy_install/ez_setup.py  ${SRC_DIR}/ez_setup.py
 #RUN python ${SRC_DIR}/ez_setup.py 
 #easy_install pip \
-RUN yum install -y python-setuptools; yum clean all
-RUN easy_install pip
+#RUN yum install -y python-setuptools; yum clean all
+#RUN easy_install pip
 #RUN pip install supervisor
 
 # -----------------------------------------------------------------------------
