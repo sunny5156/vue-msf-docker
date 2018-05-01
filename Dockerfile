@@ -286,7 +286,7 @@ RUN cd ${SRC_DIR} \
        --with-zlib \
        --with-bz2 \
        --with-openssl \
-       --with-curl=${CURL_INSTALL_DIR} \
+       --with-curl=/usr/bin/curl \
        --with-mcrypt \
        --with-mhash \
     && make 1>/dev/null \
