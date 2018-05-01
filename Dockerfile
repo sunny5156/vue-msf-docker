@@ -242,7 +242,7 @@ RUN cd ${SRC_DIR} \
     && wget -q -O php-${phpversion}.tar.gz http://cn2.php.net/distributions/php-${phpversion}.tar.gz \
     && tar xzf php-${phpversion}.tar.gz \
     && cd php-${phpversion} \
-    && sh -c ./configure \
+    && sh -c "./configure \
        --prefix=${PHP_INSTALL_DIR} \
        --with-config-file-path=${PHP_INSTALL_DIR}/etc \
        --with-config-file-scan-dir=${PHP_INSTALL_DIR}/etc/php.d \
@@ -286,7 +286,7 @@ RUN cd ${SRC_DIR} \
        --with-openssl \
        --with-curl=${CURL_INSTALL_DIR} \
        --with-mcrypt \
-       --with-mhash \
+       --with-mhash "\
     && make 1>/dev/null \
     && make install \
     && rm -rf ${PHP_INSTALL_DIR}/lib/php.ini \
