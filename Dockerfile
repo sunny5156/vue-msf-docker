@@ -500,9 +500,9 @@ RUN cd ${HOME} \
     && cd httpd \
     && yumdownloader httpd-tools \
     && rpm2cpio httpd-tools* | cpio -idmv \
-    && mkdir -p /home/worker/bin \
-    && mv ./usr/bin/ab /home/worker/bin \
-    && cd ${HOME} && rm -rf /home/worker/httpd
+    && mkdir -p ${HOME}/bin \
+    && mv ./usr/bin/ab ${HOME}/bin \
+    && cd ${HOME} && rm -rf ${HOME}/httpd
 
 # -----------------------------------------------------------------------------
 # Update Git
