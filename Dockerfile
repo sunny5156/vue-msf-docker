@@ -10,6 +10,8 @@ ENV SRC_DIR $HOME/src
 RUN mkdir -p ${SRC_DIR}
 #ADD src ${SRC_DIR}
 
+
+
 # -----------------------------------------------------------------------------
 # Install Development tools
 # -----------------------------------------------------------------------------
@@ -17,7 +19,7 @@ RUN rpm --import /etc/pki/rpm-gpg/RPM* \
     && curl --silent --location https://raw.githubusercontent.com/nodesource/distributions/master/rpm/setup_7.x | bash - \
     && yum -y update \
     && yum groupinstall -y "Development tools" \
-    && yum install -y gcc gcc-c++ zlib-devel bzip2-devel openssl which \
+    && yum install -y cc gcc gcc-c++ zlib-devel bzip2-devel openssl which \
     openssl-devel ncurses-devel sqlite-devel wget \
     && rm -rf /var/cache/{yum,ldconfig}/* \
     && rm -rf /etc/ld.so.cache \
@@ -61,13 +63,13 @@ RUN yum -y install \
     libxslt-devel expat-devel unixODBC-devel \
     openssl-devel libmcrypt-devel freetds-devel \
     pcre-devel openldap openldap-devel libc-client-devel \
-    jemalloc jemalloc-devel inotify-tools nodejs apr-util yum-utils tree \
+    jemalloc jemalloc-devel inotify-tools nodejs apr-util yum-utils tree sudo net-tools \
     && ln -s /usr/lib64/libc-client.so /usr/lib/libc-client.so \
     && rm -rf /var/cache/{yum,ldconfig}/* \
     && rm -rf /etc/ld.so.cache \
     && yum clean all
     
-
+#RUN sed -i 's/UsePAM yes/UsePAM no/g' /etc/ssh/sshd_config
 
 RUN echo "root:123456" | chpasswd
 
@@ -76,5 +78,5 @@ RUN echo "root:123456" | chpasswd
 
 EXPOSE 22 80 443 8080 8000
 
-##CMD ["/usr/sbin/sshd", "-D"]
+#CMD ["/usr/sbin/sshd", "-D"]
 
