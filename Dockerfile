@@ -71,7 +71,7 @@ RUN yum -y install \
     && ln -s /usr/lib64/libc-client.so /usr/lib/libc-client.so \
     && rm -rf /var/cache/{yum,ldconfig}/* \
     && rm -rf /etc/ld.so.cache \
-    && echo 'includedir /etc/sudoers.d' >> /etc/sudoersrs \
+    && echo 'includedir /etc/sudoers.d' >> /etc/sudoers \
     && yum clean all
     
 # -----------------------------------------------------------------------------
@@ -118,15 +118,14 @@ RUN yum -y install \
 # Configure, timezone/sshd/passwd/networking
 # -----------------------------------------------------------------------------
 RUN ln -sf /usr/share/zoneinfo/Asia/Chongqing /etc/localtime \
-#    && sed -i \
-#        -e 's/^UsePAM yes/#UsePAM yes/g' \
-#        -e 's/^#UsePAM no/UsePAM no/g' \
-#        -e 's/#UsePrivilegeSeparation.*/UsePrivilegeSeparation no/g' \
-#        -e 's/^#UseDNS yes/UseDNS no/g' \
-#        /etc/ssh/sshd_config \
-    && sed -i 's/UsePAM.*/UsePAM no/g' \
+    && sed -i \
+         -e 's/UsePAM.*/UsePAM no/g' \
+         -e 's/^UsePAM yes/#UsePAM yes/g' \
+         -e 's/^#UsePAM no/UsePAM no/g' \
+         -e 's/#UsePrivilegeSeparation.*/UsePrivilegeSeparation no/g' \
+         -e 's/^#UseDNS yes/UseDNS no/g' \
          -e 's/PermitRootLogin no/PermitRootLogin yes/' \
-    /etc/ssh/sshd_config \
+         /etc/ssh/sshd_config \
     && echo "123456" | passwd --stdin root \
     && ssh-keygen -q -t rsa -b 2048 -f /etc/ssh/ssh_host_rsa_key -N ''  \ 
     && ssh-keygen -q -t ecdsa -f /etc/ssh/ssh_host_ecdsa_key -N ''  \
@@ -557,8 +556,7 @@ ADD config/supervisor/supervisord.conf /etc/
 # -----------------------------------------------------------------------------
 RUN useradd -M -u 1000 super \
     && echo "super:123456" | chpasswd \
-#    && echo "123456" | passwd --stdin super \
-    && echo 'super  ALL=(ALL)  NOPASSWD: ALL' > /etc/sudoers.d/super \
+    && echo 'super   ALL=(ALL)       ALL' > /etc/sudoers.d/super \
     && sed -i \
         -e 's/UsePAM.*/UsePAM no/g' \
         -e 's/^#PermitRootLogin yes/PermitRootLogin no/g' \
