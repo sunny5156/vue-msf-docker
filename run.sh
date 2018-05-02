@@ -29,7 +29,8 @@ chmod 700 /vue-msf/.ssh
 chmod 600 /vue-msf/.ssh/authorized_keys
 
 echo '/etc/init.d/sshd start'
-/etc/init.d/sshd start
+#/etc/init.d/sshd start
+/usr/sbin/sshd
 
 if [ -f /vue-msf/bin/init.sh ]; then
     echo '/vue-msf/bin/init.sh'
