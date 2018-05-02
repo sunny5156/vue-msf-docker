@@ -1,4 +1,4 @@
-FROM centos:centos7
+FROM centos:7.2.1511
 
 MAINTAINER sunny5156 <sunny5156@qq.com>
 
@@ -25,11 +25,7 @@ RUN rpm --import /etc/pki/rpm-gpg/RPM* \
     && rm -rf /etc/ld.so.cache \
     && yum clean all
     
-# -----------------------------------------------------------------------------
-# Install Sudo
-# -----------------------------------------------------------------------------
-RUN yum -y install sudo \
-    && echo 'includedir /etc/sudoers.d' >> /etc/sudoersrs
+
 
 # -----------------------------------------------------------------------------
 # Change yum repos
@@ -74,7 +70,14 @@ RUN yum -y install \
     && ln -s /usr/lib64/libc-client.so /usr/lib/libc-client.so \
     && rm -rf /var/cache/{yum,ldconfig}/* \
     && rm -rf /etc/ld.so.cache \
+    && echo 'includedir /etc/sudoers.d' >> /etc/sudoersrs \
     && yum clean all
+    
+# -----------------------------------------------------------------------------
+# Install Sudo
+# -----------------------------------------------------------------------------
+#RUN yum -y install sudo \
+#    && echo 'includedir /etc/sudoers.d' >> /etc/sudoersrs
     
 # -----------------------------------------------------------------------------
 # Install NodeJS
