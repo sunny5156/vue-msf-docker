@@ -103,17 +103,17 @@ RUN yum -y install \
 # -----------------------------------------------------------------------------
 # Configure, timezone/sshd/passwd/networking
 # -----------------------------------------------------------------------------
-#RUN ln -sf /usr/share/zoneinfo/Asia/Chongqing /etc/localtime \
-#    && sed -i \
-#        -e 's/^UsePAM yes/#UsePAM yes/g' \
-#        -e 's/^#UsePAM no/UsePAM no/g' \
-#        -e 's/#UsePrivilegeSeparation.*/UsePrivilegeSeparation no/g' \
-#        -e 's/^#UseDNS yes/UseDNS no/g' \
-#        /etc/ssh/sshd_config \
-#    && echo "123456" | passwd --stdin root \
-#    && ssh-keygen -q -b 1024 -N '' -t rsa -f /etc/ssh/ssh_host_rsa_key \
-#    && ssh-keygen -q -b 1024 -N '' -t dsa -f /etc/ssh/ssh_host_dsa_key \
-#    && echo "NETWORKING=yes" > /etc/sysconfig/network
+RUN ln -sf /usr/share/zoneinfo/Asia/Chongqing /etc/localtime \
+    && sed -i \
+        -e 's/^UsePAM yes/#UsePAM yes/g' \
+        -e 's/^#UsePAM no/UsePAM no/g' \
+        -e 's/#UsePrivilegeSeparation.*/UsePrivilegeSeparation no/g' \
+        -e 's/^#UseDNS yes/UseDNS no/g' \
+        /etc/ssh/sshd_config \
+    && echo "123456" | passwd --stdin root \
+    && ssh-keygen -q -b 1024 -N '' -t rsa -f /etc/ssh/ssh_host_rsa_key \
+    && ssh-keygen -q -b 1024 -N '' -t dsa -f /etc/ssh/ssh_host_dsa_key \
+    && echo "NETWORKING=yes" > /etc/sysconfig/network
 
 # -----------------------------------------------------------------------------
 # Install curl
