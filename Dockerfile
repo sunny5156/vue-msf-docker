@@ -103,6 +103,15 @@ RUN yum -y install \
 #RUN pip install supervisor distribute \
 #    && rm -rf /tmp/*
 
+
+# -----------------------------------------------------------------------------
+# ssh
+# -----------------------------------------------------------------------------
+
+RUN ssh-keygen -t dsa -f /etc/ssh/ssh_host_dsa_key
+RUN ssh-keygen -t rsa -f /etc/ssh/ssh_host_rsa_key
+RUN mkdir /var/run/sshd
+
 # -----------------------------------------------------------------------------
 # Configure, timezone/sshd/passwd/networking
 # -----------------------------------------------------------------------------
