@@ -8,6 +8,7 @@ MAINTAINER sunny5156 <sunny5156@qq.com>
 ENV HOME /vue-msf
 ENV SRC_DIR $HOME/src
 RUN mkdir -p ${SRC_DIR}
+RUN mkdir -p /home/super
 #ADD src ${SRC_DIR}
 
 
@@ -123,7 +124,8 @@ RUN ln -sf /usr/share/zoneinfo/Asia/Chongqing /etc/localtime \
 #        -e 's/#UsePrivilegeSeparation.*/UsePrivilegeSeparation no/g' \
 #        -e 's/^#UseDNS yes/UseDNS no/g' \
 #        /etc/ssh/sshd_config \
-    && sed -i 's/UsePAM yes/UsePAM no/g' \
+    && sed -i 's/UsePAM.*/UsePAM no/g' \
+         -e 's/PermitRootLogin no/PermitRootLogin yes/' \
     /etc/ssh/sshd_config \
     && echo "123456" | passwd --stdin root \
     && ssh-keygen -q -t rsa -b 2048 -f /etc/ssh/ssh_host_rsa_key -N ''  \ 
@@ -558,6 +560,7 @@ RUN useradd -M -u 1000 super \
 #    && echo "123456" | passwd --stdin super \
     && echo 'super  ALL=(ALL)  NOPASSWD: ALL' > /etc/sudoers.d/super \
     && sed -i \
+        -e 's/UsePAM.*/UsePAM no/g' \
         -e 's/^#PermitRootLogin yes/PermitRootLogin no/g' \
         -e 's/^PermitRootLogin yes/PermitRootLogin no/g' \
         -e 's/^#PermitUserEnvironment no/PermitUserEnvironment yes/g' \
@@ -574,7 +577,6 @@ RUN rm -rf ${SRC_DIR}/*
 RUN rm -rf /tmp/*
 
 ENTRYPOINT ["/run.sh"]
-ENTRYPOINT ["/usr/sbin/init"]
 
 EXPOSE 22 80 443 8080 8000
 CMD ["/usr/sbin/sshd", "-D"]
