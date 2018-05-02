@@ -1,4 +1,4 @@
-FROM centos:7.2.1511
+FROM centos:centos7
 
 MAINTAINER sunny5156 <sunny5156@qq.com>
 
@@ -569,6 +569,7 @@ RUN rm -rf ${SRC_DIR}/*
 RUN rm -rf /tmp/*
 
 ENTRYPOINT ["/run.sh"]
+ENTRYPOINT ["/usr/sbin/init"]
 
 EXPOSE 22 80 443 8080 8000
 CMD ["/usr/sbin/sshd", "-D"]
