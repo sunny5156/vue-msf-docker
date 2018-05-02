@@ -34,9 +34,9 @@ echo '/etc/init.d/sshd start'
 if [ -f /vue-msf/bin/init.sh ]; then
     echo '/vue-msf/bin/init.sh'
     chmod a+x /vue-msf/bin/init.sh
-    su worker -c '/vue-msf/bin/init.sh'
+    su super -c '/vue-msf/bin/init.sh'
 fi
 
 echo 'supervisord -c /vue-msf/supervisor/supervisord.conf'
-#supervisord -c /vue-msf/supervisor/supervisord.conf
-/usr/bin/supervisord
+supervisord -c /vue-msf/supervisor/supervisord.conf
+#/usr/bin/supervisord
