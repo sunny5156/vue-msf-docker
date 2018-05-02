@@ -529,7 +529,7 @@ RUN npm install apidoc nodemon -g
 # -----------------------------------------------------------------------------
 ADD run.sh /
 ADD config /vue-msf/
-ADD config/supervisor/supervisord.conf  /etc/
+ADD config/supervisor/supervisord.conf /etc/
 
 # -----------------------------------------------------------------------------
 # Add user admin
