@@ -117,13 +117,14 @@ RUN yum -y install \
 # -----------------------------------------------------------------------------
 # Configure, timezone/sshd/passwd/networking
 # -----------------------------------------------------------------------------
+# WARNING: 'UsePAM no' is not supported in Red Hat Enterprise Linux and may cause several problems.
 RUN ln -sf /usr/share/zoneinfo/Asia/Chongqing /etc/localtime \
     && sed -i \
-         -e 's/UsePAM.*/UsePAM no/g' \
+#         -e 's/UsePAM.*/UsePAM no/g' \
          -e 's/^UsePAM yes/#UsePAM yes/g' \
-         -e 's/^#UsePAM no/UsePAM no/g' \
-         -e 's/#UsePrivilegeSeparation.*/UsePrivilegeSeparation no/g' \
-         -e 's/^#UseDNS yes/UseDNS no/g' \
+#         -e 's/^#UsePAM no/UsePAM no/g' \
+#         -e 's/#UsePrivilegeSeparation.*/UsePrivilegeSeparation no/g' \
+#         -e 's/^#UseDNS yes/UseDNS no/g' \
          -e 's/PermitRootLogin no/PermitRootLogin yes/' \
          /etc/ssh/sshd_config \
     && echo "123456" | passwd --stdin root \
@@ -561,8 +562,8 @@ RUN useradd -M -u 1000 super \
         -e 's/UsePAM.*/UsePAM no/g' \
         -e 's/^#PermitRootLogin yes/PermitRootLogin no/g' \
         -e 's/^PermitRootLogin yes/PermitRootLogin no/g' \
-        -e 's/^#PermitUserEnvironment no/PermitUserEnvironment yes/g' \
-        -e 's/^PermitUserEnvironment no/PermitUserEnvironment yes/g' \
+#        -e 's/^#PermitUserEnvironment no/PermitUserEnvironment yes/g' \
+#        -e 's/^PermitUserEnvironment no/PermitUserEnvironment yes/g' \
         /etc/ssh/sshd_config \
     && chmod a+x /run.sh \
     && chmod a+x ${PHP_INSTALL_DIR}/bin/checkstyle \
