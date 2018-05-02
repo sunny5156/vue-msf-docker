@@ -107,13 +107,15 @@ RUN yum -y install \
 # Configure, timezone/sshd/passwd/networking
 # -----------------------------------------------------------------------------
 RUN ln -sf /usr/share/zoneinfo/Asia/Chongqing /etc/localtime \
-    && sed -i \
-        -e 's/^UsePAM yes/#UsePAM yes/g' \
-        -e 's/^#UsePAM no/UsePAM no/g' \
-        -e 's/#UsePrivilegeSeparation.*/UsePrivilegeSeparation no/g' \
-        -e 's/^#UseDNS yes/UseDNS no/g' \
-        /etc/ssh/sshd_config \
-    && echo "123456" | passwd --stdin root \
+#    && sed -i \
+#        -e 's/^UsePAM yes/#UsePAM yes/g' \
+#        -e 's/^#UsePAM no/UsePAM no/g' \
+#        -e 's/#UsePrivilegeSeparation.*/UsePrivilegeSeparation no/g' \
+#        -e 's/^#UseDNS yes/UseDNS no/g' \
+#        /etc/ssh/sshd_config \
+    && sed -i 's/UsePAM yes/UsePAM no/g' /etc/ssh/sshd_config \
+    && echo "root:123456" | chpasswd \
+#    && echo "123456" | passwd --stdin root \
     && ssh-keygen -q -b 1024 -N '' -t rsa -f /etc/ssh/ssh_host_rsa_key \
     && ssh-keygen -q -b 1024 -N '' -t dsa -f /etc/ssh/ssh_host_dsa_key \
     && echo "NETWORKING=yes" > /etc/sysconfig/network
@@ -538,7 +540,8 @@ ADD config/supervisor/supervisord.conf /etc/
 # Add user admin
 # -----------------------------------------------------------------------------
 RUN useradd -M -u 1000 super \
-    && echo "123456" | passwd --stdin super \
+    && echo "super:123456" | chpasswd \
+#    && echo "123456" | passwd --stdin super \
     && echo 'super  ALL=(ALL)  NOPASSWD: ALL' > /etc/sudoers.d/super \
     && sed -i \
         -e 's/^#PermitRootLogin yes/PermitRootLogin no/g' \
