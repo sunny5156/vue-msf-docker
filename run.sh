@@ -33,8 +33,6 @@ echo '/etc/init.d/sshd start'
 /usr/sbin/sshd
 
 /usr/sbin/init
-echo -e 'PATH=$PATH:/vue-msf/php/bin \nexport PATH' >> /etc/profile
-source /etc/profile
 
 if [ -f /vue-msf/bin/init.sh ]; then
     echo '/vue-msf/bin/init.sh'

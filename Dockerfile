@@ -528,9 +528,16 @@ RUN useradd super \
 # -----------------------------------------------------------------------------
 # Super login -bash
 # ----------------------------------------------------------------------------- 
-RUN cp /etc/skel/.bash_logout  /home/super/ \
-    && cp /etc/skel/.bash_profile /home/super/ \
-    && cp /etc/skel/.bashrc  /home/super/   
+#RUN cp /etc/skel/.bash_logout  /home/super/ \
+#    && cp /etc/skel/.bash_profile /home/super/ \
+#    && cp /etc/skel/.bashrc  /home/super/   
+
+
+# -----------------------------------------------------------------------------
+# Append bin
+# ----------------------------------------------------------------------------- 
+RUN echo -e 'PATH=$PATH:/vue-msf/php/bin \nPATH=$PATH:/vue-msf/bin/ \nPATH=$PATH:/vue-msf/redis/bin/ \nexport PATH' >> /etc/profile \
+    && source /etc/profile
 
 # -----------------------------------------------------------------------------
 # clean tmp file
