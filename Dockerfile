@@ -8,10 +8,6 @@ MAINTAINER sunny5156 <sunny5156@qq.com>
 ENV HOME /vue-msf
 ENV SRC_DIR $HOME/src
 RUN mkdir -p ${SRC_DIR}
-#RUN mkdir -p /home/super
-#ADD src ${SRC_DIR}
-
-
 
 # -----------------------------------------------------------------------------
 # Install Development tools {epel-release}
@@ -25,8 +21,6 @@ RUN rpm --import /etc/pki/rpm-gpg/RPM* \
     && rm -rf /var/cache/{yum,ldconfig}/* \
     && rm -rf /etc/ld.so.cache \
     && yum clean all
-    
-
 
 # -----------------------------------------------------------------------------
 # Change yum repos
@@ -36,7 +30,6 @@ RUN rpm --import /etc/pki/rpm-gpg/RPM* \
 #RUN wget http://mirrors.163.com/.help/CentOS7-Base-163.repo
 #RUN mv CentOS7-Base-163.repo CentOS-Base.repo && yum clean all
 #RUN wget -O /etc/yum.repos.d/CentOS-Base.repo http://mirrors.aliyun.com/repo/Centos-7.repo
-
 
 # -----------------------------------------------------------------------------
 # Install Python PIP & Supervisor
@@ -73,37 +66,6 @@ RUN yum -y install \
     && rm -rf /etc/ld.so.cache \
     && echo 'includedir /etc/sudoers.d' >> /etc/sudoers \
     && yum clean all
-    
-# -----------------------------------------------------------------------------
-# Install Sudo
-# -----------------------------------------------------------------------------
-#RUN yum -y install sudo \
-#    && echo 'includedir /etc/sudoers.d' >> /etc/sudoersrs
-    
-# -----------------------------------------------------------------------------
-# Install NodeJS
-# -----------------------------------------------------------------------------
-
-# https://nodejs.org/dist/v8.11.1/node-v8.11.1.tar.gz
-
-#ENV nodejsversion 8.11.1
-#ENV NODEJS_INSTALL_DIR ${HOME}/nodejs
-#RUN cd ${SRC_DIR} \
-#    && ls -l \
-#    && wget -q -O node-v${nodejsversion}.tar.gz https://nodejs.org/dist/v8.11.1/node-v${nodejsversion}.tar.gz \
-#    && tar xzf node-v${nodejsversion}.tar.gz \
-#    && cd node-v${nodejsversion} \
-#    && ./configure \
-#    && make 1>/dev/null \
-#    && make install \
-#    && cp ${NODEJS_INSTALL_DIR}/node /usr/sbin/
-
-# -----------------------------------------------------------------------------
-# Install supervisor and distribute ...
-# -----------------------------------------------------------------------------
-#RUN pip install supervisor distribute \
-#    && rm -rf /tmp/*
-
 
 # -----------------------------------------------------------------------------
 # ssh
@@ -137,23 +99,8 @@ RUN echo "root:123456" | chpasswd
 
 RUN ssh-keygen -t dsa -f /etc/ssh/ssh_host_dsa_key
 RUN ssh-keygen -t rsa -f /etc/ssh/ssh_host_rsa_key
-
-    
 #sed -i "s/#UsePrivilegeSeparation.*/UsePrivilegeSeparation no/g" /etc/ssh/sshd_config
 #sed -i "s/UsePAM.*/UsePAM no/g" /etc/ssh/sshd_config
-
-# -----------------------------------------------------------------------------
-# Install curl
-# -----------------------------------------------------------------------------
-#ENV CURL_INSTALL_DIR ${HOME}/libcurl
-#RUN cd ${SRC_DIR} \
-#    && wget -q -O curl-7.55.1.tar.gz http://curl.askapache.com/download/curl-7.55.1.tar.gz \
-#    && tar xzf curl-7.55.1.tar.gz \
-#    && cd curl-7.55.1 \
-#    && ./configure --prefix=${CURL_INSTALL_DIR} \
-#    && make 1>/dev/null \
-#    && make install \
-#    && rm -rf ${SRC_DIR}/curl*
 
 # -----------------------------------------------------------------------------
 # Install Nginx
@@ -548,7 +495,7 @@ RUN cd ${SRC_DIR} \
 # -----------------------------------------------------------------------------
 # Install Node and apidoc and nodemon
 # -----------------------------------------------------------------------------
-RUN npm install apidoc nodemon -g
+#RUN npm install apidoc nodemon -g
 
 
 # -----------------------------------------------------------------------------
