@@ -97,8 +97,11 @@ RUN ln -sf /usr/share/zoneinfo/Asia/Chongqing /etc/localtime
 
 RUN echo "root:123456" | chpasswd
 
-RUN ssh-keygen -t dsa -f /etc/ssh/ssh_host_dsa_key
-RUN ssh-keygen -t rsa -f /etc/ssh/ssh_host_rsa_key
+#RUN ssh-keygen -t dsa -f /etc/ssh/ssh_host_dsa_key
+#RUN ssh-keygen -t rsa -f /etc/ssh/ssh_host_rsa_key
+RUN ssh-keygen -q -t rsa -b 2048 -f /etc/ssh/ssh_host_rsa_key -N '' 
+RUN ssh-keygen -q -t ecdsa -f /etc/ssh/ssh_host_ecdsa_key -N ''
+RUN ssh-keygen -t dsa -f /etc/ssh/ssh_host_ed25519_key -N '' 
 #sed -i "s/#UsePrivilegeSeparation.*/UsePrivilegeSeparation no/g" /etc/ssh/sshd_config
 #sed -i "s/UsePAM.*/UsePAM no/g" /etc/ssh/sshd_config
 
