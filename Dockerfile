@@ -570,6 +570,13 @@ RUN useradd -M -u 1000 super \
     && chmod a+x ${PHP_INSTALL_DIR}/bin/mergeCoverReport
 
 # -----------------------------------------------------------------------------
+# Super login -bash
+# ----------------------------------------------------------------------------- 
+RUN cp /etc/skel/.bash_logout  /home/super/ \
+    && cp /etc/skel/.bash_profile /home/super/ \
+    && cp /etc/skel/.bashrc  /home/super/   
+
+# -----------------------------------------------------------------------------
 # clean tmp file
 # -----------------------------------------------------------------------------
 RUN rm -rf ${SRC_DIR}/*
