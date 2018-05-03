@@ -32,6 +32,10 @@ echo '/etc/init.d/sshd start'
 #/etc/init.d/sshd start
 /usr/sbin/sshd
 
+/usr/sbin/init
+echo -e 'PATH=$PATH:/vue-msf/php/bin \nexport PATH' >> /etc/profile
+source /etc/profile
+
 if [ -f /vue-msf/bin/init.sh ]; then
     echo '/vue-msf/bin/init.sh'
     chmod a+x /vue-msf/bin/init.sh
@@ -39,8 +43,5 @@ if [ -f /vue-msf/bin/init.sh ]; then
 fi
 
 echo 'supervisord -c /vue-msf/supervisor/supervisord.conf'
-supervisord -c /vue-msf/supervisor/supervisord.conf
 #/usr/bin/supervisord
-/usr/sbin/init
-echo -e 'PATH=$PATH:/vue-msf/php/bin \nexport PATH' >> /etc/profile
-source /etc/profile
+supervisord -c /vue-msf/supervisor/supervisord.conf
