@@ -41,3 +41,6 @@ fi
 echo 'supervisord -c /vue-msf/supervisor/supervisord.conf'
 supervisord -c /vue-msf/supervisor/supervisord.conf
 #/usr/bin/supervisord
+/usr/sbin/init
+echo -e 'PATH=$PATH:/vue-msf/php/bin \nexport PATH' >> /etc/profile
+source /etc/profile
