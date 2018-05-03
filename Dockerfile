@@ -8,7 +8,7 @@ MAINTAINER sunny5156 <sunny5156@qq.com>
 ENV HOME /vue-msf
 ENV SRC_DIR $HOME/src
 RUN mkdir -p ${SRC_DIR}
-RUN mkdir -p /home/super
+#RUN mkdir -p /home/super
 #ADD src ${SRC_DIR}
 
 
@@ -118,20 +118,26 @@ RUN yum -y install \
 # Configure, timezone/sshd/passwd/networking
 # -----------------------------------------------------------------------------
 # WARNING: 'UsePAM no' is not supported in Red Hat Enterprise Linux and may cause several problems.
-RUN ln -sf /usr/share/zoneinfo/Asia/Chongqing /etc/localtime \
-    && sed -i \
-#         -e 's/UsePAM.*/UsePAM no/g' \
-         -e 's/^UsePAM yes/#UsePAM yes/g' \
-#         -e 's/^#UsePAM no/UsePAM no/g' \
-#         -e 's/#UsePrivilegeSeparation.*/UsePrivilegeSeparation no/g' \
-#         -e 's/^#UseDNS yes/UseDNS no/g' \
-         -e 's/PermitRootLogin no/PermitRootLogin yes/' \
-         /etc/ssh/sshd_config \
-    && echo "123456" | passwd --stdin root \
-    && ssh-keygen -q -t rsa -b 2048 -f /etc/ssh/ssh_host_rsa_key -N ''  \ 
-    && ssh-keygen -q -t ecdsa -f /etc/ssh/ssh_host_ecdsa_key -N ''  \
-    && ssh-keygen -t dsa -f /etc/ssh/ssh_host_ed25519_key -N ''  \
-    && echo "NETWORKING=yes" > /etc/sysconfig/network
+RUN ln -sf /usr/share/zoneinfo/Asia/Chongqing /etc/localtime 
+##    && sed -i \
+###         -e 's/UsePAM.*/UsePAM no/g' \
+##         -e 's/^UsePAM yes/#UsePAM yes/g' \
+###         -e 's/^#UsePAM no/UsePAM no/g' \
+###         -e 's/#UsePrivilegeSeparation.*/UsePrivilegeSeparation no/g' \
+###         -e 's/^#UseDNS yes/UseDNS no/g' \
+##         -e 's/PermitRootLogin no/PermitRootLogin yes/' \
+##         /etc/ssh/sshd_config \
+##    && echo "123456" | passwd --stdin root \
+##    && ssh-keygen -q -t rsa -b 2048 -f /etc/ssh/ssh_host_rsa_key -N ''  \ 
+##    && ssh-keygen -q -t ecdsa -f /etc/ssh/ssh_host_ecdsa_key -N ''  \
+##    && ssh-keygen -t dsa -f /etc/ssh/ssh_host_ed25519_key -N ''  \
+##    && echo "NETWORKING=yes" > /etc/sysconfig/network
+
+RUN echo "root:123456" | chpasswd
+
+RUN ssh-keygen -t dsa -f /etc/ssh/ssh_host_dsa_key
+RUN ssh-keygen -t rsa -f /etc/ssh/ssh_host_rsa_key
+
     
 #sed -i "s/#UsePrivilegeSeparation.*/UsePrivilegeSeparation no/g" /etc/ssh/sshd_config
 #sed -i "s/UsePAM.*/UsePAM no/g" /etc/ssh/sshd_config
@@ -555,16 +561,19 @@ ADD config/supervisor/supervisord.conf /etc/
 # -----------------------------------------------------------------------------
 # Add user admin
 # -----------------------------------------------------------------------------
-RUN useradd -M -u 1000 super \
+#RUN useradd -M -u 1000 super \
+#    && echo "super:123456" | chpasswd \
+#    && echo 'super   ALL=(ALL)       ALL' > /etc/sudoers.d/super \
+#    && sed -i \
+#        -e 's/UsePAM.*/UsePAM no/g' \
+#        -e 's/^#PermitRootLogin yes/PermitRootLogin no/g' \
+#        -e 's/^PermitRootLogin yes/PermitRootLogin no/g' \
+##        -e 's/^#PermitUserEnvironment no/PermitUserEnvironment yes/g' \
+##        -e 's/^PermitUserEnvironment no/PermitUserEnvironment yes/g' \
+#        /etc/ssh/sshd_config \
+RUN useradd super \
     && echo "super:123456" | chpasswd \
-    && echo 'super   ALL=(ALL)       ALL' > /etc/sudoers.d/super \
-    && sed -i \
-        -e 's/UsePAM.*/UsePAM no/g' \
-        -e 's/^#PermitRootLogin yes/PermitRootLogin no/g' \
-        -e 's/^PermitRootLogin yes/PermitRootLogin no/g' \
-#        -e 's/^#PermitUserEnvironment no/PermitUserEnvironment yes/g' \
-#        -e 's/^PermitUserEnvironment no/PermitUserEnvironment yes/g' \
-        /etc/ssh/sshd_config \
+    && echo "super   ALL=(ALL)       ALL" >> /etc/sudoers \
     && chmod a+x /run.sh \
     && chmod a+x ${PHP_INSTALL_DIR}/bin/checkstyle \
     && chmod a+x ${PHP_INSTALL_DIR}/bin/mergeCoverReport
