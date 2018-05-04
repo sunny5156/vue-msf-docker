@@ -488,8 +488,8 @@ RUN cd ${SRC_DIR} \
 ADD run.sh /
 ADD config /vue-msf/
 #ADD config/supervisor/supervisord.conf /etc/
-ADD config/.bash_profile /home/super
-ADD config/.bashrc /home/super
+ADD config/.bash_profile /home/super/
+ADD config/.bashrc /home/super/
 
 # -----------------------------------------------------------------------------
 # Add user super
