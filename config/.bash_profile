@@ -7,6 +7,6 @@ fi
 
 # User specific environment and startup programs
 
-export LUAJIT_LIB=/home/worker/luajit/lib
-export LUAJIT_INC=/home/worker/luajit/include/luajit-2.0
+export LUAJIT_LIB=/vue-msf/luajit/lib
+export LUAJIT_INC=/vue-msf/luajit/include/luajit-2.0
 

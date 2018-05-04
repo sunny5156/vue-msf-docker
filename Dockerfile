@@ -64,7 +64,7 @@ RUN yum -y install \
     && ln -s /usr/lib64/libc-client.so /usr/lib/libc-client.so \
     && rm -rf /var/cache/{yum,ldconfig}/* \
     && rm -rf /etc/ld.so.cache \
-    && echo 'includedir /etc/sudoers.d' >> /etc/sudoers \
+#    && echo 'includedir /etc/sudoers.d' >> /etc/sudoers \
     && yum clean all
 
 # -----------------------------------------------------------------------------
@@ -81,29 +81,10 @@ RUN yum -y install \
 # -----------------------------------------------------------------------------
 # WARNING: 'UsePAM no' is not supported in Red Hat Enterprise Linux and may cause several problems.
 RUN ln -sf /usr/share/zoneinfo/Asia/Chongqing /etc/localtime 
-##    && sed -i \
-###         -e 's/UsePAM.*/UsePAM no/g' \
-##         -e 's/^UsePAM yes/#UsePAM yes/g' \
-###         -e 's/^#UsePAM no/UsePAM no/g' \
-###         -e 's/#UsePrivilegeSeparation.*/UsePrivilegeSeparation no/g' \
-###         -e 's/^#UseDNS yes/UseDNS no/g' \
-##         -e 's/PermitRootLogin no/PermitRootLogin yes/' \
-##         /etc/ssh/sshd_config \
-##    && echo "123456" | passwd --stdin root \
-##    && ssh-keygen -q -t rsa -b 2048 -f /etc/ssh/ssh_host_rsa_key -N ''  \ 
-##    && ssh-keygen -q -t ecdsa -f /etc/ssh/ssh_host_ecdsa_key -N ''  \
-##    && ssh-keygen -t dsa -f /etc/ssh/ssh_host_ed25519_key -N ''  \
-##    && echo "NETWORKING=yes" > /etc/sysconfig/network
-
 RUN echo "root:123456" | chpasswd
-
-#RUN ssh-keygen -t dsa -f /etc/ssh/ssh_host_dsa_key
-#RUN ssh-keygen -t rsa -f /etc/ssh/ssh_host_rsa_key
 RUN ssh-keygen -q -t rsa -b 2048 -f /etc/ssh/ssh_host_rsa_key -N '' 
 RUN ssh-keygen -q -t ecdsa -f /etc/ssh/ssh_host_ecdsa_key -N ''
 RUN ssh-keygen -t dsa -f /etc/ssh/ssh_host_ed25519_key -N '' 
-#sed -i "s/#UsePrivilegeSeparation.*/UsePrivilegeSeparation no/g" /etc/ssh/sshd_config
-#sed -i "s/UsePAM.*/UsePAM no/g" /etc/ssh/sshd_config
 
 # -----------------------------------------------------------------------------
 # Install Nginx
@@ -506,21 +487,13 @@ RUN cd ${SRC_DIR} \
 # -----------------------------------------------------------------------------
 ADD run.sh /
 ADD config /vue-msf/
-ADD config/supervisor/supervisord.conf /etc/
+#ADD config/supervisor/supervisord.conf /etc/
+ADD config/.bash_profile /home/super
+ADD config/.bashrc /home/super
 
 # -----------------------------------------------------------------------------
-# Add user admin
+# Add user super
 # -----------------------------------------------------------------------------
-#RUN useradd -M -u 1000 super \
-#    && echo "super:123456" | chpasswd \
-#    && echo 'super   ALL=(ALL)       ALL' > /etc/sudoers.d/super \
-#    && sed -i \
-#        -e 's/UsePAM.*/UsePAM no/g' \
-#        -e 's/^#PermitRootLogin yes/PermitRootLogin no/g' \
-#        -e 's/^PermitRootLogin yes/PermitRootLogin no/g' \
-##        -e 's/^#PermitUserEnvironment no/PermitUserEnvironment yes/g' \
-##        -e 's/^PermitUserEnvironment no/PermitUserEnvironment yes/g' \
-#        /etc/ssh/sshd_config \
 RUN useradd super \
     && echo "super:123456" | chpasswd \
     && echo "super   ALL=(ALL)       ALL" >> /etc/sudoers \
@@ -539,7 +512,7 @@ RUN useradd super \
 # -----------------------------------------------------------------------------
 # Append bin
 # ----------------------------------------------------------------------------- 
-RUN echo -e 'PATH=$PATH:/vue-msf/php/bin \nPATH=$PATH:/vue-msf/bin/ \nPATH=$PATH:/vue-msf/redis/bin/ \nexport PATH' >> /etc/profile \
+RUN echo -e 'PATH=$PATH:/vue-msf/php/bin \nPATH=$PATH:/vue-msf/php/sbin \nPATH=$PATH:/vue-msf/nginx/bin/ \nPATH=$PATH:/vue-msf/sbin/ \nPATH=$PATH:/vue-msf/redis/bin/ \nexport PATH' >> /etc/profile \
     && source /etc/profile
 
 # -----------------------------------------------------------------------------

@@ -9,7 +9,7 @@ fi
 PATH=$PATH:$HOME/bin:$HOME/php/bin:$HOME/nginx/sbin:$HOME/memcached/bin:$HOME/redis/bin
 export PATH
 
-alias supervisorctl='php /home/worker/supervisor/msf.php;supervisorctl -c /home/worker/supervisor/supervisord.conf'
-alias logn="tail -F /home/worker/data/nginx/logs/* /home/worker/data/nginx/logs/*"
-alias logp="tail -F /home/worker/data/php/log/*"
-alias logr="tail -F /home/worker/data/www/runtime/*/*.log"
+alias supervisorctl='php /vue-msf/supervisor/msf.php;supervisorctl -c /vue-msf/supervisor/supervisord.conf'
+alias logn="tail -F /vue-msf/data/nginx/logs/* /vue-msf/data/nginx/logs/*"
+alias logp="tail -F /vue-msf/data/php/log/*"
+alias logr="tail -F /vue-msf/data/www/runtime/*/*.log"
