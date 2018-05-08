@@ -127,7 +127,7 @@ ENV NGINX_INSTALL_DIR ${HOME}/nginx
 #sudo yum install gcc
 RUN cd ${SRC_DIR} \
     && wget -q -O nginx-1.13.5.tar.gz  http://nginx.org/download/nginx-1.13.5.tar.gz \
-    && tar zxvf nginx-1.13.5.tar.gz \
+    && tar zxvf nginx-1.13.5.tar.gz  \
     && wget -q -O openssl-1.1.0f.tar.gz https://www.openssl.org/source/openssl-1.1.0f.tar.gz \
     && wget -q -O pcre-8.39.tar.bz2 https://ftp.pcre.org/pub/pcre/pcre-8.39.tar.bz2 \
     && wget -q -O zlib-1.2.11.tar.gz http://www.zlib.net/zlib-1.2.11.tar.gz \
