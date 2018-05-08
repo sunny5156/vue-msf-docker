@@ -126,17 +126,17 @@ ENV nginx_version 1.12.2
 ENV NGINX_INSTALL_DIR ${HOME}/nginx
 #sudo yum install gcc
 RUN cd ${SRC_DIR} \
-    && wget http://nginx.org/download/nginx-1.13.5.tar.gz \
+    && wget -q -O nginx-1.13.5.tar.gz  http://nginx.org/download/nginx-1.13.5.tar.gz \
     && tar zxvf nginx-1.13.5 \
-    && wget https://www.openssl.org/source/openssl-1.1.0f.tar.gz \
-    && wget https://ftp.pcre.org/pub/pcre/pcre-8.39.tar.bz2 \
-    && wget http://www.zlib.net/zlib-1.2.11.tar.gz \
+    && wget -q -O openssl-1.1.0f.tar.gz https://www.openssl.org/source/openssl-1.1.0f.tar.gz \
+    && wget -q -O pcre-8.39.tar.bz2 https://ftp.pcre.org/pub/pcre/pcre-8.39.tar.bz2 \
+    && wget -q -O zlib-1.2.11.tar.gz http://www.zlib.net/zlib-1.2.11.tar.gz \
     && tar zxvf openssl-1.1.0f.tar.gz \
     && tar jxvf pcre-8.39.tar.bz2 \
     && tar zxvf zlib-1.2.11.tar.gz \
     && cd nginx-1.13.5 \
-    && ./configure --prefix=${NGINX_INSTALL_DIR} --with-openssl=../openssl-1.1.0f --with-pcre=../pcre-8.39 --with-zlib=../zlib-1.2.11 1>/dev/null \
-    && make 1>/dev/null \
+    && ./configure --prefix=${NGINX_INSTALL_DIR} --with-openssl=../openssl-1.1.0f --with-pcre=../pcre-8.39 --with-zlib=../zlib-1.2.11  \
+    && make \
     && make install
 
 # -----------------------------------------------------------------------------
