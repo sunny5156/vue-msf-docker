@@ -31,6 +31,7 @@ chmod 600 /vue-msf/.ssh/authorized_keys
 # index.html index.php
 echo 'vue-msf' >> /vue-msf/data/www/index.html
 echo '<?php phpinfo();' >> /vue-msf/data/www/index.php
+chown super.super /vue-msf/data/www/index.php /vue-msf/data/www/index.html
 
 echo '/etc/init.d/sshd start'
 #/etc/init.d/sshd start
