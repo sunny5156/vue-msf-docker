@@ -1,3 +1,55 @@
 # vue-msf-docker
 vue-msf-docker 基于 https://github.com/pinguo/php-msf-docker 修改而来
 
+## supervisor 管理 服务
+
+supervisorctl  
+
+输入命令 supervisorctl 进入 supervisorctl 的 shell 交互界面（还是纯命令行😓），就可以在下面输入命令了。：
+
+```
+supervisorctl help # 查看帮助
+supervisorctl status # 查看程序状态
+supervisorctl stop program_name # 关闭 指定的程序
+supervisorctl start program_name # 启动 指定的程序
+supervisorctl restart program_name # 重启 指定的程序
+supervisorctl tail -f program_name # 查看 该程序的日志
+supervisorctl update # 重启配置文件修改过的程序（修改了配置，通过这个命令加载新的配置)
+```
+
+## 已安装服务
+
+php-fpm默认不启动,需要自己启动.
+
+```
+1.nginx 1.13.5
+2.php 7.1.17
+3.php-fpm
+4.redis 3.2.11 [redis6379,redis6380,redis6381,redis7379,redis7380,redis7381]
+5.libmemcached
+6.php composer
+7.php swoole 1.9.22
+8.git
+9.ab
+```
+
+## Run
+
+```
+docker run --privileged --restart=always -it -d  --hostname=vue-msf  --name=vue-msf-docker -p 2202:22 -p 80:80 -p 8000:8000 -p 443:443 -v /d/PDT/data/html:/home/worker/data/www daocloud.io/sunny5156/vue-msf-docker:latest
+
+ps:/d/PDT/data/html 此路径修改成自己的路径
+```
+
+## ssh 登陆
+
+```
+IP:127.0.0.1
+端口:2202
+账号:super
+密码:123456
+```
+
+
+
+
