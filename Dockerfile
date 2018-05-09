@@ -122,22 +122,21 @@ RUN ssh-keygen -t dsa -f /etc/ssh/ssh_host_ed25519_key -N ''
 # -----------------------------------------------------------------------------
 # Install Nginx
 # ----------------------------------------------------------------------------- 
-#ENV nginx_version 1.12.2
-#ENV NGINX_INSTALL_DIR ${HOME}/nginx
-#sudo yum install gcc
-#RUN cd ${SRC_DIR} \
-#    && wget -q -O nginx-1.13.5.tar.gz  http://nginx.org/download/nginx-1.13.5.tar.gz \
-#    && tar zxvf nginx-1.13.5.tar.gz  \
+ENV nginx_version 1.13.5
+ENV NGINX_INSTALL_DIR ${HOME}/nginx
+RUN cd ${SRC_DIR} \
+    && wget -q -O nginx-${nginx_version}.tar.gz  http://nginx.org/download/nginx-${nginx_version}.tar.gz \
+    && tar zxvf nginx-${nginx_version}.tar.gz  \
 #    && wget -q -O openssl-1.1.0f.tar.gz https://www.openssl.org/source/openssl-1.1.0f.tar.gz \
 #    && wget -q -O pcre-8.39.tar.bz2 https://ftp.pcre.org/pub/pcre/pcre-8.39.tar.bz2 \
 #    && wget -q -O zlib-1.2.11.tar.gz http://www.zlib.net/zlib-1.2.11.tar.gz \
 #    && tar zxvf openssl-1.1.0f.tar.gz \
 #    && tar jxvf pcre-8.39.tar.bz2 \
 #    && tar zxvf zlib-1.2.11.tar.gz \
-#    && cd nginx-1.13.5 \
-#    && ./configure --prefix=${NGINX_INSTALL_DIR} --with-openssl=../openssl-1.1.0f --with-pcre=../pcre-8.39 --with-zlib=../zlib-1.2.11  \
-#    && make \
-#    && make install
+    && cd ${nginx_version} \
+    && ./configure --user=super --group=super --prefix=${NGINX_INSTALL_DIR} --with-http_v2_module --with-http_ssl_module --with-http_sub_module --with-http_stub_status_module --with-http_gzip_static_module --with-pcre  \
+    && make 1>/dev/null \
+    && make install
 
 # -----------------------------------------------------------------------------
 # Install Redis

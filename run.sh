@@ -28,6 +28,10 @@ chmod u+s /vue-msf/nginx/sbin/nginx
 chmod 700 /vue-msf/.ssh
 chmod 600 /vue-msf/.ssh/authorized_keys
 
+# index.html index.php
+echo 'vue-msf' >> /vue-msf/data/www/index.html
+echo '<?php phpinfo();' >> /vue-msf/data/www/index.php
+
 echo '/etc/init.d/sshd start'
 #/etc/init.d/sshd start
 /usr/sbin/sshd
