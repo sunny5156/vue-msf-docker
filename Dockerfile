@@ -134,8 +134,8 @@ RUN cd ${SRC_DIR} \
 #    && tar jxvf pcre-8.39.tar.bz2 \
 #    && tar zxvf zlib-1.2.11.tar.gz \
     && cd ${nginx_version} \
-    && ./configure --user=super --group=super --prefix=${NGINX_INSTALL_DIR} --with-http_v2_module --with-http_ssl_module --with-http_sub_module --with-http_stub_status_module --with-http_gzip_static_module --with-pcre  \
-    && make 1>/dev/null \
+    && ./configure --user=super --group=super --prefix=${NGINX_INSTALL_DIR} --with-http_v2_module --with-http_ssl_module --with-http_sub_module --with-http_stub_status_module --with-http_gzip_static_module --with-pcre \
+    && make \
     && make install
 
 # -----------------------------------------------------------------------------
