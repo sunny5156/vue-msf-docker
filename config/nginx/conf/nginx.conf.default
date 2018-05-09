@@ -1,5 +1,5 @@
 
-user  super;
+#user  nobody;
 worker_processes  1;
 
 #error_log  logs/error.log;
@@ -35,14 +35,14 @@ http {
     server {
         listen       80;
         server_name  localhost;
-        root /vue-msf/data/www;
 
         #charset koi8-r;
 
         #access_log  logs/host.access.log  main;
 
         location / {
-            index  index.php index.html index.htm;
+            root   html;
+            index  index.html index.htm;
         }
 
         #error_page  404              /404.html;
