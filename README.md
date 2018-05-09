@@ -36,7 +36,7 @@ php-fpm默认不启动,需要自己启动.
 ## Run
 
 ```
-docker run --privileged --restart=always -it -d  --hostname=vue-msf  --name=vue-msf-docker -p 2202:22 -p 80:80 -p 8000:8000 -p 443:443 -v /d/PDT/data/html:/home/worker/data/www daocloud.io/sunny5156/vue-msf-docker:latest
+docker run --privileged --restart=always -it -d  --hostname=vue-msf  --name=vue-msf-docker -p 2202:22 -p 80:80 -p 8000:8000 -p 443:443 -v /d/PDT/data/html:/vue-msf/data/www daocloud.io/sunny5156/vue-msf-docker:latest
 
 ps:/d/PDT/data/html 此路径修改成自己的路径
 ```
