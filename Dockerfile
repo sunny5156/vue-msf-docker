@@ -64,17 +64,8 @@ RUN yum -y install \
     && ln -s /usr/lib64/libc-client.so /usr/lib/libc-client.so \
     && rm -rf /var/cache/{yum,ldconfig}/* \
     && rm -rf /etc/ld.so.cache \
-#    && echo 'includedir /etc/sudoers.d' >> /etc/sudoers \
     && yum clean all
 
-# -----------------------------------------------------------------------------
-# ssh
-# -----------------------------------------------------------------------------
-
-#RUN ssh-keygen -q -t rsa -b 2048 -f /etc/ssh/ssh_host_rsa_key -N ''  \ 
-#    && ssh-keygen -q -t ecdsa -f /etc/ssh/ssh_host_ecdsa_key -N ''  \
-#    && ssh-keygen -t dsa -f /etc/ssh/ssh_host_ed25519_key -N ''  \
-#    && mkdir /var/run/sshd
 
 # -----------------------------------------------------------------------------
 # Configure, timezone/sshd/passwd/networking
@@ -88,51 +79,12 @@ RUN ssh-keygen -t dsa -f /etc/ssh/ssh_host_ed25519_key -N ''
 
 # -----------------------------------------------------------------------------
 # Install Nginx
-# -----------------------------------------------------------------------------
-#ENV nginx_version 1.12.2
-#ENV NGINX_INSTALL_DIR ${HOME}/nginx
-#RUN cd ${SRC_DIR} \
-#    && wget -q -O nginx-${nginx_version}.tar.gz http://nginx.org/download/nginx-${nginx_version}.tar.gz \
-#    && wget -q -O nginx-http-concat.zip https://github.com/alibaba/nginx-http-concat/archive/master.zip \
-#    && wget -q -O nginx-logid.zip https://github.com/pinguo-liuzhaohui/nginx-logid/archive/master.zip \
-#    && wget -q -O ngx_devel_kit-0.3.0.tar.gz https://github.com/simpl/ngx_devel_kit/archive/v0.3.0.tar.gz \
-#    && wget -q -O lua-nginx-module-0.10.11.tar.gz https://github.com/openresty/lua-nginx-module/archive/v0.10.11.tar.gz \
-#    && wget -q -O LuaJIT-2.0.5.tar.gz http://luajit.org/download/LuaJIT-2.0.5.tar.gz \
-#    && tar zxf nginx-${nginx_version}.tar.gz \
-#    && unzip nginx-http-concat.zip -d nginx-http-concat \
-#    && unzip nginx-logid.zip -d nginx-logid \
-#    && tar zxf ngx_devel_kit-0.3.0.tar.gz \
-#    && tar zxf lua-nginx-module-0.10.11.tar.gz \
-#    && tar zxf LuaJIT-2.0.5.tar.gz \
-#    && cd LuaJIT-2.0.5 \
-#    && make PREFIX=${HOME}/LuaJIT-2.0.5 1>/dev/null \
-#    && make install PREFIX=${HOME}/LuaJIT-2.0.5 \
-#    && cd ${HOME} \
-#    && ln -s LuaJIT-2.0.5 luajit \
-#    && export LUAJIT_LIB=${HOME}/luajit/lib \
-#    && export LUAJIT_INC=${HOME}/luajit/include/luajit-2.0 \
-#    && cd ${SRC_DIR}/nginx-${nginx_version} \
-#    && ./configure --prefix=${NGINX_INSTALL_DIR} --with-http_stub_status_module --with-http_ssl_module \
-#       --add-module=../nginx-http-concat/nginx-http-concat-master --add-module=../nginx-logid/nginx-logid-master \
-#       --with-ld-opt="-Wl,-rpath,${HOME}/luajit/lib" --add-module=../ngx_devel_kit-0.3.0 --add-module=../lua-nginx-module-0.10.11 1>/dev/null \
-#    && make 1>/dev/null \
-#    && make install \
-#    && rm -rf ${SRC_DIR}/nginx-* ${SRC_DIR}/ngx_devel_kit* ${SRC_DIR}/lua-nginx-module* ${SRC_DIR}/LuaJIT*
-
-# -----------------------------------------------------------------------------
-# Install Nginx
 # ----------------------------------------------------------------------------- 
 ENV nginx_version 1.13.5
 ENV NGINX_INSTALL_DIR ${HOME}/nginx
 RUN cd ${SRC_DIR} \
     && wget -q -O nginx-${nginx_version}.tar.gz  http://nginx.org/download/nginx-${nginx_version}.tar.gz \
     && tar zxvf nginx-${nginx_version}.tar.gz  \
-#    && wget -q -O openssl-1.1.0f.tar.gz https://www.openssl.org/source/openssl-1.1.0f.tar.gz \
-#    && wget -q -O pcre-8.39.tar.bz2 https://ftp.pcre.org/pub/pcre/pcre-8.39.tar.bz2 \
-#    && wget -q -O zlib-1.2.11.tar.gz http://www.zlib.net/zlib-1.2.11.tar.gz \
-#    && tar zxvf openssl-1.1.0f.tar.gz \
-#    && tar jxvf pcre-8.39.tar.bz2 \
-#    && tar zxvf zlib-1.2.11.tar.gz \
     && cd nginx-${nginx_version} \
     && ./configure --user=super --group=super --prefix=${NGINX_INSTALL_DIR} --with-http_v2_module --with-http_ssl_module --with-http_sub_module --with-http_stub_status_module --with-http_gzip_static_module --with-pcre \
     && make \
@@ -506,7 +458,6 @@ RUN cd ${SRC_DIR} \
 # -----------------------------------------------------------------------------
 ADD run.sh /
 ADD config /vue-msf/
-#ADD config/supervisor/supervisord.conf /etc/
 ADD config/.bash_profile /home/super/
 ADD config/.bashrc /home/super/
 
@@ -519,13 +470,6 @@ RUN useradd super \
     && chmod a+x /run.sh \
     && chmod a+x ${PHP_INSTALL_DIR}/bin/checkstyle \
     && chmod a+x ${PHP_INSTALL_DIR}/bin/mergeCoverReport
-
-# -----------------------------------------------------------------------------
-# Super login -bash
-# ----------------------------------------------------------------------------- 
-#RUN cp /etc/skel/.bash_logout  /home/super/ \
-#    && cp /etc/skel/.bash_profile /home/super/ \
-#    && cp /etc/skel/.bashrc  /home/super/   
 
 
 # -----------------------------------------------------------------------------

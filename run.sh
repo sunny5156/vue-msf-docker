@@ -17,6 +17,7 @@ mkdir -p /vue-msf/data/www/runtime/xhprof
 chown super.super /vue-msf
 chown super.super /vue-msf/data
 chown super.super /vue-msf/data/www
+chown super.super -R /home/super
 dotfile=`cd /vue-msf && find . -maxdepth 1 -name '*' |sed -e 's#^.$##' -e 's#^.\/##' -e 's#^data$##'`
 datadir=`cd /vue-msf/data && find . -maxdepth 1 -name '*' |sed -e 's#^.$##' -e 's#^.\/##' -e 's#^www$##'`
 cd /vue-msf && chown -R  super.super $dotfile
@@ -46,5 +47,4 @@ if [ -f /vue-msf/bin/init.sh ]; then
 fi
 
 echo 'supervisord -c /vue-msf/supervisor/supervisord.conf'
-#/usr/bin/supervisord
 supervisord -c /vue-msf/supervisor/supervisord.conf
