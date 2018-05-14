@@ -434,7 +434,7 @@ RUN cd ${HOME} \
     && yumdownloader httpd-tools \
     && rpm2cpio httpd-tools* | cpio -idmv \
     && mkdir -p ${HOME}/bin \
-    && mv ./usr/bin/ab ${HOME}/bin \
+    && mv -f ./usr/bin/ab ${HOME}/bin \
     && cd ${HOME} && rm -rf ${HOME}/httpd
 
 # -----------------------------------------------------------------------------
