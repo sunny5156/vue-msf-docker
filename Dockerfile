@@ -422,18 +422,20 @@ RUN cd ${SRC_DIR} \
     && ./configure --disable-maintainer-mode \
     && make \
     && make install \
-    && rm -rf ${SRC_DIR}/jq-*
+    && rm -rf ${SRC_DIR}/jq-* \
+    && yum clean all 
 
 # -----------------------------------------------------------------------------
 # Install Apache ab
 # -----------------------------------------------------------------------------
 RUN cd ${HOME} \
     && yum -y remove httpd \
+    && yum clean all \
     && mkdir httpd \
     && cd httpd \
     && yumdownloader httpd-tools \
     && rpm2cpio httpd-tools* | cpio -idmv \
-    && mkdir -p ${HOME}/bin \
+    && mkdir -p ${HOME}/bin  \
     && mv -f ./usr/bin/ab ${HOME}/bin \
     && cd ${HOME} && rm -rf ${HOME}/httpd
 
