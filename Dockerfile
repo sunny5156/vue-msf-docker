@@ -70,7 +70,6 @@ RUN yum -y install \
 # ----------------------------------------------------------------------------- 
 RUN npm i npm@latest -g
 
-
 # -----------------------------------------------------------------------------
 # Configure, timezone/sshd/passwd/networking
 # -----------------------------------------------------------------------------
@@ -476,7 +475,6 @@ RUN useradd super \
     && chmod a+x /run.sh \
     && chmod a+x ${PHP_INSTALL_DIR}/bin/checkstyle \
     && chmod a+x ${PHP_INSTALL_DIR}/bin/mergeCoverReport
-
 
 # -----------------------------------------------------------------------------
 # Append bin
