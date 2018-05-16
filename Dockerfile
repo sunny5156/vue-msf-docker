@@ -471,7 +471,7 @@ ADD config/.bashrc /home/super/
 # -----------------------------------------------------------------------------
 RUN useradd super \
     && echo "super:123456" | chpasswd \
-    && echo "super   ALL=(ALL)       ALL" >> /etc/sudoers \
+    && echo "super   ALL=(ALL)  NOPASSWD: ALL" >> /etc/sudoers \
     && chmod a+x /run.sh \
     && chmod a+x ${PHP_INSTALL_DIR}/bin/checkstyle \
     && chmod a+x ${PHP_INSTALL_DIR}/bin/mergeCoverReport

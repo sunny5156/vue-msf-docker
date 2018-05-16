@@ -67,8 +67,13 @@ IP:127.0.0.1
 
 ``` javascript
 sudo npm install 
-````
+```
 
+## 代码热更新
+
+``` bash
+nodemon -L --exec "php" server.php start
+```
 
 
 
