@@ -489,7 +489,7 @@ RUN useradd super \
 # -----------------------------------------------------------------------------
 # Append bin
 # ----------------------------------------------------------------------------- 
-RUN echo -e 'PATH=$PATH:/vue-msf/php/bin \nPATH=$PATH:/vue-msf/php/sbin \nPATH=$PATH:/vue-msf/nginx/bin/ \nPATH=$PATH:/vue-msf/sbin/ \nPATH=$PATH:/vue-msf/redis/bin/ \nexport PATH' >> /etc/profile \
+RUN echo -e 'PATH=$PATH:/vue-msf/php/bin \nPATH=$PATH:/vue-msf/php/sbin \nPATH=$PATH:/vue-msf/nginx/bin/ \nPATH=$PATH:/vue-msf/sbin/ \nPATH=$PATH:/vue-msf/redis/bin/:/usr/libexec/git-core \nexport PATH' >> /etc/profile \
     && source /etc/profile
 
 # -----------------------------------------------------------------------------
