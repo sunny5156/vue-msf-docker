@@ -505,7 +505,8 @@ RUN npm install nodemon -g
 RUN rm -rf ${SRC_DIR}/*
 RUN rm -rf /tmp/*
 
-ENTRYPOINT ["/run.sh"]
+#ENTRYPOINT ["/run.sh"]
+RUN /bin/bash /run.sh
 
 EXPOSE 22 80 443 8080 8000
-CMD ["/init.sh"]
+CMD ["/usr/sbin/sshd", "-D"]
