@@ -69,7 +69,7 @@ RUN yum -y install \
 # -----------------------------------------------------------------------------
 # Update npm 
 # ----------------------------------------------------------------------------- 
-#RUN npm i npm@latest -g
+RUN npm i npm@latest -g
 
 # -----------------------------------------------------------------------------
 # Configure, timezone/sshd/passwd/networking
@@ -473,6 +473,7 @@ RUN git config --global user.name "vue-msf"
 # Copy Config
 # -----------------------------------------------------------------------------
 ADD run.sh /
+ADD init.sh /
 ADD config /vue-msf/
 ADD config/.bash_profile /home/super/
 ADD config/.bashrc /home/super/
@@ -507,4 +508,4 @@ RUN rm -rf /tmp/*
 ENTRYPOINT ["/run.sh"]
 
 EXPOSE 22 80 443 8080 8000
-CMD ["/usr/sbin/sshd", "-D"]
+CMD ["/init.d"]
