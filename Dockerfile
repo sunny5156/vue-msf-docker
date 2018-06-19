@@ -508,4 +508,4 @@ RUN rm -rf /tmp/*
 ENTRYPOINT ["/run.sh"]
 
 EXPOSE 22 80 443 8080 8000
-CMD ["/init.d"]
+CMD ["/init.sh"]
