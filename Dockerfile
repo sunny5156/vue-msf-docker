@@ -51,7 +51,7 @@ RUN yum install -y python-setuptools \
 # Devel libraries for delelopment tools like php & nginx ...
 # -----------------------------------------------------------------------------
 RUN yum -y install \
-	lrzsz \
+	lrzsz psmisc \
     tar gzip bzip2 unzip file perl-devel perl-ExtUtils-Embed \
     pcre openssh-server openssh sudo \
     screen vim git telnet expat \
