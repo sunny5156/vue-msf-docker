@@ -278,9 +278,23 @@ RUN cd ${SRC_DIR} \
     && rm -rf ${SRC_DIR}/mongodb-*
 
 # -----------------------------------------------------------------------------
-
+# Install PHP Rabbitmq extensions
 # -----------------------------------------------------------------------------
 
+RUN cd ${SRC_DIR} \
+	&& wget -q -O rabbitmq-c-0.7.1.tar.gz https://github.com/alanxz/rabbitmq-c/releases/download/v0.7.1/rabbitmq-c-0.7.1.tar.gz \
+	&& tar zxf rabbitmq-c-0.7.1.tar.gz \
+	&& cd rabbitmq-c-0.7.1 \
+	&& ./configure --prefix=/usr/local/rabbitmq-c-0.7.1 \
+	&& make && make install
+
+# -----------------------------------------------------------------------------
+# Install PHP amqp extensions
+# -----------------------------------------------------------------------------
+
+RUN echo '/usr/local/rabbitmq-c-0.7.1' | pecl install amqp
+
+# -----------------------------------------------------------------------------
 # Install PHP redis extensions
 # -----------------------------------------------------------------------------
 RUN cd ${SRC_DIR} \
