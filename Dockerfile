@@ -292,7 +292,7 @@ RUN cd ${SRC_DIR} \
 # Install PHP amqp extensions
 # -----------------------------------------------------------------------------
 
-RUN echo '/usr/local/rabbitmq-c-0.7.1' | pecl install amqp
+RUN echo '/usr/local/rabbitmq-c-0.7.1' | /vue-msf/php/bin/pecl install amqp
 
 # -----------------------------------------------------------------------------
 # Install PHP redis extensions
