@@ -488,7 +488,7 @@ RUN git config --global user.name "vue-msf"
 # -----------------------------------------------------------------------------
 # Install Node and apidoc and nodemon
 # -----------------------------------------------------------------------------
-#RUN npm install apidoc nodemon -g
+RUN npm install apidoc nodemon -g
 
 # -----------------------------------------------------------------------------
 # Copy Config
