@@ -11,7 +11,6 @@ mkdir -p /vue-msf/data/$i/log
 mkdir -p /vue-msf/data/$i/run
 done
 mkdir -p /vue-msf/data/nginx/logs
-mkdir -p /vue-msf/data/www/runtime/xhprof
 
 # chown
 chown super.super /vue-msf
