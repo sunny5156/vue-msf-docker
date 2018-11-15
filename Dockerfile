@@ -158,7 +158,7 @@ RUN cd ${SRC_DIR} \
 # Install libmcrypt using by php-mcrypt
 # -----------------------------------------------------------------------------
 RUN cd ${SRC_DIR} \
-    && wget -q -O libmcrypt-2.5.7.tar.gz http://down1.chinaunix.net/distfiles/libmcrypt-2.5.7.tar.gz \
+    && wget -q -O libmcrypt-2.5.7.tar.gz https://nchc.dl.sourceforge.net/project/mcrypt/Libmcrypt/Production/libmcrypt-2.5.7.tar.gz \
     && tar xzf libmcrypt-2.5.7.tar.gz \
     && cd libmcrypt-2.5.7 \
     && ./configure 1>/dev/null \
