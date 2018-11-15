@@ -10,4 +10,3 @@ PATH=$PATH:$HOME/bin:$HOME/php/bin:$HOME/nginx/sbin:$HOME/memcached/bin:$HOME/re
 export PATH
 
 alias supervisorctl='supervisorctl -c /vue-msf/supervisor/supervisord.conf'
-
