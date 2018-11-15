@@ -47,4 +47,4 @@ if [ -f /vue-msf/bin/init.sh ]; then
 fi
 
 echo 'supervisord -c /vue-msf/supervisor/supervisord.conf'
-supervisord -c /vue-msf/supervisor/supervisord.conf
+supervisord -c /vue-msf/supervisor/supervisord.conf &>/dev/null
