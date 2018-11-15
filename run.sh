@@ -50,4 +50,5 @@ if [ -f /vue-msf/data/publish.sh ]; then
 fi
 
 echo 'supervisord -c /vue-msf/supervisor/supervisord.conf'
-supervisord -c /vue-msf/supervisor/supervisord.conf &>/dev/null
+nohup supervisord -c /vue-msf/supervisor/supervisord.conf &>/dev/null
+echo '启动成功!'
