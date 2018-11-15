@@ -45,5 +45,9 @@ if [ -f /vue-msf/bin/init.sh ]; then
     su super -c '/vue-msf/bin/init.sh'
 fi
 
+if [ -f /vue-msf/data/publish.sh ]; then
+    sh /vue-msf/data/publish.sh
+fi
+
 echo 'supervisord -c /vue-msf/supervisor/supervisord.conf'
 supervisord -c /vue-msf/supervisor/supervisord.conf &>/dev/null

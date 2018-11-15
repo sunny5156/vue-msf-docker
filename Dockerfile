@@ -494,7 +494,6 @@ RUN npm install apidoc nodemon -g
 # Copy Config
 # -----------------------------------------------------------------------------
 ADD run.sh /
-ADD init.sh /
 ADD config /vue-msf/
 ADD config/.bash_profile /home/super/
 ADD config/.bashrc /home/super/
@@ -531,4 +530,4 @@ RUN rm -rf /tmp/*
 
 EXPOSE 22 80 443 8080 8000
 #CMD ["/usr/sbin/sshd","-D"]
-CMD ["/run.sh"]
+ENTRYPOINT ["/run.sh"]
