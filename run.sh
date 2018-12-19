@@ -39,7 +39,7 @@ echo '/etc/init.d/sshd start'
 #/etc/init.d/sshd start
 /usr/sbin/sshd
 
-/usr/sbin/init
+#/usr/sbin/init
 
 if [ -f /vue-msf/bin/init.sh ]; then
     echo '/vue-msf/bin/init.sh'
@@ -48,7 +48,8 @@ if [ -f /vue-msf/bin/init.sh ]; then
 fi
 
 echo 'supervisord -c /vue-msf/supervisor/supervisord.conf'
-nohup supervisord -c /vue-msf/supervisor/supervisord.conf &>/dev/null
+#nohup supervisord -c /vue-msf/supervisor/supervisord.conf &>/dev/null
+supervisord -c /vue-msf/supervisor/supervisord.conf 
 echo '系统部分完成!'
 if [ -f /vue-msf/data/publish.sh ]; then
     sh /vue-msf/data/publish.sh
