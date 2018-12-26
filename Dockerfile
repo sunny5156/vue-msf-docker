@@ -267,9 +267,9 @@ RUN cd ${SRC_DIR} \
 # Install PHP mongodb extensions
 # -----------------------------------------------------------------------------
 RUN cd ${SRC_DIR} \
-    && wget -q -O mongodb-1.3.2.tgz https://pecl.php.net/get/mongodb-1.3.2.tgz \
-    && tar zxf mongodb-1.3.2.tgz \
-    && cd mongodb-1.3.2 \
+    && wget -q -O mongodb-1.5.3.tgz https://pecl.php.net/get/mongodb-1.5.3.tgz \
+    && tar zxf mongodb-1.5.3.tgz \
+    && cd mongodb-1.5.3 \
     && ${PHP_INSTALL_DIR}/bin/phpize \
     && ./configure --with-php-config=${PHP_INSTALL_DIR}/bin/php-config 1>/dev/null \
     && make clean \
@@ -509,7 +509,7 @@ RUN useradd super \
     && chmod a+x ${PHP_INSTALL_DIR}/bin/mergeCoverReport
 
 # -----------------------------------------------------------------------------
-# Append bin
+# Profile
 # ----------------------------------------------------------------------------- 
 RUN echo -e 'PATH=$PATH:/vue-msf/php/bin \nPATH=$PATH:/vue-msf/php/sbin \nPATH=$PATH:/vue-msf/nginx/bin/ \nPATH=$PATH:/vue-msf/sbin/ \nPATH=$PATH:/vue-msf/redis/bin/:/usr/libexec/git-core \nexport PATH' >> /etc/profile \
     && source /etc/profile
@@ -525,9 +525,6 @@ RUN npm install nodemon -g
 RUN rm -rf ${SRC_DIR}/*
 RUN rm -rf /tmp/*
 
-#ENTRYPOINT ["/run.sh"]
-#RUN /bin/bash /run.sh
-
 EXPOSE 22 80 443 8080 8000
-#CMD ["/usr/sbin/sshd","-D"]
-ENTRYPOINT ["/run.sh"]
+CMD ["/usr/sbin/sshd","-D"]
+#ENTRYPOINT ["/run.sh"]
