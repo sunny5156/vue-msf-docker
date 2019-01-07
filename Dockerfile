@@ -199,7 +199,7 @@ RUN cd ${SRC_DIR} \
        --sysconfdir=${PHP_INSTALL_DIR}/etc \
        --with-libdir=lib64 \
        --enable-mysqlnd \
-       --enable-zip \
+       #--enable-zip \
        --enable-exif \
        --enable-ftp \
        --enable-mbstring \
