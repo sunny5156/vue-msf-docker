@@ -247,16 +247,9 @@ RUN cd ${SRC_DIR} \
 # Install yaml and PHP yaml extension
 # -----------------------------------------------------------------------------
 RUN cd ${SRC_DIR} \
-    && wget -q -O yaml-0.1.7.tar.gz http://pyyaml.org/download/libyaml/yaml-0.1.7.tar.gz \
-    && tar xzf yaml-0.1.7.tar.gz \
-    && cd yaml-0.1.7 \
-    && ./configure --prefix=/usr/local \
-    && make >/dev/null \
-    && make install \
-    && cd $SRC_DIR \
-    && wget -q -O yaml-2.0.2.tgz https://pecl.php.net/get/yaml-2.0.2.tgz \
-    && tar xzf yaml-2.0.2.tgz \
-    && cd yaml-2.0.2 \
+    && wget -q -O yaml-2.0.3.tgz https://pecl.php.net/get/yaml-2.0.3.tgz \
+    && tar xzf yaml-2.0.3.tgz \
+    && cd yaml-2.0.3 \
     && ${PHP_INSTALL_DIR}/bin/phpize \
     && ./configure --with-yaml=/usr/local --with-php-config=${PHP_INSTALL_DIR}/bin/php-config \
     && make >/dev/null \
