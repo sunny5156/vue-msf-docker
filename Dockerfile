@@ -57,7 +57,7 @@ RUN yum -y install \
     lemon net-snmp net-snmp-devel \
     ca-certificates perl-CPAN m4 \
     gd libjpeg libpng zlib libevent net-snmp net-snmp-devel \
-    net-snmp-libs freetype libtool-tldl libxml2 unixODBC \
+    net-snmp-libs freetype libtool-tldl libxml2 unixODBC libyaml-dev \
     libxslt libmcrypt freetds \
     gd-devel libjpeg-devel libpng-devel zlib-devel \
     freetype-devel libtool-ltdl libtool-ltdl-devel \
