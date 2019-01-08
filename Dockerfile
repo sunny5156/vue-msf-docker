@@ -16,15 +16,6 @@ ENV SRC_DIR $HOME/src
 RUN mkdir -p ${SRC_DIR}
 
 # -----------------------------------------------------------------------------
-# Change yum repos
-# -----------------------------------------------------------------------------
-#RUN cd /etc/yum.repos.d
-#RUN mv CentOS-Base.repo CentOS-Base.repo.bk
-#RUN wget http://mirrors.163.com/.help/CentOS7-Base-163.repo
-#RUN mv CentOS7-Base-163.repo CentOS-Base.repo && yum clean all
-#RUN wget -O /etc/yum.repos.d/CentOS-Base.repo http://mirrors.aliyun.com/repo/Centos-7.repo
-
-# -----------------------------------------------------------------------------
 # Install Development tools {epel-release}
 # -----------------------------------------------------------------------------
 RUN rpm --import /etc/pki/rpm-gpg/RPM* \
@@ -35,6 +26,16 @@ RUN rpm --import /etc/pki/rpm-gpg/RPM* \
     && rm -rf /var/cache/{yum,ldconfig}/* \
     && rm -rf /etc/ld.so.cache \
     && yum clean all
+    
+# -----------------------------------------------------------------------------
+# Change yum repos
+# -----------------------------------------------------------------------------
+RUN cd /etc/yum.repos.d \
+   && mv CentOS-Base.repo CentOS-Base.repo.bak \
+   && wget http://mirrors.163.com/.help/CentOS7-Base-163.repo \
+   && mv CentOS7-Base-163.repo CentOS-Base.repo \
+   && yum clean all
+#   && wget -O /etc/yum.repos.d/CentOS-Base.repo http://mirrors.aliyun.com/repo/Centos-7.repo
 
 # -----------------------------------------------------------------------------
 # Install Python PIP & Supervisor
@@ -57,7 +58,7 @@ RUN yum -y install \
     lemon net-snmp net-snmp-devel \
     ca-certificates perl-CPAN m4 \
     gd libjpeg libpng zlib libevent net-snmp net-snmp-devel \
-    net-snmp-libs freetype libtool-tldl libxml2 unixODBC libyaml-dev \
+    net-snmp-libs freetype libtool-tldl libxml2 unixODBC libyaml \
     libxslt libmcrypt freetds \
     gd-devel libjpeg-devel libpng-devel zlib-devel \
     freetype-devel libtool-ltdl libtool-ltdl-devel \
@@ -173,9 +174,9 @@ RUN cd ${SRC_DIR} \
 # Install re2c for PHP
 # -----------------------------------------------------------------------------
 RUN cd $SRC_DIR \
-    && wget -q -O re2c-1.0.tar.gz https://excellmedia.dl.sourceforge.net/project/re2c/old/re2c-1.0.tar.gz \
-    && tar xzf re2c-1.0.tar.gz \
-    && cd re2c-1.0 \
+    && wget -q -O re2c-1.0.1.tar.gz https://sourceforge.net/projects/re2c/files/1.0.1/re2c-1.0.1.tar.gz/download \
+    && tar xzf re2c-1.0.1.tar.gz \
+    && cd re2c-1.0.1 \
     && ./configure \
     && make \
     && make install \
@@ -239,8 +240,8 @@ RUN cd ${SRC_DIR} \
     && make 1>/dev/null \
     && make install \
     && rm -rf ${PHP_INSTALL_DIR}/lib/php.ini \
-    && cp -f php.ini-development ${PHP_INSTALL_DIR}/lib/php.ini \
-    && rm -rf ${SRC_DIR}/php* ${SRC_DIR}/libmcrypt*
+    && cp -f php.ini-development ${PHP_INSTALL_DIR}/lib/php.ini 
+    #&& rm -rf ${SRC_DIR}/php* ${SRC_DIR}/libmcrypt*
 
 # -----------------------------------------------------------------------------
 # Install yaml and PHP yaml extension
