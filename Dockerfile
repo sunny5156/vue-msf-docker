@@ -32,10 +32,9 @@ RUN rpm --import /etc/pki/rpm-gpg/RPM* \
 # -----------------------------------------------------------------------------
 RUN cd /etc/yum.repos.d \
    && mv CentOS-Base.repo CentOS-Base.repo.bak \
-   && wget http://mirrors.163.com/.help/CentOS7-Base-163.repo \
-   && mv CentOS7-Base-163.repo CentOS-Base.repo \
+   && wget -O /etc/yum.repos.d/CentOS-Base.repo http://mirrors.163.com/.help/CentOS7-Base-163.repo \
+   #&& wget -O /etc/yum.repos.d/CentOS-Base.repo http://mirrors.aliyun.com/repo/Centos-7.repo \
    && yum clean all
-#   && wget -O /etc/yum.repos.d/CentOS-Base.repo http://mirrors.aliyun.com/repo/Centos-7.repo
 
 # -----------------------------------------------------------------------------
 # Install Python PIP & Supervisor
@@ -58,7 +57,7 @@ RUN yum -y install \
     lemon net-snmp net-snmp-devel \
     ca-certificates perl-CPAN m4 \
     gd libjpeg libpng zlib libevent net-snmp net-snmp-devel \
-    net-snmp-libs freetype libtool-tldl libxml2 unixODBC libyaml \
+    net-snmp-libs freetype libtool-tldl libxml2 unixODBC libyaml libyaml-devel\
     libxslt libmcrypt freetds \
     gd-devel libjpeg-devel libpng-devel zlib-devel \
     freetype-devel libtool-ltdl libtool-ltdl-devel \
@@ -104,7 +103,7 @@ RUN cd ${SRC_DIR} \
 # -----------------------------------------------------------------------------
 # Install Redis
 # -----------------------------------------------------------------------------
-ENV redis_version 3.2.11
+ENV redis_version 4.0.12
 ENV REDIS_INSTALL_DIR ${HOME}/redis
 RUN cd ${SRC_DIR} \
     && wget -q -O redis-${redis_version}.tar.gz http://download.redis.io/releases/redis-${redis_version}.tar.gz \
@@ -132,9 +131,9 @@ RUN cd ${SRC_DIR} \
 # Install hiredis
 # -----------------------------------------------------------------------------
 RUN cd ${SRC_DIR} \
-    && wget -q -O hiredis-0.13.3.tar.gz https://github.com/redis/hiredis/archive/v0.13.3.tar.gz \
-    && tar zxvf hiredis-0.13.3.tar.gz \
-    && cd hiredis-0.13.3 \
+    && wget -q -O hiredis-0.14.0.tar.gz https://github.com/redis/hiredis/archive/v0.14.0.tar.gz \
+    && tar zxvf hiredis-0.14.0.tar.gz \
+    && cd hiredis-0.14.0 \
     && make \
     && make install \
     && echo "/usr/local/lib" > /etc/ld.so.conf.d/local.conf \
@@ -185,11 +184,11 @@ RUN cd $SRC_DIR \
 # -----------------------------------------------------------------------------
 # Install PHP
 # -----------------------------------------------------------------------------
-ENV phpversion 7.3.0
+ENV phpversion 7.1.25
 ENV PHP_INSTALL_DIR ${HOME}/php
 RUN cd ${SRC_DIR} \
     && ls -l \
-    && wget -q -O php-${phpversion}.tar.gz http://cn2.php.net/distributions/php-${phpversion}.tar.gz \
+    && wget -q -O php-${phpversion}.tar.gz http://120.52.51.14/cn2.php.net/distributions/php-${phpversion}.tar.gz \
     && tar xzf php-${phpversion}.tar.gz \
     && cd php-${phpversion} \
     && ./configure \
@@ -199,7 +198,7 @@ RUN cd ${SRC_DIR} \
        --sysconfdir=${PHP_INSTALL_DIR}/etc \
        --with-libdir=lib64 \
        --enable-mysqlnd \
-       #--enable-zip \
+       --enable-zip \
        --enable-exif \
        --enable-ftp \
        --enable-mbstring \
@@ -237,6 +236,7 @@ RUN cd ${SRC_DIR} \
        --with-curl=/usr/bin/curl \
        --with-mcrypt \
        --with-mhash \
+
     && make 1>/dev/null \
     && make install \
     && rm -rf ${PHP_INSTALL_DIR}/lib/php.ini \
@@ -291,9 +291,9 @@ RUN echo '/usr/local/rabbitmq-c-0.7.1' | /vue-msf/php/bin/pecl install amqp
 # Install PHP redis extensions
 # -----------------------------------------------------------------------------
 RUN cd ${SRC_DIR} \
-    && wget -q -O redis-3.1.3.tgz https://pecl.php.net/get/redis-3.1.3.tgz \
-    && tar zxf redis-3.1.3.tgz \
-    && cd redis-3.1.3 \
+    && wget -q -O redis-4.2.0.tgz https://pecl.php.net/get/redis-4.2.0.tgz \
+    && tar zxf redis-4.2.0.tgz \
+    && cd redis-4.2.0 \
     && ${PHP_INSTALL_DIR}/bin/phpize \
     && ./configure --with-php-config=${PHP_INSTALL_DIR}/bin/php-config 1>/dev/null \
     && make clean \
@@ -319,24 +319,24 @@ RUN cd ${SRC_DIR} \
 # -----------------------------------------------------------------------------
 # Install PHP xdebug extensions
 # -----------------------------------------------------------------------------
-RUN cd ${SRC_DIR} \
-    && wget -q -O xdebug-2.5.5.tgz https://pecl.php.net/get/xdebug-2.5.5.tgz \
-    && tar zxf xdebug-2.5.5.tgz \
-    && cd xdebug-2.5.5 \
-    && ${PHP_INSTALL_DIR}/bin/phpize \
-    && ./configure --with-php-config=${PHP_INSTALL_DIR}/bin/php-config 1>/dev/null \
-    && make clean \
-    && make 1>/dev/null \
-    && make install \
-    && rm -rf ${SRC_DIR}/xdebug-*
+#RUN cd ${SRC_DIR} \
+#    && wget -q -O xdebug-2.6.1.tgz https://pecl.php.net/get/xdebug-2.6.1.tgz \
+#    && tar zxf xdebug-2.6.1.tgz \
+#    && cd xdebug-2.6.1 \
+#    && ${PHP_INSTALL_DIR}/bin/phpize \
+#    && ./configure --with-php-config=${PHP_INSTALL_DIR}/bin/php-config 1>/dev/null \
+#    && make clean \
+#    && make 1>/dev/null \
+#    && make install \
+#    && rm -rf ${SRC_DIR}/xdebug-*
 
 # -----------------------------------------------------------------------------
 # Install PHP igbinary extensions
 # -----------------------------------------------------------------------------
 RUN cd ${SRC_DIR} \
-    && wget -q -O igbinary-2.0.1.tgz https://pecl.php.net/get/igbinary-2.0.1.tgz \
-    && tar zxf igbinary-2.0.1.tgz \
-    && cd igbinary-2.0.1 \
+    && wget -q -O igbinary-2.0.8.tgz https://pecl.php.net/get/igbinary-2.0.8.tgz \
+    && tar zxf igbinary-2.0.8.tgz \
+    && cd igbinary-2.0.8 \
     && ${PHP_INSTALL_DIR}/bin/phpize \
     && ./configure --with-php-config=${PHP_INSTALL_DIR}/bin/php-config 1>/dev/null \
     && make clean \
@@ -348,9 +348,9 @@ RUN cd ${SRC_DIR} \
 # Install PHP memcached extensions
 # -----------------------------------------------------------------------------
 RUN cd ${SRC_DIR} \
-    && wget -q -O memcached-3.0.3.tgz https://pecl.php.net/get/memcached-3.0.3.tgz \
-    && tar xzf memcached-3.0.3.tgz \
-    && cd memcached-3.0.3 \
+    && wget -q -O memcached-3.1.3.tgz https://pecl.php.net/get/memcached-3.1.3.tgz \
+    && tar xzf memcached-3.1.3.tgz \
+    && cd memcached-3.1.3 \
     && ${PHP_INSTALL_DIR}/bin/phpize \
     && ./configure --enable-memcached --with-php-config=${PHP_INSTALL_DIR}/bin/php-config \
        --with-libmemcached-dir=${LIB_MEMCACHED_INSTALL_DIR} --disable-memcached-sasl 1>/dev/null \
@@ -374,7 +374,10 @@ RUN cd ${SRC_DIR} \
 # -----------------------------------------------------------------------------
 # Install PHP swoole extensions
 # -----------------------------------------------------------------------------
-ENV swooleVersion 1.9.22
+
+#RUN /vue-msf/php/bin/pecl install swoole_serialize-0.1.1
+
+ENV swooleVersion 1.9.23
 RUN cd ${SRC_DIR} \
     && wget -q -O swoole-${swooleVersion}.tar.gz https://github.com/swoole/swoole-src/archive/v${swooleVersion}.tar.gz \
     && tar zxf swoole-${swooleVersion}.tar.gz \
@@ -519,5 +522,5 @@ RUN rm -rf ${SRC_DIR}/*
 RUN rm -rf /tmp/*
 
 EXPOSE 22 80 443 8080 8000
-CMD ["/usr/sbin/sshd","-D"]
-#ENTRYPOINT ["/run.sh"]
+#CMD ["/usr/sbin/sshd","-D"]
+ENTRYPOINT ["/run.sh"]

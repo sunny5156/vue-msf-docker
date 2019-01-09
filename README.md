@@ -23,12 +23,12 @@ php-fpm默认不启动,需要自己启动.
 
 ``` bash
 1.nginx 1.13.5
-2.php 7.3.0
+2.php 7.1.25
 3.php-fpm
-4.redis 3.2.11 [redis6379,redis6380,redis6381,redis7379,redis7380,redis7381]
+4.redis 4.0.4 [redis6379,redis6380,redis6381,redis7379,redis7380,redis7381]
 5.libmemcached
 6.php composer
-7.php swoole 1.9.22
+7.php swoole 1.9.23
 8.git
 9.ab
 ```
