@@ -377,7 +377,7 @@ RUN cd ${SRC_DIR} \
 
 #RUN /vue-msf/php/bin/pecl install swoole_serialize-0.1.1
 
-ENV swooleVersion 1.9.23
+ENV swooleVersion 1.10.5
 RUN cd ${SRC_DIR} \
     && wget -q -O swoole-${swooleVersion}.tar.gz https://github.com/swoole/swoole-src/archive/v${swooleVersion}.tar.gz \
     && tar zxf swoole-${swooleVersion}.tar.gz \
