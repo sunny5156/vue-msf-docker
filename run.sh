@@ -14,7 +14,7 @@ mkdir -p /vue-msf/data/$i/run
 done
 mkdir -p /vue-msf/data/nginx/logs
 
-# chown
+	# chown
 chown super.super /vue-msf
 chown super.super /vue-msf/data
 chown super.super /vue-msf/data/www
@@ -31,13 +31,15 @@ chmod 700 /vue-msf/.ssh
 chmod 600 /vue-msf/.ssh/authorized_keys
 
 # index.html index.php
-echo 'vue-msf' > /vue-msf/data/www/index.html
-echo '<?php phpinfo();' > /vue-msf/data/www/index.php
-chown super.super /vue-msf/data/www/index.php /vue-msf/data/www/index.html
 
-echo '/etc/init.d/sshd start'
-#/etc/init.d/sshd start
-/usr/sbin/sshd
+if [ ! -f /vue-msf/data/www/index.html ]; then
+	echo 'vue-msf' > /vue-msf/data/www/index.html
+	chown super.super /vue-msf/data/www/index.html
+fi
+if [ ! -f /vue-msf/data/www/index.php ]; then
+	echo '<?php phpinfo();' > /vue-msf/data/www/index.php
+	chown super.super /vue-msf/data/www/index.php
+fi
 
 #/usr/sbin/init
 
@@ -49,8 +51,12 @@ fi
 
 echo 'supervisord -c /vue-msf/supervisor/supervisord.conf'
 nohup supervisord -c /vue-msf/supervisor/supervisord.conf >/dev/null 2>&1 & 
-#supervisord -c /vue-msf/supervisor/supervisord.conf 
+
 echo '系统部分完成!'
 if [ -f /vue-msf/data/publish.sh ]; then
     sh /vue-msf/data/publish.sh
 fi
+
+echo '/etc/init.d/sshd start'
+#/etc/init.d/sshd start
+/usr/sbin/sshd -D
