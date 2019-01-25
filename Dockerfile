@@ -22,7 +22,7 @@ RUN rpm --import /etc/pki/rpm-gpg/RPM* \
     && curl --silent --location https://rpm.nodesource.com/setup_8.x | bash - \
     && yum -y update \
     && yum groupinstall -y "Development tools" \
-    && yum install -y cc gcc gcc-c++ zlib-devel bzip2-devel openssl openssl-devel ncurses-devel sqlite-devel wget net-tools epel-release\
+    && yum install -y cc gcc gcc-c++ zlib-devel bzip2-devel openssl openssl-devel ncurses-devel sqlite-devel wget net-tools \
     && rm -rf /var/cache/{yum,ldconfig}/* \
     && rm -rf /etc/ld.so.cache \
     && yum clean all
@@ -50,7 +50,7 @@ RUN yum install -y python-setuptools \
 # Devel libraries for delelopment tools like php & nginx ...
 # -----------------------------------------------------------------------------
 RUN yum -y install \
-	lrzsz psmisc \
+	lrzsz psmisc epel-release \
     tar gzip bzip2 unzip file perl-devel perl-ExtUtils-Embed htop\
     pcre openssh-server openssh sudo \
     screen vim git telnet expat \
