@@ -14,7 +14,7 @@ mkdir -p /vue-msf/data/$i/run
 done
 mkdir -p /vue-msf/data/nginx/logs
 
-	# chown
+# chown
 chown super.super /vue-msf
 chown super.super /vue-msf/data
 chown super.super /vue-msf/data/www
@@ -41,7 +41,8 @@ if [ ! -f /vue-msf/data/www/index.php ]; then
 	chown super.super /vue-msf/data/www/index.php
 fi
 
-#/usr/sbin/init
+#nohup /usr/sbin/init >/dev/null 2>&1 &
+#/usr/sbin/init & 
 
 if [ -f /vue-msf/bin/init.sh ]; then
     echo '/vue-msf/bin/init.sh'
