@@ -1,5 +1,7 @@
 #!/bin/bash
 
+/usr/sbin/init &
+
 ln -sf /usr/share/zoneinfo/Asia/Chongqing /etc/localtime
 
 set|grep '_.*=' >/vue-msf/.ssh/environment

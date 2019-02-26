@@ -31,7 +31,7 @@ RUN rpm --import /etc/pki/rpm-gpg/RPM* \
 # Change yum repos
 # -----------------------------------------------------------------------------
 RUN cd /etc/yum.repos.d \
-   && mv CentOS-Base.repo CentOS-Base.repo.bak \
+   #&& mv CentOS-Base.repo CentOS-Base.repo.bak \
    && wget -O /etc/yum.repos.d/CentOS-Base.repo http://mirrors.163.com/.help/CentOS7-Base-163.repo \
    #&& wget -O /etc/yum.repos.d/CentOS-Base.repo http://mirrors.aliyun.com/repo/Centos-7.repo \
    && yum clean all
@@ -51,7 +51,7 @@ RUN yum install -y python-setuptools \
 # -----------------------------------------------------------------------------
 RUN yum -y install \
 	lrzsz psmisc epel-release \
-    tar gzip bzip2 unzip file perl-devel perl-ExtUtils-Embed htop\
+    tar gzip bzip2 unzip file perl-devel perl-ExtUtils-Embed \
     pcre openssh-server openssh sudo \
     screen vim git telnet expat \
     lemon net-snmp net-snmp-devel \
@@ -71,6 +71,10 @@ RUN yum -y install \
     && rm -rf /var/cache/{yum,ldconfig}/* \
     && rm -rf /etc/ld.so.cache \
     && yum clean all
+    
+RUN rpm --import /etc/pki/rpm-gpg/RPM*
+
+RUN yum -y install htop
 
 # -----------------------------------------------------------------------------
 # Update npm 
@@ -240,8 +244,8 @@ RUN cd ${SRC_DIR} \
     && make 1>/dev/null \
     && make install \
     && rm -rf ${PHP_INSTALL_DIR}/lib/php.ini \
-    && cp -f php.ini-development ${PHP_INSTALL_DIR}/lib/php.ini 
-    #&& rm -rf ${SRC_DIR}/php* ${SRC_DIR}/libmcrypt*
+    && cp -f php.ini-development ${PHP_INSTALL_DIR}/lib/php.ini \
+    && rm -rf ${SRC_DIR}/php* ${SRC_DIR}/libmcrypt*
 
 # -----------------------------------------------------------------------------
 # Install yaml and PHP yaml extension
@@ -422,12 +426,16 @@ RUN cd ${SRC_DIR} \
 # -----------------------------------------------------------------------------
 # Install PhpDocumentor
 # -----------------------------------------------------------------------------
-RUN ${PHP_INSTALL_DIR}/bin/pear install -a PhpDocumentor
+#RUN ${PHP_INSTALL_DIR}/bin/pear clear-cache
+#RUN ${PHP_INSTALL_DIR}/bin/pear update-channels
+#RUN ${PHP_INSTALL_DIR}/bin/pear upgrade
+#RUN ${PHP_INSTALL_DIR}/bin/pear install -a PhpDocumentor
+#RUN ${PHP_INSTALL_DIR}/bin/pear install  http://pear.phpdoc.org/get/phpDocumentor-2.0.0b6.tgz
 
-RUN cd ${PHP_INSTALL_DIR} \
-    && bin/php bin/composer self-update \
-    && bin/pear install PHP_CodeSniffer-2.3.4 \
-    && rm -rf /tmp/*
+#RUN cd ${PHP_INSTALL_DIR} \
+#    && bin/php bin/composer self-update \
+#    && bin/pear install PHP_CodeSniffer-2.3.4 \
+#    && rm -rf /tmp/*
 
 # -----------------------------------------------------------------------------
 # Install jq
@@ -461,9 +469,9 @@ RUN cd ${HOME} \
 # -----------------------------------------------------------------------------
 RUN cd ${SRC_DIR} \
     && yum -y remove git subversion \
-    && wget -q -O git-2.14.1.tar.gz https://github.com/git/git/archive/v2.14.1.tar.gz \
-    && tar zxf git-2.14.1.tar.gz \
-    && cd git-2.14.1 \
+    && wget -q -O git-2.20.1.tar.gz https://github.com/git/git/archive/v2.20.1.tar.gz \
+    && tar zxf git-2.20.1.tar.gz \
+    && cd git-2.20.1 \
     && make configure \
     && ./configure --without-iconv --prefix=/usr/local/ --with-curl=/usr/bin/curl \
     && make \
