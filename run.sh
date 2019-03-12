@@ -8,7 +8,7 @@ set|grep '_.*=' >/vue-msf/.ssh/environment
 
 mkdir -p /vue-msf/data/www
 
-MODULES="php supervisor redis-6379 redis-6380 redis-6381 redis-7379 redis-7380 redis-7381 memcached mongodb rabbitmq"
+MODULES="php supervisor redis-6379 redis-6380 redis-6381 redis-7379 redis-7380 redis-7381 memcached mongodb rabbitmq gocron"
 for i in $MODULES
 do
 mkdir -p /vue-msf/data/$i/log

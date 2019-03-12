@@ -323,10 +323,11 @@ RUN cd ${SRC_DIR} \
 # -----------------------------------------------------------------------------
 # Install PHP xdebug extensions
 # -----------------------------------------------------------------------------
+#ENV xdebugversion 2.4.0
 #RUN cd ${SRC_DIR} \
-#    && wget -q -O xdebug-2.6.1.tgz https://pecl.php.net/get/xdebug-2.6.1.tgz \
-#    && tar zxf xdebug-2.6.1.tgz \
-#    && cd xdebug-2.6.1 \
+#    && wget -q -O xdebug-${xdebugversion}.tgz https://pecl.php.net/get/xdebug-${xdebugversion}.tgz \
+#    && tar zxf xdebug-${xdebugversion}.tgz \
+#    && cd xdebug-${xdebugversion} \
 #    && ${PHP_INSTALL_DIR}/bin/phpize \
 #    && ./configure --with-php-config=${PHP_INSTALL_DIR}/bin/php-config 1>/dev/null \
 #    && make clean \
@@ -477,6 +478,11 @@ RUN cd ${SRC_DIR} \
     && make \
     && make install \
     && rm -rf $SRC_DIR/git-2*
+    
+# -----------------------------------------------------------------------------
+# Install gocron
+# -----------------------------------------------------------------------------
+ADD gocron /vue-msf/
     
 # -----------------------------------------------------------------------------
 # Update Git-Core
