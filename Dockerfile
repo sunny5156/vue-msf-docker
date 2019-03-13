@@ -323,7 +323,7 @@ RUN cd ${SRC_DIR} \
 # -----------------------------------------------------------------------------
 # Install PHP xdebug extensions
 # -----------------------------------------------------------------------------
-ENV xdebugversion 2.4.0
+ENV xdebugversion 2.7.0
 RUN cd ${SRC_DIR} \
     && wget -q -O xdebug-${xdebugversion}.tgz https://pecl.php.net/get/xdebug-${xdebugversion}.tgz \
     && tar zxf xdebug-${xdebugversion}.tgz \
