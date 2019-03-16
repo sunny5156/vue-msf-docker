@@ -480,10 +480,11 @@ RUN cd ${SRC_DIR} \
     && rm -rf $SRC_DIR/git-2*
     
 # -----------------------------------------------------------------------------
-# Install gocron
+# Install gocronx
 # -----------------------------------------------------------------------------
-RUN mkdir -p ${HOME}/gocron/
-ADD gocron ${HOME}/gocron/
+RUN mkdir -p ${HOME}/gocronx/
+ADD gocron ${HOME}/gocronx/ \
+	&& chmod a+x -R ${HOME}/gocronx/
     
 # -----------------------------------------------------------------------------
 # Update Git-Core
