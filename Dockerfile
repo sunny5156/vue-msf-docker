@@ -483,8 +483,8 @@ RUN cd ${SRC_DIR} \
 # Install gocronx
 # -----------------------------------------------------------------------------
 RUN mkdir -p ${HOME}/gocronx/
-ADD gocron ${HOME}/gocronx/ \
-	&& chmod a+x -R ${HOME}/gocronx/
+ADD gocronx ${HOME}/gocronx/ 
+RUN chmod a+x -R ${HOME}/gocronx/
     
 # -----------------------------------------------------------------------------
 # Update Git-Core
