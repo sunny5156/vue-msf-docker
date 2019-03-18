@@ -40,8 +40,8 @@ RUN cd /etc/yum.repos.d \
 # Install Python PIP & Supervisor
 # -----------------------------------------------------------------------------
 RUN cd ${SRC_DIR} \
-RUN curl https://pypi.org/simple/pip/
-RUN yum install -y python-setuptools \
+	&& curl https://pypi.org/simple/pip/ \
+	&& yum install -y python-setuptools \
     && yum clean all \
     && easy_install pip \
     && pip install supervisor distribute
@@ -85,11 +85,11 @@ RUN npm i npm@latest -g
 # Configure, timezone/sshd/passwd/networking
 # -----------------------------------------------------------------------------
 # WARNING: 'UsePAM no' is not supported in Red Hat Enterprise Linux and may cause several problems.
-RUN ln -sf /usr/share/zoneinfo/Asia/Chongqing /etc/localtime 
-RUN echo "root:123456" | chpasswd
-RUN ssh-keygen -q -t rsa -b 2048 -f /etc/ssh/ssh_host_rsa_key -N '' 
-RUN ssh-keygen -q -t ecdsa -f /etc/ssh/ssh_host_ecdsa_key -N ''
-RUN ssh-keygen -t dsa -f /etc/ssh/ssh_host_ed25519_key -N '' 
+RUN ln -sf /usr/share/zoneinfo/Asia/Chongqing /etc/localtime \
+	&& echo "root:123456" | chpasswd \
+	&& ssh-keygen -q -t rsa -b 2048 -f /etc/ssh/ssh_host_rsa_key -N '' \ 
+	&& ssh-keygen -q -t ecdsa -f /etc/ssh/ssh_host_ecdsa_key -N '' \
+	&& ssh-keygen -t dsa -f /etc/ssh/ssh_host_ed25519_key -N '' 
 
 # -----------------------------------------------------------------------------
 # Install Nginx
@@ -201,6 +201,7 @@ RUN cd ${SRC_DIR} \
        --with-config-file-scan-dir=${PHP_INSTALL_DIR}/etc/php.d \
        --sysconfdir=${PHP_INSTALL_DIR}/etc \
        --with-libdir=lib64 \
+       --enable-fd-setsize=65536 \
        --enable-mysqlnd \
        --enable-zip \
        --enable-exif \
@@ -494,8 +495,8 @@ RUN yum -y install git-core
 # -----------------------------------------------------------------------------
 # Set GIT user info
 # -----------------------------------------------------------------------------
-RUN git config --global user.email "vue-msf@admin.com"
-RUN git config --global user.name "vue-msf"
+RUN git config --global user.email "vue-msf@admin.com" \
+	&& git config --global user.name "vue-msf"
 
 # -----------------------------------------------------------------------------
 # Install Node and apidoc and nodemon
@@ -534,8 +535,8 @@ RUN npm install nodemon -g
 # -----------------------------------------------------------------------------
 # clean tmp file
 # -----------------------------------------------------------------------------
-RUN rm -rf ${SRC_DIR}/*
-RUN rm -rf /tmp/*
+RUN rm -rf ${SRC_DIR}/* \
+	&& rm -rf /tmp/*
 
 EXPOSE 22 80 443 8080 8000
 #CMD ["/usr/sbin/sshd","-D"]
