@@ -66,7 +66,7 @@ RUN yum -y install \
     libxslt-devel expat-devel unixODBC-devel \
     openssl-devel libmcrypt-devel freetds-devel \
     pcre-devel openldap openldap-devel libc-client-devel \
-    jemalloc jemalloc-devel inotify-tools nodejs apr-util yum-utils tree\
+    jemalloc jemalloc-devel inotify-tools nodejs apr-util yum-utils tree js\
     && ln -s /usr/lib64/libc-client.so /usr/lib/libc-client.so \
     && rm -rf /var/cache/{yum,ldconfig}/* \
     && rm -rf /etc/ld.so.cache \
@@ -502,6 +502,13 @@ RUN git config --global user.email "vue-msf@admin.com" \
 # Install Node and apidoc and nodemon
 # -----------------------------------------------------------------------------
 RUN npm install apidoc nodemon -g
+
+
+# -----------------------------------------------------------------------------
+# jsawk
+# -----------------------------------------------------------------------------
+RUN curl -L http://github.com/micha/jsawk/raw/master/jsawk > /usr/local/bin/jsawk \
+	&& chmod 755 /usr/local/bin/jsawk
 
 # -----------------------------------------------------------------------------
 # Copy Config
