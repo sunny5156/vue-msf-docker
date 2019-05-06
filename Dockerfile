@@ -188,11 +188,12 @@ RUN cd $SRC_DIR \
 # -----------------------------------------------------------------------------
 # Install PHP
 # -----------------------------------------------------------------------------
-ENV phpversion 7.1.25
+ENV phpversion 7.1.29
 ENV PHP_INSTALL_DIR ${HOME}/php
 RUN cd ${SRC_DIR} \
     && ls -l \
-    && wget -q -O php-${phpversion}.tar.gz http://120.52.51.14/cn2.php.net/distributions/php-${phpversion}.tar.gz \
+    && wget -q -O php-${phpversion}.tar.gz https://www.php.net/distributions/php-${phpversion}.tar.gz \
+    #&& wget -q -O php-${phpversion}.tar.gz http://120.52.51.14/cn2.php.net/distributions/php-${phpversion}.tar.gz \
     && tar xzf php-${phpversion}.tar.gz \
     && cd php-${phpversion} \
     && ./configure \
@@ -324,17 +325,17 @@ RUN cd ${SRC_DIR} \
 # -----------------------------------------------------------------------------
 # Install PHP xdebug extensions
 # -----------------------------------------------------------------------------
-ENV xdebugversion 2.7.0
-RUN cd ${SRC_DIR} \
-    && wget -q -O xdebug-${xdebugversion}.tgz https://pecl.php.net/get/xdebug-${xdebugversion}.tgz \
-    && tar zxf xdebug-${xdebugversion}.tgz \
-    && cd xdebug-${xdebugversion} \
-    && ${PHP_INSTALL_DIR}/bin/phpize \
-    && ./configure --with-php-config=${PHP_INSTALL_DIR}/bin/php-config 1>/dev/null \
-    && make clean \
-    && make 1>/dev/null \
-    && make install \
-    && rm -rf ${SRC_DIR}/xdebug-*
+#ENV xdebugversion 2.7.0
+#RUN cd ${SRC_DIR} \
+#    && wget -q -O xdebug-${xdebugversion}.tgz https://pecl.php.net/get/xdebug-${xdebugversion}.tgz \
+#    && tar zxf xdebug-${xdebugversion}.tgz \
+#    && cd xdebug-${xdebugversion} \
+#    && ${PHP_INSTALL_DIR}/bin/phpize \
+#    && ./configure --with-php-config=${PHP_INSTALL_DIR}/bin/php-config 1>/dev/null \
+#    && make clean \
+#    && make 1>/dev/null \
+#    && make install \
+#    && rm -rf ${SRC_DIR}/xdebug-*
 
 # -----------------------------------------------------------------------------
 # Install PHP igbinary extensions
@@ -389,7 +390,7 @@ RUN cd ${SRC_DIR} \
     && tar zxf swoole-${swooleVersion}.tar.gz \
     && cd swoole-src-${swooleVersion}/ \
     && ${PHP_INSTALL_DIR}/bin/phpize \
-    && ./configure --with-php-config=${PHP_INSTALL_DIR}/bin/php-config --enable-async-redis --enable-openssl \
+    && ./configure --with-php-config=${PHP_INSTALL_DIR}/bin/php-config --enable-async-redis --enable-openssl --enable-mysqlnd \
     && make clean 1>/dev/null \
     && make 1>/dev/null \
     && make install \
