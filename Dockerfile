@@ -102,7 +102,9 @@ RUN cd ${SRC_DIR} \
     && cd nginx-${nginx_version} \
     && ./configure --user=super --group=super --prefix=${NGINX_INSTALL_DIR} --with-http_v2_module --with-http_ssl_module --with-http_sub_module --with-http_stub_status_module --with-http_gzip_static_module --with-pcre \
     && make \
-    && make install
+    && make install \
+    && rm -rf ${SRC_DIR}/nginx-*
+    
 
 # -----------------------------------------------------------------------------
 # Install Redis
@@ -162,6 +164,7 @@ RUN cd ${SRC_DIR} \
 # -----------------------------------------------------------------------------
 RUN cd ${SRC_DIR} \
     && wget -q -O libmcrypt-2.5.7.tar.gz https://nchc.dl.sourceforge.net/project/mcrypt/Libmcrypt/Production/libmcrypt-2.5.7.tar.gz \
+    #&& wget -q -O libmcrypt-2.5.7.tar.gz ftp://mcrypt.hellug.gr/pub/crypto/mcrypt/libmcrypt/libmcrypt-2.5.7.tar.gz \
     && tar xzf libmcrypt-2.5.7.tar.gz \
     && cd libmcrypt-2.5.7 \
     && ./configure 1>/dev/null \
@@ -177,9 +180,10 @@ RUN cd ${SRC_DIR} \
 # Install re2c for PHP
 # -----------------------------------------------------------------------------
 RUN cd $SRC_DIR \
-    && wget -q -O re2c-1.0.1.tar.gz https://sourceforge.net/projects/re2c/files/1.0.1/re2c-1.0.1.tar.gz/download \
-    && tar xzf re2c-1.0.1.tar.gz \
-    && cd re2c-1.0.1 \
+    #&& wget -q -O re2c-1.0.1.tar.gz https://sourceforge.net/projects/re2c/files/1.0.1/re2c-1.0.1.tar.gz/download \
+    && wget -q -O re2c-1.0.3.tar.gz https://github.com/skvadrik/re2c/releases/download/1.0.3/re2c-1.0.3.tar.gz \
+    && tar xzf re2c-1.0.3.tar.gz \
+    && cd re2c-1.0.3 \
     && ./configure \
     && make \
     && make install \

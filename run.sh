@@ -1,12 +1,14 @@
 #!/bin/bash
 
-/usr/sbin/init &
+#/usr/sbin/init &
 
 ln -sf /usr/share/zoneinfo/Asia/Chongqing /etc/localtime
 
 set|grep '_.*=' >/vue-msf/.ssh/environment
 
-mkdir -p /vue-msf/data/www
+if [ ! -d /vue-msf/data/www ]; then
+	mkdir -p /vue-msf/data/www
+fi
 
 MODULES="php supervisor redis-6379 redis-6380 redis-6381 redis-7379 redis-7380 redis-7381 memcached mongodb rabbitmq gocron"
 for i in $MODULES
