@@ -55,10 +55,10 @@ fi
 echo 'supervisord -c /vue-msf/supervisor/supervisord.conf'
 nohup supervisord -c /vue-msf/supervisor/supervisord.conf >/dev/null 2>&1 & 
 
-echo '系统部分完成!'
-if [ -f /vue-msf/data/publish.sh ]; then
-    sh /vue-msf/data/publish.sh
-fi
+#echo '业务部分完成!'
+#if [ -f /vue-msf/data/publish.sh ]&&[ ! -f /home/super/.publish ]; then
+        #sh /vue-msf/data/publish.sh $project $version
+#fi
 
 echo '/etc/init.d/sshd start'
 #/etc/init.d/sshd start

@@ -504,7 +504,6 @@ RUN git config --global user.email "vue-msf@admin.com" \
 # -----------------------------------------------------------------------------
 RUN npm install apidoc nodemon -g
 
-
 # -----------------------------------------------------------------------------
 # jsawk
 # -----------------------------------------------------------------------------
@@ -515,9 +514,11 @@ RUN curl -L http://github.com/micha/jsawk/raw/master/jsawk > /usr/local/bin/jsaw
 # Copy Config
 # -----------------------------------------------------------------------------
 ADD run.sh /
+ADD publish.sh /vue-msf/data/
 ADD config /vue-msf/
 ADD config/.bash_profile /home/super/
 ADD config/.bashrc /home/super/
+ADD vendor.zip /vue-msf/data/www/
 
 # -----------------------------------------------------------------------------
 # Add user super
@@ -532,7 +533,7 @@ RUN useradd super \
 # -----------------------------------------------------------------------------
 # Profile
 # ----------------------------------------------------------------------------- 
-RUN echo -e 'PATH=$PATH:/vue-msf/php/bin \nPATH=$PATH:/vue-msf/php/sbin \nPATH=$PATH:/vue-msf/nginx/bin/ \nPATH=$PATH:/vue-msf/sbin/ \nPATH=$PATH:/vue-msf/redis/bin/:/usr/libexec/git-core \nexport PATH' >> /etc/profile \
+RUN echo -e 'PATH=$PATH:/vue-msf/php/bin \nPATH=$PATH:/vue-msf/php/sbin \nPATH=$PATH:/vue-msf/nginx/bin/ \nPATH=$PATH:/vue-msf/sbin/ \nPATH=$PATH:/vue-msf/redis/bin/:/usr/libexec/git-core \nexport PATH \n' >> /etc/profile \
     && source /etc/profile
 
 # -----------------------------------------------------------------------------
@@ -546,6 +547,12 @@ RUN npm install nodemon -g
 RUN rm -rf ${SRC_DIR}/* \
 	&& rm -rf /tmp/*
 
+# -----------------------------------------------------------------------------
+# project and version
+# -----------------------------------------------------------------------------
+ARG project
+ARG version
+RUN sh /vue-msf/data/publish.sh $project $version
+
 EXPOSE 22 80 443 8080 8000
-#CMD ["/usr/sbin/sshd","-D"]
 ENTRYPOINT ["/run.sh"]
