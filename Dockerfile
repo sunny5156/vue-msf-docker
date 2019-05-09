@@ -524,11 +524,9 @@ RUN useradd super \
 # Copy Config
 # -----------------------------------------------------------------------------
 ADD run.sh /
-ADD publish.sh /vue-msf/data/
 ADD config /vue-msf/
 ADD config/.bash_profile /home/super/
 ADD config/.bashrc /home/super/
-ADD vendor.zip /vue-msf/data/www/
 RUN chmod a+x /run.sh \
 	&& chmod a+x ${PHP_INSTALL_DIR}/bin/checkstyle \
     && chmod a+x ${PHP_INSTALL_DIR}/bin/mergeCoverReport
