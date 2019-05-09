@@ -555,7 +555,10 @@ RUN rm -rf ${SRC_DIR}/* \
 # -----------------------------------------------------------------------------
 ARG project
 ARG version
-RUN sh /vue-msf/data/publish.sh $project $version
+ARG	msf_env=dev
+RUN sh /vue-msf/data/publish.sh $project $version \
+	&& echo "MSF_ENV=${msf_env}" >> /etc/profile \
+	&& source /etc/profile
 
 EXPOSE 22 80 443 8080 8000
 ENTRYPOINT ["/run.sh"]
