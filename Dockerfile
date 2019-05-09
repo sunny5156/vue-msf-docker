@@ -19,7 +19,7 @@ RUN mkdir -p ${SRC_DIR}
 # Install Development tools {epel-release}
 # -----------------------------------------------------------------------------
 RUN rpm --import /etc/pki/rpm-gpg/RPM* \
-    && curl --silent --location https://rpm.nodesource.com/setup_8.x | bash - \
+    && curl -s --location https://rpm.nodesource.com/setup_8.x | bash - \
     && yum -y update \
     && yum groupinstall -y "Development tools" \
     && yum install -y cc gcc gcc-c++ zlib-devel bzip2-devel openssl openssl-devel ncurses-devel sqlite-devel wget net-tools \
@@ -40,7 +40,7 @@ RUN cd /etc/yum.repos.d \
 # Install Python PIP & Supervisor
 # -----------------------------------------------------------------------------
 RUN cd ${SRC_DIR} \
-	&& curl https://pypi.org/simple/pip/ \
+	&& curl -s https://pypi.org/simple/pip/ \
 	&& yum install -y python-setuptools \
     && yum clean all \
     && easy_install pip \
@@ -164,7 +164,6 @@ RUN cd ${SRC_DIR} \
 # -----------------------------------------------------------------------------
 RUN cd ${SRC_DIR} \
     && wget -q -O libmcrypt-2.5.7.tar.gz https://nchc.dl.sourceforge.net/project/mcrypt/Libmcrypt/Production/libmcrypt-2.5.7.tar.gz \
-    #&& wget -q -O libmcrypt-2.5.7.tar.gz ftp://mcrypt.hellug.gr/pub/crypto/mcrypt/libmcrypt/libmcrypt-2.5.7.tar.gz \
     && tar xzf libmcrypt-2.5.7.tar.gz \
     && cd libmcrypt-2.5.7 \
     && ./configure 1>/dev/null \
@@ -513,6 +512,13 @@ RUN npm install apidoc nodemon -g
 # -----------------------------------------------------------------------------
 RUN curl -L http://github.com/micha/jsawk/raw/master/jsawk > /usr/local/bin/jsawk \
 	&& chmod 755 /usr/local/bin/jsawk
+	
+# -----------------------------------------------------------------------------
+# Add user super
+# -----------------------------------------------------------------------------
+RUN useradd super \
+    && echo "super:123456" | chpasswd \
+    && echo "super   ALL=(ALL)  NOPASSWD: ALL" >> /etc/sudoers 
 
 # -----------------------------------------------------------------------------
 # Copy Config
@@ -523,15 +529,8 @@ ADD config /vue-msf/
 ADD config/.bash_profile /home/super/
 ADD config/.bashrc /home/super/
 ADD vendor.zip /vue-msf/data/www/
-
-# -----------------------------------------------------------------------------
-# Add user super
-# -----------------------------------------------------------------------------
-RUN useradd super \
-    && echo "super:123456" | chpasswd \
-    && echo "super   ALL=(ALL)  NOPASSWD: ALL" >> /etc/sudoers \
-    && chmod a+x /run.sh \
-    && chmod a+x ${PHP_INSTALL_DIR}/bin/checkstyle \
+RUN chmod a+x /run.sh \
+	&& chmod a+x ${PHP_INSTALL_DIR}/bin/checkstyle \
     && chmod a+x ${PHP_INSTALL_DIR}/bin/mergeCoverReport
 
 # -----------------------------------------------------------------------------
