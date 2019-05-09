@@ -550,15 +550,5 @@ RUN npm install nodemon -g
 RUN rm -rf ${SRC_DIR}/* \
 	&& rm -rf /tmp/*
 
-# -----------------------------------------------------------------------------
-# project and version
-# -----------------------------------------------------------------------------
-ARG project
-ARG version
-ARG	msf_env=dev
-RUN sh /vue-msf/data/publish.sh $project $version \
-	&& echo "MSF_ENV=${msf_env}" >> /etc/profile \
-	&& source /etc/profile
-
 EXPOSE 22 80 443 8080 8000
 ENTRYPOINT ["/run.sh"]
