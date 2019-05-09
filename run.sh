@@ -21,7 +21,7 @@ mkdir -p /vue-msf/data/nginx/logs
 # chown
 chown super.super /vue-msf
 chown super.super /vue-msf/data
-chown super.super /vue-msf/data/www
+chown super.super -R /vue-msf/data/www
 chown super.super -R /home/super
 dotfile=`cd /vue-msf && find . -maxdepth 1 -name '*' |sed -e 's#^.$##' -e 's#^.\/##' -e 's#^data$##'`
 datadir=`cd /vue-msf/data && find . -maxdepth 1 -name '*' |sed -e 's#^.$##' -e 's#^.\/##' -e 's#^www$##'`
@@ -56,11 +56,6 @@ fi
 
 echo 'supervisord -c /vue-msf/supervisor/supervisord.conf'
 nohup supervisord -c /vue-msf/supervisor/supervisord.conf >/dev/null 2>&1 & 
-
-#echo '业务部分完成!'
-#if [ -f /vue-msf/data/publish.sh ]&&[ ! -f /home/super/.publish ]; then
-        #sh /vue-msf/data/publish.sh $project $version
-#fi
 
 echo '/etc/init.d/sshd start'
 #/etc/init.d/sshd start

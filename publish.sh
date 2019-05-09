@@ -36,11 +36,8 @@ echo -e $WORK_CONF >/vue-msf/supervisor/conf.d/${PROJECT}.conf
 if [ -f /vue-msf/data/www/vendor.zip ]; then
 	
 	unzip -o -q /vue-msf/data/www/vendor.zip -d ${PROJECT_DIR}/Code/Backend/ 
-	#cd ${PROJECT_DIR}/Code/Backend/ 
 	#composer dump-autoload
 	rm -rf /vue-msf/data/www/vendor.zip
 	#supervisorctl -c /vue-msf/supervisor/supervisord.conf update
 	
 fi
-
-
