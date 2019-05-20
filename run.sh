@@ -51,8 +51,10 @@ fi
 if [ -f /vue-msf/bin/init.sh ]; then
     echo '/vue-msf/bin/init.sh'
     chmod a+x /vue-msf/bin/init.sh
-    su super -c '/vue-msf/bin/init.sh'
+    su - super -c '/vue-msf/bin/init.sh'
 fi
+
+su - super -c 'source /etc/profile'
 
 echo 'supervisord -c /vue-msf/supervisor/supervisord.conf'
 nohup supervisord -c /vue-msf/supervisor/supervisord.conf >/dev/null 2>&1 & 
