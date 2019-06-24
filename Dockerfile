@@ -5,8 +5,7 @@ MAINTAINER sunny5156 <sunny5156@qq.com>
 # Try to fix Centos7 docker Dbus 
 # -----------------------------------------------------------------------------
 
-RUN yum clean all && yum swap -y fakesystemd systemd
-
+#RUN yum clean all && yum swap -y fakesystemd systemd
 
 # -----------------------------------------------------------------------------
 # Make src dir
@@ -22,7 +21,7 @@ RUN rpm --import /etc/pki/rpm-gpg/RPM* \
     && curl -s --location https://rpm.nodesource.com/setup_8.x | bash - \
     && yum -y update \
     && yum groupinstall -y "Development tools" \
-    && yum install -y cc gcc gcc-c++ zlib-devel bzip2-devel openssl openssl-devel ncurses-devel sqlite-devel wget net-tools \
+    && yum install -y cc gcc gcc-c++ zlib zlib-devel bzip2-devel openssl openssl-devel ncurses-devel sqlite-devel wget net-tools \
     && rm -rf /var/cache/{yum,ldconfig}/* \
     && rm -rf /etc/ld.so.cache \
     && yum clean all
@@ -50,22 +49,17 @@ RUN cd ${SRC_DIR} \
 # Devel libraries for delelopment tools like php & nginx ...
 # -----------------------------------------------------------------------------
 RUN yum -y install \
-	lrzsz psmisc epel-release \
-    tar gzip bzip2 unzip file perl-devel perl-ExtUtils-Embed \
-    pcre openssh-server openssh sudo \
-    screen vim git telnet expat \
-    lemon net-snmp net-snmp-devel \
-    ca-certificates perl-CPAN m4 \
-    gd libjpeg libpng zlib libevent net-snmp net-snmp-devel \
-    net-snmp-libs freetype libtool-tldl libxml2 unixODBC libyaml libyaml-devel\
-    libxslt libmcrypt freetds \
-    gd-devel libjpeg-devel libpng-devel zlib-devel \
-    freetype-devel libtool-ltdl libtool-ltdl-devel \
-    libxml2-devel zlib-devel bzip2-devel gettext-devel \
-    curl-devel gettext-devel libevent-devel \
-    libxslt-devel expat-devel unixODBC-devel \
-    openssl-devel libmcrypt-devel freetds-devel \
-    pcre-devel openldap openldap-devel libc-client-devel \
+	lrzsz psmisc epel-release lemon \
+    tar gzip bzip2 bzip2-devel unzip file perl-devel perl-ExtUtils-Embed perl-CPAN \
+    pcre pcre-devel openssh-server openssh sudo \
+    screen vim git telnet expat expat-devel\
+    ca-certificates m4\
+    gd gd-devel libjpeg libjpeg-devel libpng libpng-devel libevent libevent-devel \
+    net-snmp net-snmp-devel net-snmp-libs \
+    freetype freetype-devel libtool-tldl libtool-ltdl-devel libxml2 libxml2-devel unixODBC unixODBC-devel libyaml libyaml-devel\
+    libxslt libxslt-devel libmcrypt libmcrypt-devel freetds freetds-devel \
+    curl-devel gettext-devel \
+    openldap openldap-devel libc-client-devel \
     jemalloc jemalloc-devel inotify-tools nodejs apr-util yum-utils tree js\
     && ln -s /usr/lib64/libc-client.so /usr/lib/libc-client.so \
     && rm -rf /var/cache/{yum,ldconfig}/* \
@@ -191,7 +185,7 @@ RUN cd $SRC_DIR \
 # -----------------------------------------------------------------------------
 # Install PHP
 # -----------------------------------------------------------------------------
-ENV phpversion 7.1.29
+ENV phpversion 7.1.30
 ENV PHP_INSTALL_DIR ${HOME}/php
 RUN cd ${SRC_DIR} \
     && ls -l \
@@ -387,7 +381,7 @@ RUN cd ${SRC_DIR} \
 
 #RUN /vue-msf/php/bin/pecl install swoole_serialize-0.1.1
 
-ENV swooleVersion 1.10.5
+ENV swooleVersion 2.2.0
 RUN cd ${SRC_DIR} \
     && wget -q -O swoole-${swooleVersion}.tar.gz https://github.com/swoole/swoole-src/archive/v${swooleVersion}.tar.gz \
     && tar zxf swoole-${swooleVersion}.tar.gz \
@@ -459,16 +453,16 @@ RUN cd ${SRC_DIR} \
 # -----------------------------------------------------------------------------
 # Install Apache ab
 # -----------------------------------------------------------------------------
-RUN cd ${HOME} \
-    && yum -y remove httpd \
-    && yum clean all \
-    && mkdir httpd \
-    && cd httpd \
-    && yumdownloader httpd-tools \
-    && rpm2cpio httpd-tools* | cpio -idmv \
-    && mkdir -p ${HOME}/bin  \
-    && mv -f ./usr/bin/ab ${HOME}/bin \
-    && cd ${HOME} && rm -rf ${HOME}/httpd
+#RUN cd ${HOME} \
+#    && yum -y remove httpd \
+#    && yum clean all \
+#    && mkdir httpd \
+#    && cd httpd \
+#    && yumdownloader httpd-tools \
+#    && rpm2cpio httpd-tools* | cpio -idmv \
+#    && mkdir -p ${HOME}/bin  \
+#    && mv -f ./usr/bin/ab ${HOME}/bin \
+#    && cd ${HOME} && rm -rf ${HOME}/httpd
 
 # -----------------------------------------------------------------------------
 # Update Git
@@ -536,11 +530,6 @@ RUN chmod a+x /run.sh \
 # ----------------------------------------------------------------------------- 
 RUN echo -e 'PATH=$PATH:/vue-msf/php/bin \nPATH=$PATH:/vue-msf/php/sbin \nPATH=$PATH:/vue-msf/nginx/bin/ \nPATH=$PATH:/vue-msf/sbin/ \nPATH=$PATH:/vue-msf/redis/bin/:/usr/libexec/git-core \nexport PATH \n' >> /etc/profile \
     && source /etc/profile
-
-# -----------------------------------------------------------------------------
-# nodemon (热更新php代码)
-# -----------------------------------------------------------------------------     
-RUN npm install nodemon -g
 
 # -----------------------------------------------------------------------------
 # clean tmp file
