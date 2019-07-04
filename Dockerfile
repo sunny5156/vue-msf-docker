@@ -188,9 +188,8 @@ RUN cd $SRC_DIR \
 ENV phpversion 7.1.30
 ENV PHP_INSTALL_DIR ${HOME}/php
 RUN cd ${SRC_DIR} \
-    && ls -l \
+#    && ls -l \
     && wget -q -O php-${phpversion}.tar.gz https://www.php.net/distributions/php-${phpversion}.tar.gz \
-    #&& wget -q -O php-${phpversion}.tar.gz http://120.52.51.14/cn2.php.net/distributions/php-${phpversion}.tar.gz \
     && tar xzf php-${phpversion}.tar.gz \
     && cd php-${phpversion} \
     && ./configure \
@@ -239,7 +238,6 @@ RUN cd ${SRC_DIR} \
        --with-curl=/usr/bin/curl \
        --with-mcrypt \
        --with-mhash \
-
     && make 1>/dev/null \
     && make install \
     && rm -rf ${PHP_INSTALL_DIR}/lib/php.ini \

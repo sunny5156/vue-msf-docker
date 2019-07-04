@@ -50,7 +50,8 @@ fi
 
 if [ -f /vue-msf/bin/init.sh ]; then
     echo '/vue-msf/bin/init.sh'
-    chmod a+x /vue-msf/bin/init.sh
+    chown super.super /vue-msf/bin/init.sh 
+    chmod a+x /vue-msf/bin/init.sh 
     su super -c '/vue-msf/bin/init.sh'
 fi
 
