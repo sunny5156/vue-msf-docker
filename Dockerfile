@@ -18,7 +18,7 @@ RUN mkdir -p ${SRC_DIR}
 # Install Development tools {epel-release}
 # -----------------------------------------------------------------------------
 RUN rpm --import /etc/pki/rpm-gpg/RPM* \
-    && curl -s --location https://rpm.nodesource.com/setup_8.x | bash - \
+    && curl -s --location https://rpm.nodesource.com/setup_10.x | bash - \
     && yum -y update \
     && yum groupinstall -y "Development tools" \
     && yum install -y cc gcc gcc-c++ zlib zlib-devel bzip2-devel openssl openssl-devel ncurses-devel sqlite-devel wget net-tools \
