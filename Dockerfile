@@ -512,7 +512,7 @@ RUN npm install apidoc nodemon -g
 # -----------------------------------------------------------------------------
 RUN curl -L http://github.com/micha/jsawk/raw/master/jsawk > /usr/local/bin/jsawk \
 	&& chmod 755 /usr/local/bin/jsawk
-	
+
 # -----------------------------------------------------------------------------
 # Add user super
 # -----------------------------------------------------------------------------
@@ -542,6 +542,15 @@ RUN echo -e 'PATH=$PATH:/vue-msf/php/bin \nPATH=$PATH:/vue-msf/php/sbin \nPATH=$
 # -----------------------------------------------------------------------------
 RUN rm -rf ${SRC_DIR}/* \
 	&& rm -rf /tmp/*
+
+# -----------------------------------------------------------------------------
+# Add swoole tracker
+# -----------------------------------------------------------------------------
+
+#ADD tracker /vue-msf/src/tracker
+#RUN  cp /vue-msf/src/tracker/swoole_tracker71.so /vue-msf/php/lib/php/extensions/no-debug-non-zts-20160303/swoole_tracker.so \
+#	&& cd /vue-msf/src/tracker/ && sh deploy_env.sh \
+#	&& cp /vue-msf/src/tracker/swoole_tracker.ini /vue-msf/php/etc/php.d/
 
 EXPOSE 22 80 443 8080 8000
 ENTRYPOINT ["/run.sh"]
