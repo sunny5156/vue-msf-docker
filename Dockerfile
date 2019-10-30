@@ -494,7 +494,9 @@ RUN chmod a+x -R ${HOME}/gocronx/
 # -----------------------------------------------------------------------------
 # Update Git-Core
 # -----------------------------------------------------------------------------
-RUN yum -y install git-core
+RUN yum -y install git-core \
+	&& ln -s /usr/libexec/git-core/git-remote-http /bin/ \
+	&& ln -s /usr/libexec/git-core/git-remote-https /bin/
 
 # -----------------------------------------------------------------------------
 # Set GIT user info
