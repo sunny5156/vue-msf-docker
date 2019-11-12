@@ -91,7 +91,8 @@ RUN ln -sf /usr/share/zoneinfo/Asia/Chongqing /etc/localtime \
 	&& echo "root:123456" | chpasswd \
 	&& ssh-keygen -q -t rsa -b 2048 -f /etc/ssh/ssh_host_rsa_key -N '' \ 
 	&& ssh-keygen -q -t ecdsa -f /etc/ssh/ssh_host_ecdsa_key -N '' \
-	&& ssh-keygen -t dsa -f /etc/ssh/ssh_host_ed25519_key -N '' 
+	&& ssh-keygen -t dsa -f /etc/ssh/ssh_host_ed25519_key -N '' \
+	&& grep "GSSAPIAuthentication yes" -rl /etc/ssh/ssh_config | xargs sed -i "s/GSSAPIAuthentication yes/GSSAPIAuthentication no/g"
 
 # -----------------------------------------------------------------------------
 # Install Nginx
