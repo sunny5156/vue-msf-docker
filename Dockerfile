@@ -5,8 +5,7 @@ MAINTAINER sunny5156 <sunny5156@qq.com>
 # Try to fix Centos7 docker Dbus 
 # -----------------------------------------------------------------------------
 
-RUN yum clean all && yum swap -y fakesystemd systemd
-
+#RUN yum clean all && yum swap -y fakesystemd systemd
 
 # -----------------------------------------------------------------------------
 # Make src dir
@@ -19,10 +18,10 @@ RUN mkdir -p ${SRC_DIR}
 # Install Development tools {epel-release}
 # -----------------------------------------------------------------------------
 RUN rpm --import /etc/pki/rpm-gpg/RPM* \
-    && curl -s --location https://rpm.nodesource.com/setup_8.x | bash - \
+    && curl -s --location https://rpm.nodesource.com/setup_10.x | bash - \
     && yum -y update \
     && yum groupinstall -y "Development tools" \
-    && yum install -y cc gcc gcc-c++ zlib-devel bzip2-devel openssl openssl-devel ncurses-devel sqlite-devel wget net-tools \
+    && yum install -y cc gcc gcc-c++ zlib zlib-devel bzip2-devel openssl openssl-devel ncurses-devel sqlite-devel wget net-tools \
     && rm -rf /var/cache/{yum,ldconfig}/* \
     && rm -rf /etc/ld.so.cache \
     && yum clean all
@@ -50,22 +49,17 @@ RUN cd ${SRC_DIR} \
 # Devel libraries for delelopment tools like php & nginx ...
 # -----------------------------------------------------------------------------
 RUN yum -y install \
-	lrzsz psmisc epel-release \
-    tar gzip bzip2 unzip file perl-devel perl-ExtUtils-Embed \
-    pcre openssh-server openssh sudo \
-    screen vim git telnet expat \
-    lemon net-snmp net-snmp-devel \
-    ca-certificates perl-CPAN m4 \
-    gd libjpeg libpng zlib libevent net-snmp net-snmp-devel \
-    net-snmp-libs freetype libtool-tldl libxml2 unixODBC libyaml libyaml-devel\
-    libxslt libmcrypt freetds \
-    gd-devel libjpeg-devel libpng-devel zlib-devel \
-    freetype-devel libtool-ltdl libtool-ltdl-devel \
-    libxml2-devel zlib-devel bzip2-devel gettext-devel \
-    curl-devel gettext-devel libevent-devel \
-    libxslt-devel expat-devel unixODBC-devel \
-    openssl-devel libmcrypt-devel freetds-devel \
-    pcre-devel openldap openldap-devel libc-client-devel \
+	lrzsz psmisc epel-release lemon \
+    tar gzip bzip2 bzip2-devel unzip file perl-devel perl-ExtUtils-Embed perl-CPAN \
+    pcre pcre-devel openssh-server openssh sudo \
+    screen vim git telnet expat expat-devel\
+    ca-certificates m4\
+    gd gd-devel libjpeg libjpeg-devel libpng libpng-devel libevent libevent-devel \
+    net-snmp net-snmp-devel net-snmp-libs \
+    freetype freetype-devel libtool-tldl libtool-ltdl-devel libxml2 libxml2-devel unixODBC unixODBC-devel libyaml libyaml-devel\
+    libxslt libxslt-devel libmcrypt libmcrypt-devel freetds freetds-devel \
+    curl-devel gettext-devel \
+    openldap openldap-devel libc-client-devel \
     jemalloc jemalloc-devel inotify-tools nodejs apr-util yum-utils tree js\
     && ln -s /usr/lib64/libc-client.so /usr/lib/libc-client.so \
     && rm -rf /var/cache/{yum,ldconfig}/* \
@@ -74,13 +68,21 @@ RUN yum -y install \
     
 RUN rpm --import /etc/pki/rpm-gpg/RPM*
 
+
 RUN yum -y install htop
 
 # -----------------------------------------------------------------------------
 # Update npm 
 # ----------------------------------------------------------------------------- 
 RUN npm i npm@latest -g
+ 
 
+# -----------------------------------------------------------------------------
+# Update yarn 
+# ----------------------------------------------------------------------------- 
+
+RUN curl --silent --location https://dl.yarnpkg.com/rpm/yarn.repo | sudo tee /etc/yum.repos.d/yarn.repo \
+	&& yum install -y yarn
 # -----------------------------------------------------------------------------
 # Configure, timezone/sshd/passwd/networking
 # -----------------------------------------------------------------------------
@@ -89,7 +91,8 @@ RUN ln -sf /usr/share/zoneinfo/Asia/Chongqing /etc/localtime \
 	&& echo "root:123456" | chpasswd \
 	&& ssh-keygen -q -t rsa -b 2048 -f /etc/ssh/ssh_host_rsa_key -N '' \ 
 	&& ssh-keygen -q -t ecdsa -f /etc/ssh/ssh_host_ecdsa_key -N '' \
-	&& ssh-keygen -t dsa -f /etc/ssh/ssh_host_ed25519_key -N '' 
+	&& ssh-keygen -t dsa -f /etc/ssh/ssh_host_ed25519_key -N '' \
+	&& grep "GSSAPIAuthentication yes" -rl /etc/ssh/ssh_config | xargs sed -i "s/GSSAPIAuthentication yes/GSSAPIAuthentication no/g"
 
 # -----------------------------------------------------------------------------
 # Install Nginx
@@ -191,12 +194,11 @@ RUN cd $SRC_DIR \
 # -----------------------------------------------------------------------------
 # Install PHP
 # -----------------------------------------------------------------------------
-ENV phpversion 7.2.18
+ENV phpversion 7.3.12
 ENV PHP_INSTALL_DIR ${HOME}/php
 RUN cd ${SRC_DIR} \
-    && ls -l \
+#    && ls -l \
     && wget -q -O php-${phpversion}.tar.gz https://www.php.net/distributions/php-${phpversion}.tar.gz \
-    #&& wget -q -O php-${phpversion}.tar.gz http://120.52.51.14/cn2.php.net/distributions/php-${phpversion}.tar.gz \
     && tar xzf php-${phpversion}.tar.gz \
     && cd php-${phpversion} \
     && ./configure \
@@ -245,7 +247,6 @@ RUN cd ${SRC_DIR} \
        --with-curl=/usr/bin/curl \
        --with-mcrypt \
        --with-mhash \
-
     && make 1>/dev/null \
     && make install \
     && rm -rf ${PHP_INSTALL_DIR}/lib/php.ini \
@@ -387,7 +388,7 @@ RUN cd ${SRC_DIR} \
 
 #RUN /vue-msf/php/bin/pecl install swoole_serialize-0.1.1
 
-ENV swooleVersion 4.3.2
+ENV swooleVersion 4.4.12
 RUN cd ${SRC_DIR} \
     && wget -q -O swoole-${swooleVersion}.tar.gz https://github.com/swoole/swoole-src/archive/v${swooleVersion}.tar.gz \
     && tar zxf swoole-${swooleVersion}.tar.gz \
@@ -398,6 +399,8 @@ RUN cd ${SRC_DIR} \
     && make 1>/dev/null \
     && make install \
     && rm -rf ${SRC_DIR}/swoole*
+    
+RUN grep "swoole.use_shortname = 'ON'" -rl /vue-msf/php/etc/php.d/swoole.ini | xargs sed -i "s/swoole.use_shortname = 'On'/swoole.use_shortname = 'Off'/g"
 
 # -----------------------------------------------------------------------------
 # Install PHP inotify extensions
@@ -459,16 +462,16 @@ RUN cd ${SRC_DIR} \
 # -----------------------------------------------------------------------------
 # Install Apache ab
 # -----------------------------------------------------------------------------
-RUN cd ${HOME} \
-    && yum -y remove httpd \
-    && yum clean all \
-    && mkdir httpd \
-    && cd httpd \
-    && yumdownloader httpd-tools \
-    && rpm2cpio httpd-tools* | cpio -idmv \
-    && mkdir -p ${HOME}/bin  \
-    && mv -f ./usr/bin/ab ${HOME}/bin \
-    && cd ${HOME} && rm -rf ${HOME}/httpd
+#RUN cd ${HOME} \
+#    && yum -y remove httpd \
+#    && yum clean all \
+#    && mkdir httpd \
+#    && cd httpd \
+#    && yumdownloader httpd-tools \
+#    && rpm2cpio httpd-tools* | cpio -idmv \
+#    && mkdir -p ${HOME}/bin  \
+#    && mv -f ./usr/bin/ab ${HOME}/bin \
+#    && cd ${HOME} && rm -rf ${HOME}/httpd
 
 # -----------------------------------------------------------------------------
 # Update Git
@@ -494,7 +497,9 @@ RUN chmod a+x -R ${HOME}/gocronx/
 # -----------------------------------------------------------------------------
 # Update Git-Core
 # -----------------------------------------------------------------------------
-RUN yum -y install git-core
+RUN yum -y install git-core \
+	&& ln -s /usr/libexec/git-core/git-remote-http /bin/ \
+	&& ln -s /usr/libexec/git-core/git-remote-https /bin/
 
 # -----------------------------------------------------------------------------
 # Set GIT user info
@@ -512,7 +517,7 @@ RUN npm install apidoc nodemon -g
 # -----------------------------------------------------------------------------
 RUN curl -L http://github.com/micha/jsawk/raw/master/jsawk > /usr/local/bin/jsawk \
 	&& chmod 755 /usr/local/bin/jsawk
-	
+
 # -----------------------------------------------------------------------------
 # Add user super
 # -----------------------------------------------------------------------------
@@ -538,15 +543,12 @@ RUN echo -e 'PATH=$PATH:/vue-msf/php/bin \nPATH=$PATH:/vue-msf/php/sbin \nPATH=$
     && source /etc/profile
 
 # -----------------------------------------------------------------------------
-# nodemon (热更新php代码)
-# -----------------------------------------------------------------------------     
-RUN npm install nodemon -g
-
-# -----------------------------------------------------------------------------
 # clean tmp file
 # -----------------------------------------------------------------------------
 RUN rm -rf ${SRC_DIR}/* \
 	&& rm -rf /tmp/*
+
+
 
 EXPOSE 22 80 443 8080 8000
 ENTRYPOINT ["/run.sh"]
