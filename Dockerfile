@@ -93,6 +93,22 @@ RUN ln -sf /usr/share/zoneinfo/Asia/Chongqing /etc/localtime \
 	&& ssh-keygen -q -t ecdsa -f /etc/ssh/ssh_host_ecdsa_key -N '' \
 	&& ssh-keygen -t dsa -f /etc/ssh/ssh_host_ed25519_key -N '' \
 	&& grep "GSSAPIAuthentication yes" -rl /etc/ssh/ssh_config | xargs sed -i "s/GSSAPIAuthentication yes/GSSAPIAuthentication no/g"
+	
+# -----------------------------------------------------------------------------
+# Install Libzip
+# ----------------------------------------------------------------------------- 	
+RUN cd ${SRC_DIR} \  
+	&& yum remove -y libzip libzip-devel \
+	&& wget -q -O libzip-1.2.0.tar.gz https://nih.at/libzip/libzip-1.2.0.tar.gz \
+	&& tar -zxvf libzip-1.2.0.tar.gz \
+	&& cd libzip-1.2.0 \
+	&& echo -e "/usr/local/lib64\n/usr/local/lib\n/usr/lib\n/usr/lib64" >>/etc/ld.so.conf \
+    && ldconfig -v \
+	&& ./configure \
+	&& make \
+	&& make install \
+	&& rm -rf $SRC_DIR/libzip-1.2.0 \
+	&& cp /usr/local/lib/libzip/include/zipconf.h /usr/local/include/zipconf.h
 
 # -----------------------------------------------------------------------------
 # Install Nginx
@@ -372,15 +388,15 @@ RUN cd ${SRC_DIR} \
 # -----------------------------------------------------------------------------
 # Install PHP yac extensions
 # -----------------------------------------------------------------------------
-RUN cd ${SRC_DIR} \
-    && wget -q -O yac-2.0.2.tgz https://pecl.php.net/get/yac-2.0.2.tgz \
-    && tar zxf yac-2.0.2.tgz\
-    && cd yac-2.0.2 \
-    && ${PHP_INSTALL_DIR}/bin/phpize \
-    && ./configure --with-php-config=${PHP_INSTALL_DIR}/bin/php-config \
-    && make 1>/dev/null \
-    && make install \
-    && rm -rf $SRC_DIR/yac-*
+#RUN cd ${SRC_DIR} \
+#    && wget -q -O yac-2.0.2.tgz https://pecl.php.net/get/yac-2.0.2.tgz \
+#    && tar zxf yac-2.0.2.tgz\
+#    && cd yac-2.0.2 \
+#    && ${PHP_INSTALL_DIR}/bin/phpize \
+#    && ./configure --with-php-config=${PHP_INSTALL_DIR}/bin/php-config \
+#    && make 1>/dev/null \
+#    && make install \
+#    && rm -rf $SRC_DIR/yac-*
 
 # -----------------------------------------------------------------------------
 # Install PHP swoole extensions
@@ -399,8 +415,7 @@ RUN cd ${SRC_DIR} \
     && make 1>/dev/null \
     && make install \
     && rm -rf ${SRC_DIR}/swoole*
-    
-RUN grep "swoole.use_shortname = 'ON'" -rl /vue-msf/php/etc/php.d/swoole.ini | xargs sed -i "s/swoole.use_shortname = 'On'/swoole.use_shortname = 'Off'/g"
+
 
 # -----------------------------------------------------------------------------
 # Install PHP inotify extensions
@@ -472,6 +487,8 @@ RUN cd ${SRC_DIR} \
 #    && mkdir -p ${HOME}/bin  \
 #    && mv -f ./usr/bin/ab ${HOME}/bin \
 #    && cd ${HOME} && rm -rf ${HOME}/httpd
+
+RUN echo "swoole.use_shortname = 'Off'" >> /vue-msf/php/etc/php.d/swoole.ini 
 
 # -----------------------------------------------------------------------------
 # Update Git
