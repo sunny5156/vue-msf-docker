@@ -97,18 +97,18 @@ RUN ln -sf /usr/share/zoneinfo/Asia/Chongqing /etc/localtime \
 # -----------------------------------------------------------------------------
 # Install Libzip
 # ----------------------------------------------------------------------------- 	
-RUN cd ${SRC_DIR} \  
-	&& yum remove -y libzip libzip-devel \
-	&& wget -q -O libzip-1.2.0.tar.gz https://nih.at/libzip/libzip-1.2.0.tar.gz \
-	&& tar -zxvf libzip-1.2.0.tar.gz \
-	&& cd libzip-1.2.0 \
-	&& echo -e "/usr/local/lib64\n/usr/local/lib\n/usr/lib\n/usr/lib64" >>/etc/ld.so.conf \
-    && ldconfig -v \
-	&& ./configure \
-	&& make \
-	&& make install \
-	&& rm -rf $SRC_DIR/libzip-1.2.0 \
-	&& cp /usr/local/lib/libzip/include/zipconf.h /usr/local/include/zipconf.h
+#RUN cd ${SRC_DIR} \  
+#	&& yum remove -y libzip libzip-devel \
+#	&& wget -q -O libzip-1.2.0.tar.gz https://nih.at/libzip/libzip-1.2.0.tar.gz \
+#	&& tar -zxvf libzip-1.2.0.tar.gz \
+#	&& cd libzip-1.2.0 \
+#	&& echo -e "/usr/local/lib64\n/usr/local/lib\n/usr/lib\n/usr/lib64" >>/etc/ld.so.conf \
+#   && ldconfig -v \
+#	&& ./configure \
+#	&& make \
+#	&& make install \
+#	&& rm -rf $SRC_DIR/libzip-1.2.0 \
+#	&& cp /usr/local/lib/libzip/include/zipconf.h /usr/local/include/zipconf.h
 
 # -----------------------------------------------------------------------------
 # Install Nginx
