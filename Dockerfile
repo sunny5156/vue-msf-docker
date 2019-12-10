@@ -210,7 +210,7 @@ RUN cd $SRC_DIR \
 # -----------------------------------------------------------------------------
 # Install PHP
 # -----------------------------------------------------------------------------
-ENV phpversion 7.3.12
+ENV phpversion 7.2.18
 ENV PHP_INSTALL_DIR ${HOME}/php
 RUN cd ${SRC_DIR} \
 #    && ls -l \
@@ -388,15 +388,15 @@ RUN cd ${SRC_DIR} \
 # -----------------------------------------------------------------------------
 # Install PHP yac extensions
 # -----------------------------------------------------------------------------
-#RUN cd ${SRC_DIR} \
-#    && wget -q -O yac-2.0.2.tgz https://pecl.php.net/get/yac-2.0.2.tgz \
-#    && tar zxf yac-2.0.2.tgz\
-#    && cd yac-2.0.2 \
-#    && ${PHP_INSTALL_DIR}/bin/phpize \
-#    && ./configure --with-php-config=${PHP_INSTALL_DIR}/bin/php-config \
-#    && make 1>/dev/null \
-#    && make install \
-#    && rm -rf $SRC_DIR/yac-*
+RUN cd ${SRC_DIR} \
+    && wget -q -O yac-2.0.2.tgz https://pecl.php.net/get/yac-2.0.2.tgz \
+    && tar zxf yac-2.0.2.tgz\
+    && cd yac-2.0.2 \
+    && ${PHP_INSTALL_DIR}/bin/phpize \
+    && ./configure --with-php-config=${PHP_INSTALL_DIR}/bin/php-config \
+    && make 1>/dev/null \
+    && make install \
+    && rm -rf $SRC_DIR/yac-*
 
 # -----------------------------------------------------------------------------
 # Install PHP swoole extensions
