@@ -286,9 +286,9 @@ RUN cd ${SRC_DIR} \
 # Install PHP mongodb extensions
 # -----------------------------------------------------------------------------
 RUN cd ${SRC_DIR} \
-    && wget -q -O mongodb-1.5.3.tgz https://pecl.php.net/get/mongodb-1.5.3.tgz \
-    && tar zxf mongodb-1.5.3.tgz \
-    && cd mongodb-1.5.3 \
+    && wget -q -O mongodb-1.6.1.tgz https://pecl.php.net/get/mongodb-1.6.3.tgz \
+    && tar zxf mongodb-1.6.1.tgz \
+    && cd mongodb-1.6.1 \
     && ${PHP_INSTALL_DIR}/bin/phpize \
     && ./configure --with-php-config=${PHP_INSTALL_DIR}/bin/php-config 1>/dev/null \
     && make clean \
@@ -488,7 +488,7 @@ RUN cd ${SRC_DIR} \
 #    && mv -f ./usr/bin/ab ${HOME}/bin \
 #    && cd ${HOME} && rm -rf ${HOME}/httpd
 
-RUN echo "swoole.use_shortname = 'Off'" >> /vue-msf/php/etc/php.d/swoole.ini 
+#RUN echo "swoole.use_shortname = 'Off'" >> /vue-msf/php/etc/php.d/swoole.ini 
 
 # -----------------------------------------------------------------------------
 # Update Git
@@ -532,7 +532,7 @@ RUN npm install apidoc nodemon -g
 # -----------------------------------------------------------------------------
 # jsawk
 # -----------------------------------------------------------------------------
-RUN curl -L http://github.com/micha/jsawk/raw/master/jsawk > /usr/local/bin/jsawk \
+RUN curl -s -L http://github.com/micha/jsawk/raw/master/jsawk > /usr/local/bin/jsawk \
 	&& chmod 755 /usr/local/bin/jsawk
 
 # -----------------------------------------------------------------------------
