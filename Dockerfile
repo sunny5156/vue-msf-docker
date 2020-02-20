@@ -286,7 +286,7 @@ RUN cd ${SRC_DIR} \
 # Install PHP mongodb extensions
 # -----------------------------------------------------------------------------
 RUN cd ${SRC_DIR} \
-    && wget -q -O mongodb-1.6.1.tgz https://pecl.php.net/get/mongodb-1.6.3.tgz \
+    && wget -q -O mongodb-1.6.1.tgz https://pecl.php.net/get/mongodb-1.6.1.tgz \
     && tar zxf mongodb-1.6.1.tgz \
     && cd mongodb-1.6.1 \
     && ${PHP_INSTALL_DIR}/bin/phpize \
