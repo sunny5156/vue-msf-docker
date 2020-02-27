@@ -565,7 +565,5 @@ RUN echo -e 'PATH=$PATH:/vue-msf/php/bin \nPATH=$PATH:/vue-msf/php/sbin \nPATH=$
 RUN rm -rf ${SRC_DIR}/* \
 	&& rm -rf /tmp/*
 
-
-
 EXPOSE 22 80 443 8080 8000
 ENTRYPOINT ["/run.sh"]
