@@ -69,7 +69,7 @@ RUN yum -y install \
 RUN rpm --import /etc/pki/rpm-gpg/RPM*
 
 
-RUN yum -y install htop
+RUN yum -y install htop sshpass
 
 # -----------------------------------------------------------------------------
 # Update npm 
