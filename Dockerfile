@@ -370,6 +370,20 @@ RUN cd ${SRC_DIR} \
     && make 1>/dev/null \
     && make install \
     && rm -rf ${SRC_DIR}/igbinary-*
+    
+# -----------------------------------------------------------------------------
+# Install PHP xlswriter extensions
+# -----------------------------------------------------------------------------
+RUN cd ${SRC_DIR} \
+    && wget -q -O xlswriter-1.3.6.tgz https://pecl.php.net/get/xlswriter-1.3.6.tgz \
+    && tar zxf xlswriter-1.3.6.tgz \
+    && cd xlswriter-1.3.6.tgz \
+    && ${PHP_INSTALL_DIR}/bin/phpize \
+    && ./configure --with-php-config=${PHP_INSTALL_DIR}/bin/php-config 1>/dev/null \
+    && make clean \
+    && make 1>/dev/null \
+    && make install \
+    && rm -rf ${SRC_DIR}/xlswriter-*
 
 # -----------------------------------------------------------------------------
 # Install PHP memcached extensions
@@ -404,7 +418,7 @@ RUN cd ${SRC_DIR} \
 
 #RUN /vue-msf/php/bin/pecl install swoole_serialize-0.1.1
 
-ENV swooleVersion 4.4.12
+ENV swooleVersion 4.5.2
 RUN cd ${SRC_DIR} \
     && wget -q -O swoole-${swooleVersion}.tar.gz https://github.com/swoole/swoole-src/archive/v${swooleVersion}.tar.gz \
     && tar zxf swoole-${swooleVersion}.tar.gz \
