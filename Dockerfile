@@ -38,14 +38,14 @@ RUN rpm --import /etc/pki/rpm-gpg/RPM* \
 #    && yum clean all
 
 # -----------------------------------------------------------------------------
-# Install Python PIP & Supervisor
+# python3 yum error ,change python pip link
 # -----------------------------------------------------------------------------
-RUN cd ${SRC_DIR} \
-	&& curl -s https://pypi.org/simple/pip/ \
-	&& yum install -y python-setuptools \
-    && yum clean all \
-    && easy_install pip \
-    && pip install supervisor distribute
+RUN grep '#! /usr/bin/python' -rl /usr/libexec/urlgrabber-ext-down | xargs sed -i "s/#! \/usr\/bin\/python/#!\/usr\/bin\/python2/g" \
+    && grep '#!/usr/bin/python' -rl /usr/bin/yum  | xargs sed -i "s/#!\/usr\/bin\/python/#!\/usr\/bin\/python2/g" \
+    && cd /usr/bin \
+    && rm -f python pip \
+    && ln -s /usr/bin/python3 /usr/bin/python \
+    && ln -s /usr/bin/pip3 /usr/bin/pip
 
 # -----------------------------------------------------------------------------
 # Devel libraries for delelopment tools like php & nginx ...
@@ -72,6 +72,17 @@ RUN yum -y install \
 RUN rpm --import /etc/pki/rpm-gpg/RPM*
 
 # -----------------------------------------------------------------------------
+# Install Python PIP & Supervisor distribute
+# -----------------------------------------------------------------------------
+RUN cd ${SRC_DIR} \
+    && pip install --upgrade pip \
+	# && curl -s https://pypi.org/simple/pip/ \
+	&& yum install -y python-setuptools \
+    # && yum clean all \
+    # && easy_install pip \
+    && pip install supervisor
+
+# -----------------------------------------------------------------------------
 # Update yarn and Update npm , install apidoc nodemon
 # ----------------------------------------------------------------------------- 
 
@@ -79,6 +90,7 @@ RUN curl --silent --location https://dl.yarnpkg.com/rpm/yarn.repo | sudo tee /et
 	&& yum install -y yarn \
     && npm i npm@latest -g \
     && npm install apidoc nodemon -g
+
 # -----------------------------------------------------------------------------
 # Configure, timezone/sshd/passwd/networking , Config root , add super
 # -----------------------------------------------------------------------------
@@ -512,15 +524,7 @@ RUN chmod a+x /run.sh \
 	&& chmod a+x ${PHP_INSTALL_DIR}/bin/checkstyle \
     && chmod a+x ${PHP_INSTALL_DIR}/bin/mergeCoverReport
 
-# -----------------------------------------------------------------------------
-# python3 yum error ,change python pip link
-# -----------------------------------------------------------------------------
-RUN grep '#! /usr/bin/python' -rl /usr/libexec/urlgrabber-ext-down | xargs sed -i "s/#! \/usr\/bin\/python/#!\/usr\/bin\/python2/g" \
-    && grep '#!/usr/bin/python' -rl /usr/bin/yum  | xargs sed -i "s/#!\/usr\/bin\/python/#!\/usr\/bin\/python2/g" \
-    && cd /usr/bin \
-    && rm -f python pip \
-    && ln -s /usr/bin/python3 /usr/bin/python \
-    && ln -s /usr/bin/pip3 /usr/bin/pip
+
 
 # -----------------------------------------------------------------------------
 # Profile
