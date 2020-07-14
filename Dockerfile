@@ -18,10 +18,12 @@ RUN mkdir -p ${SRC_DIR}
 # Install Development tools {epel-release}
 # -----------------------------------------------------------------------------
 RUN rpm --import /etc/pki/rpm-gpg/RPM* \
-    && curl -s --location https://rpm.nodesource.com/setup_10.x | bash - \
+    && curl -s --location https://rpm.nodesource.com/setup_12.x | bash - \
+    && yum -y install wget \
+    && wget -O /etc/yum.repos.d/CentOS-Base.repo http://mirrors.163.com/.help/CentOS7-Base-163.repo \
     && yum -y update \
-    && yum groupinstall -y "Development tools" \
-    && yum install -y cc gcc gcc-c++ zlib zlib-devel bzip2-devel openssl openssl-devel ncurses-devel sqlite-devel wget net-tools \
+    #&& yum groupinstall -y "Development tools" \
+    && yum install -y cc gcc gcc-c++ zlib zlib-devel bzip2-devel openssl openssl-devel ncurses-devel sqlite-devel net-tools python3 \
     && rm -rf /var/cache/{yum,ldconfig}/* \
     && rm -rf /etc/ld.so.cache \
     && yum clean all
@@ -29,11 +31,11 @@ RUN rpm --import /etc/pki/rpm-gpg/RPM* \
 # -----------------------------------------------------------------------------
 # Change yum repos
 # -----------------------------------------------------------------------------
-RUN cd /etc/yum.repos.d \
-   #&& mv CentOS-Base.repo CentOS-Base.repo.bak \
-   && wget -O /etc/yum.repos.d/CentOS-Base.repo http://mirrors.163.com/.help/CentOS7-Base-163.repo \
-   #&& wget -O /etc/yum.repos.d/CentOS-Base.repo http://mirrors.aliyun.com/repo/Centos-7.repo \
-   && yum clean all
+# RUN cd /etc/yum.repos.d \
+#    #&& mv CentOS-Base.repo CentOS-Base.repo.bak \
+#    && wget -O /etc/yum.repos.d/CentOS-Base.repo http://mirrors.163.com/.help/CentOS7-Base-163.repo \
+#    #&& wget -O /etc/yum.repos.d/CentOS-Base.repo http://mirrors.aliyun.com/repo/Centos-7.repo \
+#    && yum clean all
 
 # -----------------------------------------------------------------------------
 # Install Python PIP & Supervisor
@@ -50,9 +52,10 @@ RUN cd ${SRC_DIR} \
 # -----------------------------------------------------------------------------
 RUN yum -y install \
 	lrzsz psmisc epel-release lemon \
-    tar gzip bzip2 bzip2-devel unzip file perl-devel perl-ExtUtils-Embed perl-CPAN \
+    tar gzip bzip2 bzip2-devel unzip file perl-devel perl-ExtUtils-Embed perl-CPAN autoconf \
     pcre pcre-devel openssh-server openssh sudo \
-    screen vim git telnet expat expat-devel\
+    iftop htop \
+    vim git telnet expat expat-devel\
     ca-certificates m4\
     gd gd-devel libjpeg libjpeg-devel libpng libpng-devel libevent libevent-devel \
     net-snmp net-snmp-devel net-snmp-libs \
@@ -68,23 +71,16 @@ RUN yum -y install \
     
 RUN rpm --import /etc/pki/rpm-gpg/RPM*
 
-
-RUN yum -y install htop
-
 # -----------------------------------------------------------------------------
-# Update npm 
-# ----------------------------------------------------------------------------- 
-RUN npm i npm@latest -g
- 
-
-# -----------------------------------------------------------------------------
-# Update yarn 
+# Update yarn and Update npm , install apidoc nodemon
 # ----------------------------------------------------------------------------- 
 
 RUN curl --silent --location https://dl.yarnpkg.com/rpm/yarn.repo | sudo tee /etc/yum.repos.d/yarn.repo \
-	&& yum install -y yarn
+	&& yum install -y yarn \
+    && npm i npm@latest -g \
+    && npm install apidoc nodemon -g
 # -----------------------------------------------------------------------------
-# Configure, timezone/sshd/passwd/networking
+# Configure, timezone/sshd/passwd/networking , Config root , add super
 # -----------------------------------------------------------------------------
 # WARNING: 'UsePAM no' is not supported in Red Hat Enterprise Linux and may cause several problems.
 RUN ln -sf /usr/share/zoneinfo/Asia/Chongqing /etc/localtime \
@@ -92,12 +88,15 @@ RUN ln -sf /usr/share/zoneinfo/Asia/Chongqing /etc/localtime \
 	&& ssh-keygen -q -t rsa -b 2048 -f /etc/ssh/ssh_host_rsa_key -N '' \ 
 	&& ssh-keygen -q -t ecdsa -f /etc/ssh/ssh_host_ecdsa_key -N '' \
 	&& ssh-keygen -t dsa -f /etc/ssh/ssh_host_ed25519_key -N '' \
-	&& grep "GSSAPIAuthentication yes" -rl /etc/ssh/ssh_config | xargs sed -i "s/GSSAPIAuthentication yes/GSSAPIAuthentication no/g"
+	&& grep "GSSAPIAuthentication yes" -rl /etc/ssh/ssh_config | xargs sed -i "s/GSSAPIAuthentication yes/GSSAPIAuthentication no/g" \
+    && useradd super \
+    && echo "super:123456" | chpasswd \
+    && echo "super   ALL=(ALL)  NOPASSWD: ALL" >> /etc/sudoers 
 
 # -----------------------------------------------------------------------------
 # Install Nginx
 # ----------------------------------------------------------------------------- 
-ENV nginx_version 1.13.5
+ENV nginx_version 1.16.1
 ENV NGINX_INSTALL_DIR ${HOME}/nginx
 RUN cd ${SRC_DIR} \
     && wget -q -O nginx-${nginx_version}.tar.gz  http://nginx.org/download/nginx-${nginx_version}.tar.gz \
@@ -257,9 +256,9 @@ RUN cd ${SRC_DIR} \
 # Install yaml and PHP yaml extension
 # -----------------------------------------------------------------------------
 RUN cd ${SRC_DIR} \
-    && wget -q -O yaml-2.0.3.tgz https://pecl.php.net/get/yaml-2.0.3.tgz \
-    && tar xzf yaml-2.0.3.tgz \
-    && cd yaml-2.0.3 \
+    && wget -q -O yaml-2.0.4.tgz https://pecl.php.net/get/yaml-2.0.4.tgz \
+    && tar xzf yaml-2.0.4.tgz \
+    && cd yaml-2.0.4 \
     && ${PHP_INSTALL_DIR}/bin/phpize \
     && ./configure --with-yaml=/usr/local --with-php-config=${PHP_INSTALL_DIR}/bin/php-config \
     && make >/dev/null \
@@ -289,13 +288,8 @@ RUN cd ${SRC_DIR} \
 	&& tar zxf rabbitmq-c-0.7.1.tar.gz \
 	&& cd rabbitmq-c-0.7.1 \
 	&& ./configure --prefix=/usr/local/rabbitmq-c-0.7.1 \
-	&& make && make install
-
-# -----------------------------------------------------------------------------
-# Install PHP amqp extensions
-# -----------------------------------------------------------------------------
-
-RUN echo '/usr/local/rabbitmq-c-0.7.1' | /vue-msf/php/bin/pecl install amqp
+	&& make && make install \
+    && echo '/usr/local/rabbitmq-c-0.7.1' | /vue-msf/php/bin/pecl install amqp
 
 # -----------------------------------------------------------------------------
 # Install PHP redis extensions
@@ -472,7 +466,7 @@ RUN cd ${SRC_DIR} \
 #    && cd ${HOME} && rm -rf ${HOME}/httpd
 
 # -----------------------------------------------------------------------------
-# Update Git
+# Update Git and COnfig git
 # -----------------------------------------------------------------------------
 RUN cd ${SRC_DIR} \
     && yum -y remove git subversion \
@@ -483,7 +477,7 @@ RUN cd ${SRC_DIR} \
     && ./configure --without-iconv --prefix=/usr/local/ --with-curl=/usr/bin/curl \
     && make \
     && make install \
-    && rm -rf $SRC_DIR/git-2*
+    && rm -rf $SRC_DIR/git-2* 
     
 # -----------------------------------------------------------------------------
 # Install gocronx
@@ -495,33 +489,17 @@ RUN chmod a+x -R ${HOME}/gocronx/
 # -----------------------------------------------------------------------------
 # Update Git-Core
 # -----------------------------------------------------------------------------
-RUN yum -y install git-core \
-	&& ln -s /usr/libexec/git-core/git-remote-http /bin/ \
-	&& ln -s /usr/libexec/git-core/git-remote-https /bin/
-
-# -----------------------------------------------------------------------------
-# Set GIT user info
-# -----------------------------------------------------------------------------
-RUN git config --global user.email "vue-msf@admin.com" \
-	&& git config --global user.name "vue-msf"
-
-# -----------------------------------------------------------------------------
-# Install Node and apidoc and nodemon
-# -----------------------------------------------------------------------------
-RUN npm install apidoc nodemon -g
+RUN  yum -y install https://packages.endpoint.com/rhel/7/os/x86_64/git-core-2.23.0-1.ep7.x86_64.rpm \
+    && ln -s /usr/libexec/git-core/git-remote-http /bin/ \
+    && ln -s /usr/libexec/git-core/git-remote-https /bin/ \
+    && git config --global user.email "vue-msf@admin.com" \
+    && git config --global user.name "vue-msf"
 
 # -----------------------------------------------------------------------------
 # jsawk
 # -----------------------------------------------------------------------------
 RUN curl -L http://github.com/micha/jsawk/raw/master/jsawk > /usr/local/bin/jsawk \
 	&& chmod 755 /usr/local/bin/jsawk
-
-# -----------------------------------------------------------------------------
-# Add user super
-# -----------------------------------------------------------------------------
-RUN useradd super \
-    && echo "super:123456" | chpasswd \
-    && echo "super   ALL=(ALL)  NOPASSWD: ALL" >> /etc/sudoers 
 
 # -----------------------------------------------------------------------------
 # Copy Config
@@ -535,6 +513,16 @@ RUN chmod a+x /run.sh \
     && chmod a+x ${PHP_INSTALL_DIR}/bin/mergeCoverReport
 
 # -----------------------------------------------------------------------------
+# python3 yum error ,change python pip link
+# -----------------------------------------------------------------------------
+RUN grep '#! /usr/bin/python' -rl /usr/libexec/urlgrabber-ext-down | xargs sed -i "s/#! \/usr\/bin\/python/#!\/usr\/bin\/python2/g" \
+    && grep '#!/usr/bin/python' -rl /usr/bin/yum  | xargs sed -i "s/#!\/usr\/bin\/python/#!\/usr\/bin\/python2/g" \
+    && cd /usr/bin \
+    && rm -f python pip \
+    && ln -s /usr/bin/python3 /usr/bin/python \
+    && ln -s /usr/bin/pip3 /usr/bin/pip
+
+# -----------------------------------------------------------------------------
 # Profile
 # ----------------------------------------------------------------------------- 
 RUN echo -e 'PATH=$PATH:/vue-msf/php/bin \nPATH=$PATH:/vue-msf/php/sbin \nPATH=$PATH:/vue-msf/nginx/bin/ \nPATH=$PATH:/vue-msf/sbin/ \nPATH=$PATH:/vue-msf/redis/bin/:/usr/libexec/git-core \nexport PATH \n' >> /etc/profile \
@@ -545,8 +533,6 @@ RUN echo -e 'PATH=$PATH:/vue-msf/php/bin \nPATH=$PATH:/vue-msf/php/sbin \nPATH=$
 # -----------------------------------------------------------------------------
 RUN rm -rf ${SRC_DIR}/* \
 	&& rm -rf /tmp/*
-
-
 
 EXPOSE 22 80 443 8080 8000
 ENTRYPOINT ["/run.sh"]
