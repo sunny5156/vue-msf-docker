@@ -383,7 +383,7 @@ RUN cd ${SRC_DIR} \
 RUN cd ${SRC_DIR} \
     && wget -q -O xlswriter-1.3.6.tgz https://pecl.php.net/get/xlswriter-1.3.6.tgz \
     && tar zxf xlswriter-1.3.6.tgz \
-    && cd xlswriter-1.3.6.tgz \
+    && cd xlswriter-1.3.6 \
     && ${PHP_INSTALL_DIR}/bin/phpize \
     && ./configure --with-php-config=${PHP_INSTALL_DIR}/bin/php-config 1>/dev/null \
     && make clean \
