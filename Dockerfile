@@ -296,10 +296,11 @@ RUN cd ${SRC_DIR} \
 # -----------------------------------------------------------------------------
 # Install PHP mongodb extensions
 # -----------------------------------------------------------------------------
+ENV mongodb_ext_version 1.8.0
 RUN cd ${SRC_DIR} \
-    && wget -q -O mongodb-1.6.1.tgz https://pecl.php.net/get/mongodb-1.6.1.tgz \
-    && tar zxf mongodb-1.6.1.tgz \
-    && cd mongodb-1.6.1 \
+    && wget -q -O mongodb-${mongodb_ext_version}.tgz https://pecl.php.net/get/mongodb-${mongodb_ext_version}.tgz \
+    && tar zxf mongodb-${mongodb_ext_version}.tgz \
+    && cd mongodb-${mongodb_ext_version} \
     && ${PHP_INSTALL_DIR}/bin/phpize \
     && ./configure --with-php-config=${PHP_INSTALL_DIR}/bin/php-config 1>/dev/null \
     && make clean \
