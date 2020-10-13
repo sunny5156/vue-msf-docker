@@ -283,15 +283,9 @@ RUN cd ${SRC_DIR} \
 # -----------------------------------------------------------------------------
 ENV mongodb_ext_version 1.8.0
 RUN cd ${SRC_DIR} \
-<<<<<<< HEAD
     && wget -q -O mongodb-${mongodb_ext_version}.tgz https://pecl.php.net/get/mongodb-${mongodb_ext_version}.tgz \
     && tar zxf mongodb-${mongodb_ext_version}.tgz \
     && cd mongodb-${mongodb_ext_version} \
-=======
-    && wget -q -O mongodb-1.6.1.tgz https://pecl.php.net/get/mongodb-1.6.1.tgz \
-    && tar zxf mongodb-1.6.1.tgz \
-    && cd mongodb-1.6.1 \
->>>>>>> 4d2a4d5988a80ee036953ffa5604a38255396444
     && ${PHP_INSTALL_DIR}/bin/phpize \
     && ./configure --with-php-config=${PHP_INSTALL_DIR}/bin/php-config 1>/dev/null \
     && make clean \
@@ -526,15 +520,9 @@ RUN chmod a+x -R ${HOME}/gocronx/
 # -----------------------------------------------------------------------------
 # Update Git-Core
 # -----------------------------------------------------------------------------
-<<<<<<< HEAD
-RUN yum -y install git-core \
-	&& ln -s /usr/libexec/git-core/git-remote-http /bin/ \
-	&& ln -s /usr/libexec/git-core/git-remote-https /bin/ \
-=======
 RUN  yum -y install https://packages.endpoint.com/rhel/7/os/x86_64/git-core-2.23.0-1.ep7.x86_64.rpm \
     && ln -s /usr/libexec/git-core/git-remote-http /bin/ \
     && ln -s /usr/libexec/git-core/git-remote-https /bin/ \
->>>>>>> 4d2a4d5988a80ee036953ffa5604a38255396444
     && git config --global user.email "vue-msf@admin.com" \
     && git config --global user.name "vue-msf"
 
