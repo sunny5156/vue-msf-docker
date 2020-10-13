@@ -103,23 +103,8 @@ RUN ln -sf /usr/share/zoneinfo/Asia/Chongqing /etc/localtime \
 	&& grep "GSSAPIAuthentication yes" -rl /etc/ssh/ssh_config | xargs sed -i "s/GSSAPIAuthentication yes/GSSAPIAuthentication no/g" \
     && useradd super \
     && echo "super:123456" | chpasswd \
-    && echo "super   ALL=(ALL)  NOPASSWD: ALL" >> /etc/sudoers
-	
-# -----------------------------------------------------------------------------
-# Install Libzip
-# ----------------------------------------------------------------------------- 	
-#RUN cd ${SRC_DIR} \  
-#	&& yum remove -y libzip libzip-devel \
-#	&& wget -q -O libzip-1.2.0.tar.gz https://nih.at/libzip/libzip-1.2.0.tar.gz \
-#	&& tar -zxvf libzip-1.2.0.tar.gz \
-#	&& cd libzip-1.2.0 \
-#	&& echo -e "/usr/local/lib64\n/usr/local/lib\n/usr/lib\n/usr/lib64" >>/etc/ld.so.conf \
-#   && ldconfig -v \
-#	&& ./configure \
-#	&& make \
-#	&& make install \
-#	&& rm -rf $SRC_DIR/libzip-1.2.0 \
-#	&& cp /usr/local/lib/libzip/include/zipconf.h /usr/local/include/zipconf.h
+    && echo "super   ALL=(ALL)  NOPASSWD: ALL" >> /etc/sudoers 
+
 
 # -----------------------------------------------------------------------------
 # Install Nginx
@@ -284,9 +269,9 @@ RUN cd ${SRC_DIR} \
 # Install yaml and PHP yaml extension
 # -----------------------------------------------------------------------------
 RUN cd ${SRC_DIR} \
-    && wget -q -O yaml-2.0.3.tgz https://pecl.php.net/get/yaml-2.0.3.tgz \
-    && tar xzf yaml-2.0.3.tgz \
-    && cd yaml-2.0.3 \
+    && wget -q -O yaml-2.0.4.tgz https://pecl.php.net/get/yaml-2.0.4.tgz \
+    && tar xzf yaml-2.0.4.tgz \
+    && cd yaml-2.0.4 \
     && ${PHP_INSTALL_DIR}/bin/phpize \
     && ./configure --with-yaml=/usr/local --with-php-config=${PHP_INSTALL_DIR}/bin/php-config \
     && make >/dev/null \
@@ -298,9 +283,15 @@ RUN cd ${SRC_DIR} \
 # -----------------------------------------------------------------------------
 ENV mongodb_ext_version 1.8.0
 RUN cd ${SRC_DIR} \
+<<<<<<< HEAD
     && wget -q -O mongodb-${mongodb_ext_version}.tgz https://pecl.php.net/get/mongodb-${mongodb_ext_version}.tgz \
     && tar zxf mongodb-${mongodb_ext_version}.tgz \
     && cd mongodb-${mongodb_ext_version} \
+=======
+    && wget -q -O mongodb-1.6.1.tgz https://pecl.php.net/get/mongodb-1.6.1.tgz \
+    && tar zxf mongodb-1.6.1.tgz \
+    && cd mongodb-1.6.1 \
+>>>>>>> 4d2a4d5988a80ee036953ffa5604a38255396444
     && ${PHP_INSTALL_DIR}/bin/phpize \
     && ./configure --with-php-config=${PHP_INSTALL_DIR}/bin/php-config 1>/dev/null \
     && make clean \
@@ -512,7 +503,7 @@ RUN cd ${SRC_DIR} \
 #RUN echo "swoole.use_shortname = 'Off'" >> /vue-msf/php/etc/php.d/swoole.ini 
 
 # -----------------------------------------------------------------------------
-# Update Git
+# Update Git and COnfig git
 # -----------------------------------------------------------------------------
 RUN cd ${SRC_DIR} \
     && yum -y remove git subversion \
@@ -523,7 +514,7 @@ RUN cd ${SRC_DIR} \
     && ./configure --without-iconv --prefix=/usr/local/ --with-curl=/usr/bin/curl \
     && make \
     && make install \
-    && rm -rf $SRC_DIR/git-2*
+    && rm -rf $SRC_DIR/git-2* 
     
 # -----------------------------------------------------------------------------
 # Install gocronx
@@ -535,9 +526,15 @@ RUN chmod a+x -R ${HOME}/gocronx/
 # -----------------------------------------------------------------------------
 # Update Git-Core
 # -----------------------------------------------------------------------------
+<<<<<<< HEAD
 RUN yum -y install git-core \
 	&& ln -s /usr/libexec/git-core/git-remote-http /bin/ \
 	&& ln -s /usr/libexec/git-core/git-remote-https /bin/ \
+=======
+RUN  yum -y install https://packages.endpoint.com/rhel/7/os/x86_64/git-core-2.23.0-1.ep7.x86_64.rpm \
+    && ln -s /usr/libexec/git-core/git-remote-http /bin/ \
+    && ln -s /usr/libexec/git-core/git-remote-https /bin/ \
+>>>>>>> 4d2a4d5988a80ee036953ffa5604a38255396444
     && git config --global user.email "vue-msf@admin.com" \
     && git config --global user.name "vue-msf"
 
@@ -557,6 +554,8 @@ ADD config/.bashrc /home/super/
 RUN chmod a+x /run.sh \
 	&& chmod a+x ${PHP_INSTALL_DIR}/bin/checkstyle \
     && chmod a+x ${PHP_INSTALL_DIR}/bin/mergeCoverReport
+
+
 
 # -----------------------------------------------------------------------------
 # Profile
