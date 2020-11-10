@@ -52,7 +52,7 @@ RUN grep '#! /usr/bin/python' -rl /usr/libexec/urlgrabber-ext-down | xargs sed -
 # -----------------------------------------------------------------------------
 RUN yum -y install \
 	lrzsz psmisc epel-release lemon \
-    tar gzip bzip2 bzip2-devel unzip file perl-devel perl-ExtUtils-Embed perl-CPAN autoconf \
+    tar gzip bzip2 bzip2-devel unzip zip file perl-devel perl-ExtUtils-Embed perl-CPAN autoconf \
     pcre pcre-devel openssh-server openssh sudo \
     iftop htop \
     vim git telnet expat expat-devel\
