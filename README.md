@@ -31,6 +31,7 @@ php-fpm默认不启动,需要自己启动.
 7.php swoole 1.9.23
 8.git
 9.ab
+10.java
 ```
 
 ## Run
