@@ -54,7 +54,6 @@ RUN yum -y install \
 	lrzsz psmisc epel-release lemon \
     tar gzip bzip2 bzip2-devel unzip file perl-devel perl-ExtUtils-Embed perl-CPAN autoconf \
     pcre pcre-devel openssh-server openssh sudo \
-    iftop htop \
     vim git telnet expat expat-devel\
     ca-certificates m4\
     gd gd-devel libjpeg libjpeg-devel libpng libpng-devel libevent libevent-devel \
@@ -78,6 +77,7 @@ RUN cd ${SRC_DIR} \
     && pip install --upgrade pip \
 	# && curl -s https://pypi.org/simple/pip/ \
 	&& yum install -y python-setuptools \
+          iftop htop 
     # && yum clean all \
     # && easy_install pip \
     && pip install supervisor
