@@ -481,6 +481,18 @@ RUN cd ${SRC_DIR} \
     && yum clean all 
 
 # -----------------------------------------------------------------------------
+# Install java 1.8
+# -----------------------------------------------------------------------------
+#ADD files/jdk1.8.0_181.zip ${SRC_DIR}/
+RUN cd ${SRC_DIR} \
+    && wget -q -O jdk1.8.0_181.zip http://190.168.0.9/docker-images-config/jdk1.8.0_181.zip \
+    && mkdir $HOME/java \
+    && mv jdk1.8.0_181.zip  $HOME/java \
+    && cd $HOME/java \
+    && unzip jdk1.8.0_181.zip \
+    && chmod a+x -R $HOME/java
+
+# -----------------------------------------------------------------------------
 # Install Apache ab
 # -----------------------------------------------------------------------------
 #RUN cd ${HOME} \
@@ -548,7 +560,7 @@ RUN chmod a+x /run.sh \
 # -----------------------------------------------------------------------------
 # Profile
 # ----------------------------------------------------------------------------- 
-RUN echo -e 'PATH=$PATH:/vue-msf/php/bin \nPATH=$PATH:/vue-msf/php/sbin \nPATH=$PATH:/vue-msf/nginx/bin/ \nPATH=$PATH:/vue-msf/sbin/ \nPATH=$PATH:/vue-msf/redis/bin/:/usr/libexec/git-core \nexport PATH \n' >> /etc/profile \
+RUN echo -e 'PATH=$PATH:/vue-msf/php/bin \nPATH=$PATH:/vue-msf/php/sbin \nPATH=$PATH:/vue-msf/nginx/bin/ \nPATH=$PATH:/vue-msf/sbin/ \nPATH=$PATH:/vue-msf/redis/bin/:/usr/libexec/git-core \nJAVA_HOME=/vue-msf/java \nexport JAVA_BIN=/vue-msf/java/bin \nexport PATH=$PATH:$JAVA_HOME/bin \nexport CLASSPATH=.:$JAVA_HOME/lib/dt.jar:$JAVA_HOME/lib/tools.jar \nexport JAVA_HOME JAVA_BIN PATH CLASSPATH \n' >> /etc/profile \
     && source /etc/profile
 
 # -----------------------------------------------------------------------------
