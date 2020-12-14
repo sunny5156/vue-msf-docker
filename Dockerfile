@@ -52,7 +52,7 @@ RUN grep '#! /usr/bin/python' -rl /usr/libexec/urlgrabber-ext-down | xargs sed -
 # -----------------------------------------------------------------------------
 RUN yum -y install \
 	lrzsz psmisc epel-release lemon \
-    tar gzip bzip2 bzip2-devel unzip file perl-devel perl-ExtUtils-Embed perl-CPAN autoconf \
+    tar gzip bzip2 bzip2-devel zip unzip file perl-devel perl-ExtUtils-Embed perl-CPAN autoconf \
     pcre pcre-devel openssh-server openssh sudo \
     vim git telnet expat expat-devel\
     ca-certificates m4\
@@ -77,10 +77,22 @@ RUN cd ${SRC_DIR} \
     && pip install --upgrade pip \
 	# && curl -s https://pypi.org/simple/pip/ \
 	&& yum install -y python-setuptools \
-          iftop htop 
+          iftop htop \
     # && yum clean all \
     # && easy_install pip \
     && pip install supervisor
+
+# -----------------------------------------------------------------------------
+# Install Pypy
+# -----------------------------------------------------------------------------
+RUN cd ${SRC_DIR} \
+    && wget -q -O pypy3.6-v7.3.3-linux64.tar.bz2  https://downloads.python.org/pypy/pypy3.6-v7.3.3-linux64.tar.bz2 \
+    && tar -jxvf  pypy3.6-v7.3.3-linux64.tar.bz2 \
+    && cp -r pypy3.6-v7.3.3-linux64 /vue-msf/pypy \
+    && ln -s /vue-msf/pypy/bin/pypy3 /usr/local/bin/pypy \
+    && pypy -m ensurepip
+    # && whereis pypy
+
 
 # -----------------------------------------------------------------------------
 # Update yarn and Update npm , install apidoc nodemon
