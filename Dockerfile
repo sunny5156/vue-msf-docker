@@ -371,11 +371,12 @@ RUN cd ${SRC_DIR} \
     && tar zxf xlswriter-1.3.6.tgz \
     && cd xlswriter-1.3.6 \
     && ${PHP_INSTALL_DIR}/bin/phpize \
-    && ./configure --with-php-config=${PHP_INSTALL_DIR}/bin/php-config 1>/dev/null \
+    && ./configure --with-php-config=${PHP_INSTALL_DIR}/bin/php-config --enable-reader 1>/dev/null \
     && make clean \
     && make 1>/dev/null \
     && make install \
     && rm -rf ${SRC_DIR}/xlswriter-*
+
 
 # -----------------------------------------------------------------------------
 # Install PHP memcached extensions
