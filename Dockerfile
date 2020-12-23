@@ -23,7 +23,7 @@ RUN rpm --import /etc/pki/rpm-gpg/RPM* \
     && wget -O /etc/yum.repos.d/CentOS-Base.repo http://mirrors.163.com/.help/CentOS7-Base-163.repo \
     && yum -y update \
     #&& yum groupinstall -y "Development tools" \
-    && yum install -y cc gcc gcc-c++ zlib zlib-devel bzip2-devel openssl openssl-devel ncurses-devel sqlite-devel net-tools python3 \
+    && yum install -y cc gcc gcc-c++ zlib zlib-devel bzip2-devel openssl openssl-devel ncurses-devel sqlite-devel net-tools python3 python3-devel \
     && rm -rf /var/cache/{yum,ldconfig}/* \
     && rm -rf /etc/ld.so.cache \
     && yum clean all
