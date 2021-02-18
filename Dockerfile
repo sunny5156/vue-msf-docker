@@ -19,8 +19,8 @@ RUN mkdir -p ${SRC_DIR}
 # -----------------------------------------------------------------------------
 RUN rpm --import /etc/pki/rpm-gpg/RPM* \
     && curl -s --location https://rpm.nodesource.com/setup_12.x | bash - \
-    && yum -y install wget \
-    && wget -O /etc/yum.repos.d/CentOS-Base.repo http://mirrors.163.com/.help/CentOS7-Base-163.repo \
+    && yum -y install wget epel-release \
+    #&& wget -O /etc/yum.repos.d/CentOS-Base.repo http://mirrors.163.com/.help/CentOS7-Base-163.repo \
     && yum -y update \
     #&& yum groupinstall -y "Development tools" \
     && yum install -y cc gcc gcc-c++ zlib zlib-devel bzip2-devel openssl openssl-devel ncurses-devel sqlite-devel net-tools python3 \
@@ -51,7 +51,7 @@ RUN grep '#! /usr/bin/python' -rl /usr/libexec/urlgrabber-ext-down | xargs sed -
 # Devel libraries for delelopment tools like php & nginx ...
 # -----------------------------------------------------------------------------
 RUN yum -y install \
-	lrzsz psmisc epel-release lemon \
+	lrzsz psmisc lemon \
     tar gzip bzip2 bzip2-devel unzip zip file perl-devel perl-ExtUtils-Embed perl-CPAN autoconf \
     pcre pcre-devel openssh-server openssh sudo \
     vim git telnet expat expat-devel\
@@ -63,6 +63,8 @@ RUN yum -y install \
     curl-devel gettext-devel \
     openldap openldap-devel libc-client-devel \
     jemalloc jemalloc-devel inotify-tools nodejs apr-util yum-utils tree js\
+    oniguruma oniguruma-devel \
+    iftop htop \
     && ln -s /usr/lib64/libc-client.so /usr/lib/libc-client.so \
     && rm -rf /var/cache/{yum,ldconfig}/* \
     && rm -rf /etc/ld.so.cache \
@@ -77,7 +79,6 @@ RUN cd ${SRC_DIR} \
     && pip install --upgrade pip \
 	# && curl -s https://pypi.org/simple/pip/ \
 	&& yum install -y python-setuptools \
-    iftop htop \
     # && yum clean all \
     # && easy_install pip \
     && pip install supervisor
@@ -203,13 +204,44 @@ RUN cd $SRC_DIR \
     && make install \
     && rm -rf ${SRC_DIR}/re2c*
 
+# .开启libzip-1.2.0.tar.gz
+
+# RUN cd $SRC_DIR \
+#     yum remove libzip libzip-devel \
+#     && wget  -q -O libzip-1.2.0.tar.gz https://hqidi.com/big/libzip-1.2.0.tar.gz \
+#     && tar -zxvf libzip-1.2.0.tar.gz \
+#     && cd libzip-1.2.0 \
+#     && ./configure \
+#     && make && make install \
+
+#     export PKG_CONFIG_PATH="/usr/local/lib/pkgconfig/"
+
+# -----------------------------------------------------------------------------
+# Install Libzip
+# ----------------------------------------------------------------------------- 
+
+RUN cd ${SRC_DIR} \  
+  && yum remove -y libzip libzip-devel \
+  && wget -q -O libzip-1.2.0.tar.gz https://nih.at/libzip/libzip-1.2.0.tar.gz \
+  && tar -zxvf libzip-1.2.0.tar.gz \
+  && cd libzip-1.2.0 \
+#  && echo -e "/usr/local/lib64\n/usr/local/lib\n/usr/lib\n/usr/lib64" >>/etc/ld.so.conf \
+#   && ldconfig -v \
+  && ./configure \
+  && make \
+  && make install \
+  && export PKG_CONFIG_PATH="/usr/local/lib/pkgconfig/" \
+  && rm -rf $SRC_DIR/libzip-1.2.0
+#  && cp /usr/local/lib/libzip/include/zipconf.h /usr/local/include/zipconf.h
+
 # -----------------------------------------------------------------------------
 # Install PHP
 # -----------------------------------------------------------------------------
-ENV phpversion 7.2.18
+ENV phpversion 7.4.14
 ENV PHP_INSTALL_DIR ${HOME}/php
 RUN cd ${SRC_DIR} \
 #    && ls -l \
+    && export PKG_CONFIG_PATH="/usr/local/lib/pkgconfig/" \
     && wget -q -O php-${phpversion}.tar.gz https://www.php.net/distributions/php-${phpversion}.tar.gz \
     && tar xzf php-${phpversion}.tar.gz \
     && cd php-${phpversion} \
@@ -221,7 +253,7 @@ RUN cd ${SRC_DIR} \
        --with-libdir=lib64 \
        --enable-fd-setsize=65536 \
        --enable-mysqlnd \
-       --enable-zip \
+       --with-zip \
        --enable-exif \
        --enable-ftp \
        --enable-mbstring \
@@ -235,12 +267,9 @@ RUN cd ${SRC_DIR} \
        --enable-sysvmsg \
        --enable-sysvsem \
        --enable-sysvshm \
-       --enable-gd-native-ttf \
-       --enable-wddx \
        --enable-opcache \
        --with-gettext \
        --with-xsl \
-       --with-libexpat-dir \
        --with-xmlrpc \
        --with-snmp \
        --with-ldap \
@@ -248,16 +277,14 @@ RUN cd ${SRC_DIR} \
        --with-mysqli=mysqlnd \
        --with-pdo-mysql=mysqlnd \
        --with-pdo-odbc=unixODBC,/usr \
-       --with-gd \
-       --with-jpeg-dir \
-       --with-png-dir \
+       --enable-gd \
+       --with-jpeg \
        --with-zlib-dir \
-       --with-freetype-dir \
+       --with-freetype \
        --with-zlib \
        --with-bz2 \
        --with-openssl \
        --with-curl=/usr/bin/curl \
-       --with-mcrypt \
        --with-mhash \
     && make 1>/dev/null \
     && make install \
@@ -292,6 +319,12 @@ RUN cd ${SRC_DIR} \
     && make \
     && make install \
     && rm -rf ${SRC_DIR}/mongodb-*
+
+
+
+RUN cd ${SRC_DIR} \
+    && wget http://pear.php.net/go-pear.phar \
+    && ${PHP_INSTALL_DIR}/bin/php go-pear.phar
 
 # -----------------------------------------------------------------------------
 # Install PHP Rabbitmq extensions
@@ -396,9 +429,9 @@ RUN cd ${SRC_DIR} \
 # Install PHP yac extensions
 # -----------------------------------------------------------------------------
 RUN cd ${SRC_DIR} \
-    && wget -q -O yac-2.0.2.tgz https://pecl.php.net/get/yac-2.0.2.tgz \
-    && tar zxf yac-2.0.2.tgz\
-    && cd yac-2.0.2 \
+    && wget -q -O yac-2.2.0.tgz https://pecl.php.net/get/yac-2.2.0.tgz \
+    && tar zxf yac-2.2.0.tgz\
+    && cd yac-2.2.0 \
     && ${PHP_INSTALL_DIR}/bin/phpize \
     && ./configure --with-php-config=${PHP_INSTALL_DIR}/bin/php-config \
     && make 1>/dev/null \
@@ -411,7 +444,7 @@ RUN cd ${SRC_DIR} \
 
 #RUN /vue-msf/php/bin/pecl install swoole_serialize-0.1.1
 
-ENV swooleVersion 4.5.2
+ENV swooleVersion 4.6.2
 RUN cd ${SRC_DIR} \
     && wget -q -O swoole-${swooleVersion}.tar.gz https://github.com/swoole/swoole-src/archive/v${swooleVersion}.tar.gz \
     && tar zxf swoole-${swooleVersion}.tar.gz \
