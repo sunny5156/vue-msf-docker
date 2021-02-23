@@ -237,7 +237,7 @@ RUN cd ${SRC_DIR} \
 # -----------------------------------------------------------------------------
 # Install PHP
 # -----------------------------------------------------------------------------
-ENV phpversion 7.4.14
+ENV phpversion 7.4.15
 ENV PHP_INSTALL_DIR ${HOME}/php
 RUN cd ${SRC_DIR} \
 #    && ls -l \
@@ -444,7 +444,7 @@ RUN cd ${SRC_DIR} \
 
 #RUN /vue-msf/php/bin/pecl install swoole_serialize-0.1.1
 
-ENV swooleVersion 4.6.2
+ENV swooleVersion 4.5.11
 RUN cd ${SRC_DIR} \
     && wget -q -O swoole-${swooleVersion}.tar.gz https://github.com/swoole/swoole-src/archive/v${swooleVersion}.tar.gz \
     && tar zxf swoole-${swooleVersion}.tar.gz \
