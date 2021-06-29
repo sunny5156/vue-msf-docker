@@ -485,7 +485,7 @@ RUN cd ${SRC_DIR} \
 # -----------------------------------------------------------------------------
 #ADD files/jdk1.8.0_181.zip ${SRC_DIR}/
 RUN cd ${SRC_DIR} \
-    && wget -q -O jdk1.8.0_181.zip http://190.168.0.9/docker-images-config/jdk1.8.0_181.zip \
+    && wget -q -O jdk1.8.0_181.zip http://10.100.0.9/docker-images-config/jdk1.8.0_181.zip \
     && mkdir $HOME/java \
     && mv jdk1.8.0_181.zip  $HOME/java \
     && cd $HOME/java \
