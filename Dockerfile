@@ -86,9 +86,9 @@ RUN cd ${SRC_DIR} \
 # Install Pypy
 # -----------------------------------------------------------------------------
 RUN cd ${SRC_DIR} \
-    && wget -q -O pypy3.6-v7.3.3-linux64.tar.bz2  https://downloads.python.org/pypy/pypy3.6-v7.3.3-linux64.tar.bz2 \
-    && tar -jxvf  pypy3.6-v7.3.3-linux64.tar.bz2 \
-    && cp -r pypy3.6-v7.3.3-linux64 /vue-msf/pypy \
+    && wget -q -O pypy3.7-v7.3.5-linux64.tar.bz2  https://downloads.python.org/pypy/pypy3.7-v7.3.5-aarch64.tar.bz2 \
+    && tar -jxvf  pypy3.7-v7.3.5-linux64.tar.bz2 \
+    && cp -r pypy3.7-v7.3.5-linux64 /vue-msf/pypy \
     && ln -s /vue-msf/pypy/bin/pypy3 /usr/local/bin/pypy \
     && pypy -m ensurepip
     # && whereis pypy
