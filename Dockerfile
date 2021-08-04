@@ -18,7 +18,7 @@ RUN mkdir -p ${SRC_DIR}
 # Install Development tools {epel-release}
 # -----------------------------------------------------------------------------
 RUN rpm --import /etc/pki/rpm-gpg/RPM* \
-    && curl -s --location https://rpm.nodesource.com/setup_12.x | bash - \
+    #&& curl -s --location https://rpm.nodesource.com/setup_12.x | bash - \
     && yum -y install wget \
     && wget -O /etc/yum.repos.d/CentOS-Base.repo http://mirrors.163.com/.help/CentOS7-Base-163.repo \
     && yum -y update \
@@ -31,11 +31,11 @@ RUN rpm --import /etc/pki/rpm-gpg/RPM* \
 # -----------------------------------------------------------------------------
 # Change yum repos
 # -----------------------------------------------------------------------------
-# RUN cd /etc/yum.repos.d \
-#    #&& mv CentOS-Base.repo CentOS-Base.repo.bak \
-#    && wget -O /etc/yum.repos.d/CentOS-Base.repo http://mirrors.163.com/.help/CentOS7-Base-163.repo \
-#    #&& wget -O /etc/yum.repos.d/CentOS-Base.repo http://mirrors.aliyun.com/repo/Centos-7.repo \
-#    && yum clean all
+RUN cd /etc/yum.repos.d \
+    && mv CentOS-Base.repo CentOS-Base.repo.bak \
+##   && wget -O /etc/yum.repos.d/CentOS-Base.repo http://mirrors.163.com/.help/CentOS7-Base-163.repo \
+    && wget -O /etc/yum.repos.d/CentOS-Base.repo http://mirrors.aliyun.com/repo/Centos-7.repo \
+    && yum clean all
 
 # -----------------------------------------------------------------------------
 # python3 yum error ,change python pip link
@@ -50,7 +50,8 @@ RUN grep '#! /usr/bin/python' -rl /usr/libexec/urlgrabber-ext-down | xargs sed -
 # -----------------------------------------------------------------------------
 # Devel libraries for delelopment tools like php & nginx ...
 # -----------------------------------------------------------------------------
-RUN yum -y install \
+RUN curl -s --location https://rpm.nodesource.com/setup_12.x | bash - \
+    && yum -y install \
 	lrzsz psmisc epel-release lemon \
     tar gzip bzip2 bzip2-devel zip unzip file perl-devel perl-ExtUtils-Embed perl-CPAN autoconf \
     pcre pcre-devel openssh-server openssh sudo \
@@ -62,7 +63,8 @@ RUN yum -y install \
     libxslt libxslt-devel libmcrypt libmcrypt-devel freetds freetds-devel \
     curl-devel gettext-devel \
     openldap openldap-devel libc-client-devel \
-    jemalloc jemalloc-devel inotify-tools nodejs apr-util yum-utils tree js\
+    jemalloc jemalloc-devel inotify-tools apr-util yum-utils tree js\
+    nodejs \
     && ln -s /usr/lib64/libc-client.so /usr/lib/libc-client.so \
     && rm -rf /var/cache/{yum,ldconfig}/* \
     && rm -rf /etc/ld.so.cache \
@@ -86,7 +88,7 @@ RUN cd ${SRC_DIR} \
 # Install Pypy
 # -----------------------------------------------------------------------------
 RUN cd ${SRC_DIR} \
-    && wget -q -O pypy3.7-v7.3.5-linux64.tar.bz2  https://downloads.python.org/pypy/pypy3.7-v7.3.5-aarch64.tar.bz2 \
+    && wget -q -O pypy3.7-v7.3.5-linux64.tar.bz2  https://downloads.python.org/pypy/pypy3.7-v7.3.5-linux64.tar.bz2 \
     && tar -jxvf  pypy3.7-v7.3.5-linux64.tar.bz2 \
     && cp -r pypy3.7-v7.3.5-linux64 /vue-msf/pypy \
     && ln -s /vue-msf/pypy/bin/pypy3 /usr/local/bin/pypy \
@@ -97,11 +99,9 @@ RUN cd ${SRC_DIR} \
 # -----------------------------------------------------------------------------
 # Update yarn and Update npm , install apidoc nodemon
 # ----------------------------------------------------------------------------- 
-
-RUN curl --silent --location https://dl.yarnpkg.com/rpm/yarn.repo | sudo tee /etc/yum.repos.d/yarn.repo \
-	&& yum install -y yarn \
-    && npm i npm@latest -g \
-    && npm install apidoc nodemon -g
+RUN yum install -y nodejs && rpm -qa 'node|npm'
+RUN node -v \
+   && npm install -g yarn nodemon apidoc --registry=https://registry.npm.taobao.org
 
 # -----------------------------------------------------------------------------
 # Configure, timezone/sshd/passwd/networking , Config root , add super
@@ -308,12 +308,12 @@ RUN cd ${SRC_DIR} \
 # -----------------------------------------------------------------------------
 
 RUN cd ${SRC_DIR} \
-	&& wget -q -O rabbitmq-c-0.7.1.tar.gz https://github.com/alanxz/rabbitmq-c/releases/download/v0.7.1/rabbitmq-c-0.7.1.tar.gz \
-	&& tar zxf rabbitmq-c-0.7.1.tar.gz \
-	&& cd rabbitmq-c-0.7.1 \
-	&& ./configure --prefix=/usr/local/rabbitmq-c-0.7.1 \
+	&& wget -q -O rabbitmq-c-0.8.0.tar.gz https://github.com/alanxz/rabbitmq-c/releases/download/v0.8.0/rabbitmq-c-0.8.0.tar.gz \
+	&& tar zxf rabbitmq-c-0.8.0.tar.gz \
+	&& cd rabbitmq-c-0.8.0 \
+	&& ./configure --prefix=/usr/local/rabbitmq-c-0.8.0 \
 	&& make && make install \
-    && echo '/usr/local/rabbitmq-c-0.7.1' | /vue-msf/php/bin/pecl install amqp
+    && echo '/usr/local/rabbitmq-c-0.8.0' | /vue-msf/php/bin/pecl install amqp
 
 # -----------------------------------------------------------------------------
 # Install PHP redis extensions
@@ -513,7 +513,9 @@ RUN chmod a+x -R ${HOME}/gocronx/
 # -----------------------------------------------------------------------------
 # Update Git-Core
 # -----------------------------------------------------------------------------
-RUN  yum -y install https://packages.endpoint.com/rhel/7/os/x86_64/git-core-2.23.0-1.ep7.x86_64.rpm \
+
+RUN  yum -y install https://packages.endpoint.com/rhel/7/os/x86_64/git-core-2.24.1-1.ep7.x86_64.rpm \
+#RUN  yum -y install /vue-msf/src/git-core-2.24.1-1.ep7.x86_64.rpm \
     && ln -s /usr/libexec/git-core/git-remote-http /bin/ \
     && ln -s /usr/libexec/git-core/git-remote-https /bin/ \
     && git config --global user.email "vue-msf@admin.com" \
@@ -535,7 +537,6 @@ ADD config/.bashrc /home/super/
 RUN chmod a+x /run.sh \
 	&& chmod a+x ${PHP_INSTALL_DIR}/bin/checkstyle \
     && chmod a+x ${PHP_INSTALL_DIR}/bin/mergeCoverReport
-
 
 
 # -----------------------------------------------------------------------------
