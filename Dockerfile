@@ -54,8 +54,8 @@ RUN yum -y install \
 	lrzsz psmisc lemon \
     tar gzip bzip2 bzip2-devel unzip zip file perl-devel perl-ExtUtils-Embed perl-CPAN autoconf \
     pcre pcre-devel openssh-server openssh sudo \
-    vim git telnet expat expat-devel\
-    ca-certificates m4\
+    vim git telnet expat expat-devel \
+    ca-certificates m4 \
     gd gd-devel libjpeg libjpeg-devel libpng libpng-devel libevent libevent-devel \
     net-snmp net-snmp-devel net-snmp-libs \
     freetype freetype-devel libtool-tldl libtool-ltdl-devel libxml2 libxml2-devel unixODBC unixODBC-devel libyaml libyaml-devel\
@@ -63,7 +63,7 @@ RUN yum -y install \
     curl-devel gettext-devel \
     openldap openldap-devel libc-client-devel \
     jemalloc jemalloc-devel inotify-tools nodejs apr-util yum-utils tree js\
-    oniguruma oniguruma-devel \
+    oniguruma oniguruma-devel wlibsodium  \
     iftop htop \
     && ln -s /usr/lib64/libc-client.so /usr/lib/libc-client.so \
     && rm -rf /var/cache/{yum,ldconfig}/* \
@@ -110,7 +110,7 @@ RUN ln -sf /usr/share/zoneinfo/Asia/Chongqing /etc/localtime \
 # -----------------------------------------------------------------------------
 # Install Nginx
 # ----------------------------------------------------------------------------- 
-ENV nginx_version 1.16.1
+ENV nginx_version 1.20.1
 ENV NGINX_INSTALL_DIR ${HOME}/nginx
 RUN cd ${SRC_DIR} \
     && wget -q -O nginx-${nginx_version}.tar.gz  http://nginx.org/download/nginx-${nginx_version}.tar.gz \
@@ -125,7 +125,7 @@ RUN cd ${SRC_DIR} \
 # -----------------------------------------------------------------------------
 # Install Redis
 # -----------------------------------------------------------------------------
-ENV redis_version 4.0.12
+ENV redis_version 6.2.1
 ENV REDIS_INSTALL_DIR ${HOME}/redis
 RUN cd ${SRC_DIR} \
     && wget -q -O redis-${redis_version}.tar.gz http://download.redis.io/releases/redis-${redis_version}.tar.gz \
@@ -235,6 +235,32 @@ RUN cd ${SRC_DIR} \
 #  && cp /usr/local/lib/libzip/include/zipconf.h /usr/local/include/zipconf.h
 
 # -----------------------------------------------------------------------------
+# Install icu4c
+# ----------------------------------------------------------------------------- 
+RUN cd ${SRC_DIR} \
+    #&& yum reinstall libcurl-devel -y \
+    && yum install -y https://rpms.remirepo.net/enterprise/7/remi/x86_64/libicu62-62.2-1.el7.remi.x86_64.rpm \
+    && yum install https://rpms.remirepo.net/enterprise/7/remi/x86_64/libicu62-devel-62.2-1.el7.remi.x86_64.rpm -y \
+    && wget https://github.com/unicode-org/icu/releases/download/release-62-2/icu4c-62_2-src.tgz \
+    && tar xf icu4c-62_2-src.tgz \
+    && cd icu/source \
+    && ./configure --prefix=/usr \
+    && make && make install 
+
+# -----------------------------------------------------------------------------
+# Install libsodium
+# ----------------------------------------------------------------------------- 
+RUN cd ${SRC_DIR} \
+    && wget https://download.libsodium.org/libsodium/releases/libsodium-1.0.18-stable.tar.gz \
+    && tar -zxf libsodium-1.0.18-stable.tar.gz \
+    && cd libsodium-stable \
+    && ./configure --prefix=/usr \
+    && make && make check \
+    && sudo make install \
+    && sudo ldconfig
+
+
+# -----------------------------------------------------------------------------
 # Install PHP
 # -----------------------------------------------------------------------------
 ENV phpversion 7.4.15
@@ -268,6 +294,7 @@ RUN cd ${SRC_DIR} \
        --enable-sysvsem \
        --enable-sysvshm \
        --enable-opcache \
+       --enable-intl \
        --with-gettext \
        --with-xsl \
        --with-xmlrpc \
@@ -342,9 +369,9 @@ RUN cd ${SRC_DIR} \
 # Install PHP redis extensions
 # -----------------------------------------------------------------------------
 RUN cd ${SRC_DIR} \
-    && wget -q -O redis-4.2.0.tgz https://pecl.php.net/get/redis-4.2.0.tgz \
-    && tar zxf redis-4.2.0.tgz \
-    && cd redis-4.2.0 \
+    && wget -q -O redis-5.3.2.tgz https://pecl.php.net/get/redis-5.3.2.tgz \
+    && tar zxf redis-5.3.2.tgz \
+    && cd redis-5.3.2 \
     && ${PHP_INSTALL_DIR}/bin/phpize \
     && ./configure --with-php-config=${PHP_INSTALL_DIR}/bin/php-config 1>/dev/null \
     && make clean \
@@ -437,6 +464,38 @@ RUN cd ${SRC_DIR} \
     && make 1>/dev/null \
     && make install \
     && rm -rf $SRC_DIR/yac-*
+
+
+
+# -----------------------------------------------------------------------------
+# Install PHP intl extensions
+# -----------------------------------------------------------------------------
+# RUN cd ${SRC_DIR} \
+#     && echo $PKG_CONFIG_PATH \
+#     && export PKG_CONFIG_PATH=/usr/local/lib/pkgconfig/ \
+#     && wget -q -O intl-3.0.0.tgz https://pecl.php.net/get/intl-3.0.0.tgz \
+#     && tar zxf intl-3.0.0.tgz\
+#     && cd intl-3.0.0 \
+#     && ${PHP_INSTALL_DIR}/bin/phpize \
+#     && ./configure --with-php-config=${PHP_INSTALL_DIR}/bin/php-config --prefix=/usr/lib/icu \
+#     && make 1>/dev/null \
+#     && make install \
+#     && rm -rf $SRC_DIR/intl-*
+
+
+# -----------------------------------------------------------------------------
+# Install PHP libsodium extensions
+# -----------------------------------------------------------------------------
+RUN cd ${SRC_DIR} \
+    && wget -q -O libsodium-2.0.23.tgz https://pecl.php.net/get/libsodium-2.0.23.tgz \
+    && tar zxf libsodium-2.0.23.tgz\
+    && cd libsodium-2.0.23 \
+    && ${PHP_INSTALL_DIR}/bin/phpize \
+    && ./configure --with-php-config=${PHP_INSTALL_DIR}/bin/php-config \
+    && make 1>/dev/null \
+    && make install \
+    && rm -rf $SRC_DIR/libsodium-*
+
 
 # -----------------------------------------------------------------------------
 # Install PHP swoole extensions
