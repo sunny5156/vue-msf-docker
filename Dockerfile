@@ -312,11 +312,18 @@ RUN cd ${SRC_DIR} \
        --with-bz2 \
        --with-openssl \
        --with-curl=/usr/bin/curl \
+       --with-icu-dir=/usr/lib/icu/ \
        --with-mhash \
     && make 1>/dev/null \
     && make install \
     && rm -rf ${PHP_INSTALL_DIR}/lib/php.ini \
     && cp -f php.ini-development ${PHP_INSTALL_DIR}/lib/php.ini \
+    && cp -rf ${SRC_DIR}/php-${phpversion}/ext/intl  ${SRC_DIR}/ \
+    # && cd ${SRC_DIR}/php-${phpversion}/ext/intl \
+    # && ./configure --enable-intl --with-icu-dir=/usr/lib/icu/  \
+    # && make \
+    # && cp ./modules/intl.so /vue-msf/php/lib/php/extensions/no-debug-non-zts-20190902 \
+    # && cd ${SRC_DIR} \
     && rm -rf ${SRC_DIR}/php* ${SRC_DIR}/libmcrypt*
 
 # -----------------------------------------------------------------------------
@@ -470,17 +477,13 @@ RUN cd ${SRC_DIR} \
 # -----------------------------------------------------------------------------
 # Install PHP intl extensions
 # -----------------------------------------------------------------------------
-# RUN cd ${SRC_DIR} \
-#     && echo $PKG_CONFIG_PATH \
-#     && export PKG_CONFIG_PATH=/usr/local/lib/pkgconfig/ \
-#     && wget -q -O intl-3.0.0.tgz https://pecl.php.net/get/intl-3.0.0.tgz \
-#     && tar zxf intl-3.0.0.tgz\
-#     && cd intl-3.0.0 \
-#     && ${PHP_INSTALL_DIR}/bin/phpize \
-#     && ./configure --with-php-config=${PHP_INSTALL_DIR}/bin/php-config --prefix=/usr/lib/icu \
-#     && make 1>/dev/null \
-#     && make install \
-#     && rm -rf $SRC_DIR/intl-*
+RUN cd ${SRC_DIR} \
+    && cd intl\
+    && ${PHP_INSTALL_DIR}/bin/phpize \
+    && ./configure --with-php-config=${PHP_INSTALL_DIR}/bin/php-config --prefix=/usr/lib/icu \
+    && make 1>/dev/null \
+    && make install \
+    && rm -rf $SRC_DIR/intl-*
 
 
 # -----------------------------------------------------------------------------
