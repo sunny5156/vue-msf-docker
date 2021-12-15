@@ -433,10 +433,11 @@ RUN cd ${SRC_DIR} \
 # -----------------------------------------------------------------------------
 # Install PHP xlswriter extensions
 # -----------------------------------------------------------------------------
+ENV xlswriterversion 1.5.1
 RUN cd ${SRC_DIR} \
-    && wget -q -O xlswriter-1.3.6.tgz https://pecl.php.net/get/xlswriter-1.3.6.tgz \
-    && tar zxf xlswriter-1.3.6.tgz \
-    && cd xlswriter-1.3.6 \
+    && wget -q -O xlswriter-${xlswriterversion}.tgz https://pecl.php.net/get/xlswriter-${xlswriterversion}.tgz \
+    && tar zxf xlswriter-${xlswriterversion}.tgz \
+    && cd xlswriter-${xlswriterversion} \
     && ${PHP_INSTALL_DIR}/bin/phpize \
     && ./configure --with-php-config=${PHP_INSTALL_DIR}/bin/php-config --enable-reader 1>/dev/null \
     && make clean \
@@ -593,7 +594,7 @@ RUN cd ${SRC_DIR} \
 #RUN echo "swoole.use_shortname = 'Off'" >> /vue-msf/php/etc/php.d/swoole.ini 
 
 # -----------------------------------------------------------------------------
-# Update Git and COnfig git
+# Update Git and Config git
 # -----------------------------------------------------------------------------
 RUN cd ${SRC_DIR} \
     && yum -y remove git subversion \
