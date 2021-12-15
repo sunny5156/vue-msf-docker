@@ -54,7 +54,7 @@ RUN yum -y install \
 	lrzsz psmisc epel-release lemon \
     tar gzip bzip2 bzip2-devel zip unzip file perl-devel perl-ExtUtils-Embed perl-CPAN autoconf \
     pcre pcre-devel openssh-server openssh sudo \
-    iftop htop \
+    iftop epel_release \
     vim git telnet expat expat-devel\
     ca-certificates m4\
     gd gd-devel libjpeg libjpeg-devel libpng libpng-devel libevent libevent-devel \
@@ -77,7 +77,7 @@ RUN rpm --import /etc/pki/rpm-gpg/RPM*
 RUN cd ${SRC_DIR} \
     && pip install --upgrade pip \
 	# && curl -s https://pypi.org/simple/pip/ \
-	&& yum install -y python-setuptools \
+	&& yum install -y htop python-setuptools \
     # && yum clean all \
     # && easy_install pip \
     && pip install supervisor
@@ -204,270 +204,6 @@ RUN cd $SRC_DIR \
     && rm -rf ${SRC_DIR}/re2c*
 
 # -----------------------------------------------------------------------------
-# Install PHP
-# -----------------------------------------------------------------------------
-ENV phpversion 7.2.18
-ENV PHP_INSTALL_DIR ${HOME}/php
-RUN cd ${SRC_DIR} \
-#    && ls -l \
-    && wget -q -O php-${phpversion}.tar.gz https://www.php.net/distributions/php-${phpversion}.tar.gz \
-    && tar xzf php-${phpversion}.tar.gz \
-    && cd php-${phpversion} \
-    && ./configure \
-       --prefix=${PHP_INSTALL_DIR} \
-       --with-config-file-path=${PHP_INSTALL_DIR}/etc \
-       --with-config-file-scan-dir=${PHP_INSTALL_DIR}/etc/php.d \
-       --sysconfdir=${PHP_INSTALL_DIR}/etc \
-       --with-libdir=lib64 \
-       --enable-fd-setsize=65536 \
-       --enable-mysqlnd \
-       --enable-zip \
-       --enable-exif \
-       --enable-ftp \
-       --enable-mbstring \
-       --enable-mbregex \
-       --enable-fpm \
-       --enable-bcmath \
-       --enable-pcntl \
-       --enable-soap \
-       --enable-sockets \
-       --enable-shmop \
-       --enable-sysvmsg \
-       --enable-sysvsem \
-       --enable-sysvshm \
-       --enable-gd-native-ttf \
-       --enable-wddx \
-       --enable-opcache \
-       --with-gettext \
-       --with-xsl \
-       --with-libexpat-dir \
-       --with-xmlrpc \
-       --with-snmp \
-       --with-ldap \
-       --enable-mysqlnd \
-       --with-mysqli=mysqlnd \
-       --with-pdo-mysql=mysqlnd \
-       --with-pdo-odbc=unixODBC,/usr \
-       --with-gd \
-       --with-jpeg-dir \
-       --with-png-dir \
-       --with-zlib-dir \
-       --with-freetype-dir \
-       --with-zlib \
-       --with-bz2 \
-       --with-openssl \
-       --with-curl=/usr/bin/curl \
-       --with-mcrypt \
-       --with-mhash \
-    && make 1>/dev/null \
-    && make install \
-    && rm -rf ${PHP_INSTALL_DIR}/lib/php.ini \
-    && cp -f php.ini-development ${PHP_INSTALL_DIR}/lib/php.ini \
-    && rm -rf ${SRC_DIR}/php* ${SRC_DIR}/libmcrypt*
-
-# -----------------------------------------------------------------------------
-# Install yaml and PHP yaml extension
-# -----------------------------------------------------------------------------
-RUN cd ${SRC_DIR} \
-    && wget -q -O yaml-2.0.4.tgz https://pecl.php.net/get/yaml-2.0.4.tgz \
-    && tar xzf yaml-2.0.4.tgz \
-    && cd yaml-2.0.4 \
-    && ${PHP_INSTALL_DIR}/bin/phpize \
-    && ./configure --with-yaml=/usr/local --with-php-config=${PHP_INSTALL_DIR}/bin/php-config \
-    && make >/dev/null \
-    && make install \
-    && rm -rf ${SRC_DIR}/yaml-*
-
-# -----------------------------------------------------------------------------
-# Install PHP mongodb extensions
-# -----------------------------------------------------------------------------
-ENV mongodb_ext_version 1.8.0
-RUN cd ${SRC_DIR} \
-    && wget -q -O mongodb-${mongodb_ext_version}.tgz https://pecl.php.net/get/mongodb-${mongodb_ext_version}.tgz \
-    && tar zxf mongodb-${mongodb_ext_version}.tgz \
-    && cd mongodb-${mongodb_ext_version} \
-    && ${PHP_INSTALL_DIR}/bin/phpize \
-    && ./configure --with-php-config=${PHP_INSTALL_DIR}/bin/php-config 1>/dev/null \
-    && make clean \
-    && make \
-    && make install \
-    && rm -rf ${SRC_DIR}/mongodb-*
-
-# -----------------------------------------------------------------------------
-# Install PHP Rabbitmq extensions
-# -----------------------------------------------------------------------------
-
-RUN cd ${SRC_DIR} \
-	&& wget -q -O rabbitmq-c-0.7.1.tar.gz https://github.com/alanxz/rabbitmq-c/releases/download/v0.7.1/rabbitmq-c-0.7.1.tar.gz \
-	&& tar zxf rabbitmq-c-0.7.1.tar.gz \
-	&& cd rabbitmq-c-0.7.1 \
-	&& ./configure --prefix=/usr/local/rabbitmq-c-0.7.1 \
-	&& make && make install \
-    && echo '/usr/local/rabbitmq-c-0.7.1' | /vue-msf/php/bin/pecl install amqp
-
-# -----------------------------------------------------------------------------
-# Install PHP redis extensions
-# -----------------------------------------------------------------------------
-RUN cd ${SRC_DIR} \
-    && wget -q -O redis-4.2.0.tgz https://pecl.php.net/get/redis-4.2.0.tgz \
-    && tar zxf redis-4.2.0.tgz \
-    && cd redis-4.2.0 \
-    && ${PHP_INSTALL_DIR}/bin/phpize \
-    && ./configure --with-php-config=${PHP_INSTALL_DIR}/bin/php-config 1>/dev/null \
-    && make clean \
-    && make 1>/dev/null \
-    && make install \
-    && rm -rf ${SRC_DIR}/redis-*
-
-# -----------------------------------------------------------------------------
-# Install PHP imagick extensions
-# -----------------------------------------------------------------------------
-RUN cd ${SRC_DIR} \
-    && wget -q -O imagick-3.4.3.tgz https://pecl.php.net/get/imagick-3.4.3.tgz \
-    && tar zxf imagick-3.4.3.tgz \
-    && cd imagick-3.4.3 \
-    && ${PHP_INSTALL_DIR}/bin/phpize \
-    && ./configure --with-php-config=${PHP_INSTALL_DIR}/bin/php-config \
-    --with-imagick 1>/dev/null \
-    && make clean \
-    && make 1>/dev/null \
-    && make install \
-    && rm -rf ${SRC_DIR}/imagick-*
-
-# -----------------------------------------------------------------------------
-# Install PHP xdebug extensions
-# -----------------------------------------------------------------------------
-#ENV xdebugversion 2.7.0
-#RUN cd ${SRC_DIR} \
-#    && wget -q -O xdebug-${xdebugversion}.tgz https://pecl.php.net/get/xdebug-${xdebugversion}.tgz \
-#    && tar zxf xdebug-${xdebugversion}.tgz \
-#    && cd xdebug-${xdebugversion} \
-#    && ${PHP_INSTALL_DIR}/bin/phpize \
-#    && ./configure --with-php-config=${PHP_INSTALL_DIR}/bin/php-config 1>/dev/null \
-#    && make clean \
-#    && make 1>/dev/null \
-#    && make install \
-#    && rm -rf ${SRC_DIR}/xdebug-*
-
-# -----------------------------------------------------------------------------
-# Install PHP igbinary extensions
-# -----------------------------------------------------------------------------
-RUN cd ${SRC_DIR} \
-    && wget -q -O igbinary-2.0.8.tgz https://pecl.php.net/get/igbinary-2.0.8.tgz \
-    && tar zxf igbinary-2.0.8.tgz \
-    && cd igbinary-2.0.8 \
-    && ${PHP_INSTALL_DIR}/bin/phpize \
-    && ./configure --with-php-config=${PHP_INSTALL_DIR}/bin/php-config 1>/dev/null \
-    && make clean \
-    && make 1>/dev/null \
-    && make install \
-    && rm -rf ${SRC_DIR}/igbinary-*
-    
-# -----------------------------------------------------------------------------
-# Install PHP xlswriter extensions
-# -----------------------------------------------------------------------------
-RUN cd ${SRC_DIR} \
-    && wget -q -O xlswriter-1.3.6.tgz https://pecl.php.net/get/xlswriter-1.3.6.tgz \
-    && tar zxf xlswriter-1.3.6.tgz \
-    && cd xlswriter-1.3.6 \
-    && ${PHP_INSTALL_DIR}/bin/phpize \
-    && ./configure --with-php-config=${PHP_INSTALL_DIR}/bin/php-config 1>/dev/null \
-    && make clean \
-    && make 1>/dev/null \
-    && make install \
-    && rm -rf ${SRC_DIR}/xlswriter-*
-
-# -----------------------------------------------------------------------------
-# Install PHP memcached extensions
-# -----------------------------------------------------------------------------
-RUN cd ${SRC_DIR} \
-    && wget -q -O memcached-3.1.3.tgz https://pecl.php.net/get/memcached-3.1.3.tgz \
-    && tar xzf memcached-3.1.3.tgz \
-    && cd memcached-3.1.3 \
-    && ${PHP_INSTALL_DIR}/bin/phpize \
-    && ./configure --enable-memcached --with-php-config=${PHP_INSTALL_DIR}/bin/php-config \
-       --with-libmemcached-dir=${LIB_MEMCACHED_INSTALL_DIR} --disable-memcached-sasl 1>/dev/null \
-    && make 1>/dev/null \
-    && make install \
-    && rm -rf ${SRC_DIR}/memcached-*
-
-# -----------------------------------------------------------------------------
-# Install PHP yac extensions
-# -----------------------------------------------------------------------------
-RUN cd ${SRC_DIR} \
-    && wget -q -O yac-2.0.2.tgz https://pecl.php.net/get/yac-2.0.2.tgz \
-    && tar zxf yac-2.0.2.tgz\
-    && cd yac-2.0.2 \
-    && ${PHP_INSTALL_DIR}/bin/phpize \
-    && ./configure --with-php-config=${PHP_INSTALL_DIR}/bin/php-config \
-    && make 1>/dev/null \
-    && make install \
-    && rm -rf $SRC_DIR/yac-*
-
-# -----------------------------------------------------------------------------
-# Install PHP swoole extensions
-# -----------------------------------------------------------------------------
-
-#RUN /vue-msf/php/bin/pecl install swoole_serialize-0.1.1
-
-ENV swooleVersion 4.5.2
-RUN cd ${SRC_DIR} \
-    && wget -q -O swoole-${swooleVersion}.tar.gz https://github.com/swoole/swoole-src/archive/v${swooleVersion}.tar.gz \
-    && tar zxf swoole-${swooleVersion}.tar.gz \
-    && cd swoole-src-${swooleVersion}/ \
-    && ${PHP_INSTALL_DIR}/bin/phpize \
-    && ./configure --with-php-config=${PHP_INSTALL_DIR}/bin/php-config --enable-async-redis --enable-openssl --enable-mysqlnd \
-    && make clean 1>/dev/null \
-    && make 1>/dev/null \
-    && make install \
-    && rm -rf ${SRC_DIR}/swoole*
-
-
-# -----------------------------------------------------------------------------
-# Install PHP inotify extensions
-# -----------------------------------------------------------------------------
-RUN cd ${SRC_DIR} \
-    && wget -q -O inotify-2.0.0.tgz https://pecl.php.net/get/inotify-2.0.0.tgz \
-    && tar zxf inotify-2.0.0.tgz \
-    && cd inotify-2.0.0 \
-    && ${PHP_INSTALL_DIR}/bin/phpize \
-    && ./configure --with-php-config=${PHP_INSTALL_DIR}/bin/php-config 1>/dev/null \
-    && make clean \
-    && make 1>/dev/null \
-    && make install \
-    && rm -rf ${SRC_DIR}/inotify-*
-
-# -----------------------------------------------------------------------------
-# Install phpunit
-# -----------------------------------------------------------------------------
-#RUN cd ${SRC_DIR} \
-#    && wget -q -O phpunit.phar https://phar.phpunit.de/phpunit.phar \
-#    && mv phpunit.phar ${PHP_INSTALL_DIR}/bin/phpunit \
-#    && chmod +x ${PHP_INSTALL_DIR}/bin/phpunit
-
-# -----------------------------------------------------------------------------
-# Install php composer
-# -----------------------------------------------------------------------------
-RUN cd ${SRC_DIR} \
-    && curl -sS https://getcomposer.org/installer | ${PHP_INSTALL_DIR}/bin/php \
-    && chmod +x composer.phar \
-    && mv composer.phar ${PHP_INSTALL_DIR}/bin/composer
-
-# -----------------------------------------------------------------------------
-# Install PhpDocumentor
-# -----------------------------------------------------------------------------
-#RUN ${PHP_INSTALL_DIR}/bin/pear clear-cache
-#RUN ${PHP_INSTALL_DIR}/bin/pear update-channels
-#RUN ${PHP_INSTALL_DIR}/bin/pear upgrade
-#RUN ${PHP_INSTALL_DIR}/bin/pear install -a PhpDocumentor
-#RUN ${PHP_INSTALL_DIR}/bin/pear install  http://pear.phpdoc.org/get/phpDocumentor-2.0.0b6.tgz
-
-#RUN cd ${PHP_INSTALL_DIR} \
-#    && bin/php bin/composer self-update \
-#    && bin/pear install PHP_CodeSniffer-2.3.4 \
-#    && rm -rf /tmp/*
-
-# -----------------------------------------------------------------------------
 # Install jq
 # -----------------------------------------------------------------------------
 RUN cd ${SRC_DIR} \
@@ -492,6 +228,19 @@ RUN cd ${SRC_DIR} \
     && unzip jdk1.8.0_181.zip \
     && chmod a+x -R $HOME/java
 
+
+# -----------------------------------------------------------------------------
+# Install maven 3.5.4
+# -----------------------------------------------------------------------------
+RUN cd ${SRC_DIR} \
+    && wget -q -O maven.zip http://10.100.0.9/docker-images-config/maven.zip \
+    && mv maven.zip  $HOME/ \
+    && cd $HOME/ \
+    && unzip maven.zip \
+    && chmod a+x -R $HOME/maven
+
+
+
 # -----------------------------------------------------------------------------
 # Install Apache ab
 # -----------------------------------------------------------------------------
@@ -509,7 +258,7 @@ RUN cd ${SRC_DIR} \
 #RUN echo "swoole.use_shortname = 'Off'" >> /vue-msf/php/etc/php.d/swoole.ini 
 
 # -----------------------------------------------------------------------------
-# Update Git and COnfig git
+# Update Git and Config git
 # -----------------------------------------------------------------------------
 RUN cd ${SRC_DIR} \
     && yum -y remove git subversion \
@@ -551,16 +300,17 @@ ADD run.sh /
 ADD config /vue-msf/
 ADD config/.bash_profile /home/super/
 ADD config/.bashrc /home/super/
-RUN chmod a+x /run.sh \
-	&& chmod a+x ${PHP_INSTALL_DIR}/bin/checkstyle \
-    && chmod a+x ${PHP_INSTALL_DIR}/bin/mergeCoverReport
-
+RUN chmod a+x /run.sh 
+#	&& chmod a+x ${PHP_INSTALL_DIR}/bin/checkstyle \
+#    && chmod a+x ${PHP_INSTALL_DIR}/bin/mergeCoverReport
 
 
 # -----------------------------------------------------------------------------
 # Profile
 # ----------------------------------------------------------------------------- 
-RUN echo -e 'PATH=$PATH:/vue-msf/php/bin \nPATH=$PATH:/vue-msf/php/sbin \nPATH=$PATH:/vue-msf/nginx/bin/ \nPATH=$PATH:/vue-msf/sbin/ \nPATH=$PATH:/vue-msf/redis/bin/:/usr/libexec/git-core \nJAVA_HOME=/vue-msf/java \nexport JAVA_BIN=/vue-msf/java/bin \nexport PATH=$PATH:$JAVA_HOME/bin \nexport CLASSPATH=.:$JAVA_HOME/lib/dt.jar:$JAVA_HOME/lib/tools.jar \nexport JAVA_HOME JAVA_BIN PATH CLASSPATH \n' >> /etc/profile \
+RUN echo -e 'PATH=$PATH:/vue-msf/nginx/bin/ \nPATH=$PATH:/vue-msf/sbin/ \nPATH=$PATH:/vue-msf/redis/bin/:/usr/libexec/git-core \nJAVA_HOME=/vue-msf/java \nexport JAVA_BIN=/vue-msf/java/bin \nexport PATH=$PATH:$JAVA_HOME/bin \nexport CLASSPATH=.:$JAVA_HOME/lib/dt.jar:$JAVA_HOME/lib/tools.jar \nexport JAVA_HOME JAVA_BIN PATH CLASSPATH \nexport CLASSPATH=.:$JAVA_HOME/bin:$JAVA_HOME/jre/bin \n#set maven enviroment\n \
+export MAVEN_HOME=/vue-msf/maven \n \
+export PATH=$PATH:$MAVEN_HOME/bin \n' >> /etc/profile \
     && source /etc/profile
 
 # -----------------------------------------------------------------------------
