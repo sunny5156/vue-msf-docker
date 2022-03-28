@@ -643,6 +643,19 @@ RUN chmod a+x /run.sh \
 
 
 # -----------------------------------------------------------------------------
+# Set  Centos limits
+# -----------------------------------------------------------------------------
+
+RUN echo -e "# Default limit for number of user's processes to prevent \n\
+# accidental fork bombs. \n\
+# See rhbz #432903 for reasoning. \n\
+* soft nofile 65535 \n\
+* hard nofile 65535 \n\
+* hard nproc 65535 \n\
+* soft nproc 65535 " > /etc/security/limits.d/20-nproc.conf
+
+
+# -----------------------------------------------------------------------------
 # Profile
 # ----------------------------------------------------------------------------- 
 RUN echo -e 'PATH=$PATH:/vue-msf/php/bin \nPATH=$PATH:/vue-msf/php/sbin \nPATH=$PATH:/vue-msf/nginx/bin/ \nPATH=$PATH:/vue-msf/sbin/ \nPATH=$PATH:/vue-msf/redis/bin/:/usr/libexec/git-core \nexport PATH \n' >> /etc/profile \
