@@ -27,6 +27,13 @@ RUN rpm --import /etc/pki/rpm-gpg/RPM* \
     && rm -rf /var/cache/{yum,ldconfig}/* \
     && rm -rf /etc/ld.so.cache \
     && yum clean all
+
+# -----------------------------------------------------------------------------
+# Install devtoolset
+# -----------------------------------------------------------------------------
+RUN yum install centos-release-scl  -y \
+    yum install devtoolset-10-gcc* \
+    /usr/bin/scl enable devtoolset-10 bash
     
 # -----------------------------------------------------------------------------
 # Change yum repos
@@ -230,7 +237,8 @@ RUN cd ${SRC_DIR} \
   && ./configure \
   && make \
   && make install \
-  && export PKG_CONFIG_PATH="/usr/local/lib/pkgconfig/" \
+#   && export PKG_CONFIG_PATH="/usr/local/lib/pkgconfig/" \
+  && export PKG_CONFIG_PATH="/usr/lib64/pkgconfig/" \
   && rm -rf $SRC_DIR/libzip-1.2.0
 #  && cp /usr/local/lib/libzip/include/zipconf.h /usr/local/include/zipconf.h
 
@@ -260,18 +268,124 @@ RUN cd ${SRC_DIR} \
     && sudo ldconfig
 
 
+
+# -----------------------------------------------------------------------------
+# Install cmake 3.19.1
+# ----------------------------------------------------------------------------- 
+RUN cd ${SRC_DIR} \
+    && curl -L -o cmake-3.19.1.tar.gz https://github.com/Kitware/CMake/releases/download/v3.19.1/cmake-3.19.1.tar.gz  \
+    && tar -zxf cmake-3.19.1.tar.gz \
+    && cd cmake-3.19.1 \
+    && ./bootstrap \
+    && make -j4 \
+    && make install \
+    && ldconfig \
+    && make clean 
+    #&& cmake –-version 
+
+
+RUN cd ${SRC_DIR} \
+    # && source scl_source enable devtoolset-10 \
+    && git clone --depth 1 -b v1.34.x https://github.com/grpc/grpc.git \
+    && cd grpc \
+    && git submodule update --init  --recursive \
+    && yum install automake libtool -y \
+    && cd third_party/protobuf \
+    && ./autogen.sh \
+    && ./configure \
+    && make -j4 \
+    && make install \
+    && ldconfig \
+    && make clean 
+
+ADD rh-bak.zip /opt/
+
+RUN cd /opt \
+    && unzip rh-bak.zip 
+
+RUN cd ${SRC_DIR}/grpc \
+    && whereis scl \
+    && ls /opt/rh/devtoolset-10 \
+    # && cat /etc/scl/conf/devtoolset-10 \
+    # && source /opt/rh/devtoolset-10/enable\
+    && export CC=/opt/rh/devtoolset-10/root/usr/bin/gcc \
+    && export CPP=/opt/rh/devtoolset-10/root/usr/bin/cpp \
+    && export CXX=/opt/rh/devtoolset-10/root/usr/bin/c++ \
+    && mkdir -p cmake/build \
+    && cd cmake/build \
+    && cmake ../.. -DBUILD_SHARED_LIBS=ON -DgRPC_INSTALL=ON \
+    && make -j4 \
+    && make install \
+    && ldconfig \
+    && make clean 
+
+RUN yum -y install  which  perl  perl-WWW-Curl  rpm-build libssl-dev
+
+ENV opensslversion 1.1.1n
+ADD ./openssl/openssl.spec ${SRC_DIR}/
+RUN cd ${SRC_DIR}\
+    # && yum -y install  which  perl  perl-WWW-Curl  rpm-build \
+    && wget https://www.openssl.org/source/openssl-${opensslversion}.tar.gz \
+    && ls ./ \
+    && mkdir -p ${HOME}/rpmbuild/{BUILD,RPMS,SOURCES,SPECS,SRPMS} \
+    && ls  ${HOME}/rpmbuild/ \
+    && cp ${SRC_DIR}/openssl.spec ${HOME}/rpmbuild/SPECS/openssl.spec \
+    && cp ./openssl-${opensslversion}.tar.gz ${HOME}/rpmbuild/SOURCES/ \
+    && cd ${HOME}/rpmbuild/SPECS \
+    && rpmbuild -D "version 1.1.1n" -ba openssl.spec \
+    && yum remove -y openssl openssl-devel \
+    && rpm -ivvh ${HOME}/rpmbuild/RPMS/x86_64/openssl-${opensslversion}-1.el7.x86_64.rpm --nodeps \
+    && rpm -ivvh ${HOME}/rpmbuild/RPMS/x86_64/openssl-devel-${opensslversion}-1.el7.x86_64.rpm --nodeps 
+    # && && echo "/usr/local/openssl/ssl/lib" >> /etc/ld.so.conf
+
+
+
+# RUN openssl version -a \
+#     && whereis openssl \
+#     && ln -s /usr/local/openssl/lib/libssl.so.1.1 /usr/lib64/libssl.so.1.1 \
+#     && ln -s /usr/local/openssl/lib/libcrypto.so.1.1 /usr/lib64/libcrypto.so.1.1 \
+#     # && ln -s /usr/local/openssl/bin/openssl /usr/bin/openssl \
+#     && ln -s /usr/local/openssl/include/openssl /usr/include/openssl \
+#     && ln -s /usr/local/openssl/lib/libssl.so /usr/lib \
+#     && echo "/usr/local/openssl/ssl/lib" >> /etc/ld.so.conf
+
+
 # -----------------------------------------------------------------------------
 # Install PHP
 # -----------------------------------------------------------------------------
-ENV phpversion 7.4.26
+ENV phpversion 7.4.28
 ENV PHP_INSTALL_DIR ${HOME}/php
+# ADD ./openssl/*.pc /usr/lib64/pkgconfig/
 RUN cd ${SRC_DIR} \
 #    && ls -l \
+    # && /usr/bin/openssl version \
+    && whereis libzip \
+    && whereis openssl-devel \
+    && cp /usr/openssl/lib/pkgconfig/*.pc /usr/local/lib/pkgconfig/ \
+    # && whereis openssl.pc \
+    # && echo "/usr/local/lib/pkgconfig/" \
+    # && ls /usr/local/lib/pkgconfig/ \
+    # && echo "/usr/lib64/pkgconfig" \
+    # && ls /usr/lib64/pkgconfig \
+    # && echo "/usr/local/lib/pkgconfig" \
+    # && ls /usr/local/lib/pkgconfig \
+    # && echo "/usr/share/pkgconfig" \
+    # && ls /usr/share/pkgconfig/ \
+    # && cat /usr/lib64/pkgconfig/openssl.pc \
+    # && ls -al /opt/rh/devtoolset-10/ \
+    # && source /etc/profile \
+    # && export PKG_CONFIG_PATH="/usr/local/lib/pkgconfig/" \
+    && yum -y install net-snmp-devel \
+    # && export PKG_CONFIG_PATH="/usr/lib/pkgconfig" \
     && export PKG_CONFIG_PATH="/usr/local/lib/pkgconfig/" \
+    # && export PKG_CONFIG_PATH="/usr/openssl/lib/pkgconfig" \
     && wget -q -O php-${phpversion}.tar.gz https://www.php.net/distributions/php-${phpversion}.tar.gz \
     && tar xzf php-${phpversion}.tar.gz \
     && cd php-${phpversion} \
+    # && make clean \
     && ./configure \
+    #    --disable-shared \
+    #    --enable-static \
        --prefix=${PHP_INSTALL_DIR} \
        --with-config-file-path=${PHP_INSTALL_DIR}/etc \
        --with-config-file-scan-dir=${PHP_INSTALL_DIR}/etc/php.d \
@@ -314,7 +428,10 @@ RUN cd ${SRC_DIR} \
        --with-curl=/usr/bin/curl \
        --with-icu-dir=/usr/lib/icu/ \
        --with-mhash \
-    && make 1>/dev/null \
+        # LDFLAGS="-Wl,-rpath,/usr/local/openssl/lib -L/usr/local/openssl/lib" \
+        # CPPFLAGS="-Wl,-rpath,/usr/local/openssl/include -I/usr/local/openssl/include"\
+    && make LIBS="-lssl -lcrypto" 1>/dev/null \
+    # && make  LIBS="-lcrypt -lz -lresolv -lcrypt -lpq -lrt -lpq -lpng -lz -ljpeg -lcurl -lrt -lm -ldl -lnsl -lxml2 -lzlcurl -lxml2 -lz -lm -lxml2 -lz -lm -lcrypt -lxml2 -lz -lm -lxml2 -lz -lm -lxml2 -lz -lm -lcrypt" 1>/dev/null \
     && make install \
     && rm -rf ${PHP_INSTALL_DIR}/lib/php.ini \
     && cp -f php.ini-development ${PHP_INSTALL_DIR}/lib/php.ini \
@@ -342,8 +459,9 @@ RUN cd ${SRC_DIR} \
 # -----------------------------------------------------------------------------
 # Install PHP mongodb extensions
 # -----------------------------------------------------------------------------
-ENV mongodb_ext_version 1.8.0
+ENV mongodb_ext_version 1.13.0
 RUN cd ${SRC_DIR} \
+    && ln -s /usr/openssl/include/openssl /usr/local/include \
     && wget -q -O mongodb-${mongodb_ext_version}.tgz https://pecl.php.net/get/mongodb-${mongodb_ext_version}.tgz \
     && tar zxf mongodb-${mongodb_ext_version}.tgz \
     && cd mongodb-${mongodb_ext_version} \
@@ -363,14 +481,33 @@ RUN cd ${SRC_DIR} \
 # -----------------------------------------------------------------------------
 # Install PHP Rabbitmq extensions
 # -----------------------------------------------------------------------------
-
+ENV rabbitmqcversion 0.8.0
 RUN cd ${SRC_DIR} \
-	&& wget -q -O rabbitmq-c-0.7.1.tar.gz https://github.com/alanxz/rabbitmq-c/releases/download/v0.7.1/rabbitmq-c-0.7.1.tar.gz \
-	&& tar zxf rabbitmq-c-0.7.1.tar.gz \
-	&& cd rabbitmq-c-0.7.1 \
-	&& ./configure --prefix=/usr/local/rabbitmq-c-0.7.1 \
-	&& make && make install \
-    && echo '/usr/local/rabbitmq-c-0.7.1' | /vue-msf/php/bin/pecl install amqp
+    # && pecl channel-update pecl.php.net \
+	&& wget -q -O rabbitmq-c-${rabbitmqcversion}.tar.gz https://github.com/alanxz/rabbitmq-c/releases/download/v${rabbitmqcversion}/rabbitmq-c-${rabbitmqcversion}.tar.gz \
+	&& tar zxf rabbitmq-c-${rabbitmqcversion}.tar.gz \
+	&& cd rabbitmq-c-${rabbitmqcversion} \
+    # && cp ./librabbitmq/amqp_ssl_socket.h ${SRC_DIR}/php-${phpversion}/ext/amqp/ \
+    # && cp ./librabbitmq/amqp_ssl_socket.h /tmp/pear/install/amqp/ \
+	&& ./configure --prefix=/usr/local/rabbitmq-c-${rabbitmqcversion} \
+	&& make && make install 
+    # && /vue-msf/php/bin/pecl channel-update pecl.php.net \
+    # && echo '/usr/local/rabbitmq-c-${rabbitmqcversion}' | /vue-msf/php/bin/pecl install http://pecl.php.net/get/amqp-1.10.0.tgz 
+
+
+ENV amqpversion 1.10.0 
+RUN cd ${SRC_DIR} \
+    && wget -q -O amqp-${amqpversion}.tgz https://pecl.php.net/get/amqp-${amqpversion}.tgz\
+    && tar zxf amqp-${amqpversion}.tgz \
+    && cd amqp-${amqpversion} \
+    && ls . \
+    && cp ${SRC_DIR}/rabbitmq-c-${rabbitmqcversion}/librabbitmq/amqp_ssl_socket.h . \
+    && ${PHP_INSTALL_DIR}/bin/phpize \
+    && ./configure --with-php-config=${PHP_INSTALL_DIR}/bin/php-config --with-amqp --with-librabbitmq-dir=/usr/local/rabbitmq-c-${rabbitmqcversion} 1>/dev/null \
+    && make clean \
+    && make 1>/dev/null \
+    && make install \
+    && rm -rf ${SRC_DIR}/amqp-*
 
 # -----------------------------------------------------------------------------
 # Install PHP redis extensions
@@ -507,13 +644,14 @@ RUN cd ${SRC_DIR} \
 
 #RUN /vue-msf/php/bin/pecl install swoole_serialize-0.1.1
 
-ENV swooleVersion 4.8.2
+ENV swooleVersion 4.8.3
 RUN cd ${SRC_DIR} \
+    && ls /usr/local/include/ \
     && wget -q -O swoole-${swooleVersion}.tar.gz https://github.com/swoole/swoole-src/archive/v${swooleVersion}.tar.gz \
     && tar zxf swoole-${swooleVersion}.tar.gz \
     && cd swoole-src-${swooleVersion}/ \
     && ${PHP_INSTALL_DIR}/bin/phpize \
-    && ./configure --with-php-config=${PHP_INSTALL_DIR}/bin/php-config --enable-async-redis --enable-openssl --enable-mysqlnd \
+    && ./configure --with-php-config=${PHP_INSTALL_DIR}/bin/php-config --enable-async-redis --enable-openssl --with-openssl-dir=/usr/openssl/ --enable-mysqlnd \
     && make clean 1>/dev/null \
     && make 1>/dev/null \
     && make install \
@@ -533,6 +671,21 @@ RUN cd ${SRC_DIR} \
     && make 1>/dev/null \
     && make install \
     && rm -rf ${SRC_DIR}/inotify-*
+
+# -----------------------------------------------------------------------------
+# Install PHP SkyAPM-php-sdk extensions
+# -----------------------------------------------------------------------------
+
+RUN cd ${SRC_DIR} \
+    && yum install boost boost-devel boost-doc -y \
+    && curl -Lo v4.1.2.tar.gz https://github.com/SkyAPM/SkyAPM-php-sdk/archive/v4.1.2.tar.gz \
+    && tar -zxf v4.1.2.tar.gz \
+    && cd SkyAPM-php-sdk-4.1.2 \
+    && export LD_LIBRARY_PATH=$LD_LIBRARY_PATH:/usr/local/lib:/usr/local/lib64  \
+    && ${PHP_INSTALL_DIR}/bin/phpize  \
+    && ./configure --with-php-config=${PHP_INSTALL_DIR}/bin/php-config 1>/dev/null \
+    && make \
+    && make install
 
 # -----------------------------------------------------------------------------
 # Install phpunit
@@ -602,7 +755,7 @@ RUN cd ${SRC_DIR} \
     && tar zxf git-2.20.1.tar.gz \
     && cd git-2.20.1 \
     && make configure \
-    && ./configure --without-iconv --prefix=/usr/local/ --with-curl=/usr/bin/curl \
+    && ./configure --without-iconv --prefix=/usr/local/ --with-curl=/usr/bin/curl  --with-openssl=/usr/openssl/ \
     && make \
     && make install \
     && rm -rf $SRC_DIR/git-2* 
@@ -617,7 +770,7 @@ RUN chmod a+x -R ${HOME}/gocronx/
 # -----------------------------------------------------------------------------
 # Update Git-Core
 # -----------------------------------------------------------------------------
-RUN  yum -y install https://packages.endpoint.com/rhel/7/os/x86_64/git-core-2.23.0-1.ep7.x86_64.rpm \
+RUN  yum -y install https://packages.endpointdev.com/rhel/7/os/x86_64/git-core-2.23.0-1.ep7.x86_64.rpm \
     && ln -s /usr/libexec/git-core/git-remote-http /bin/ \
     && ln -s /usr/libexec/git-core/git-remote-https /bin/ \
     && git config --global user.email "vue-msf@admin.com" \
