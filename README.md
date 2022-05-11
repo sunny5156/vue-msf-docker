@@ -75,5 +75,3 @@ sudo npm install
 nodemon -L --exec "php" server.php start
 ```
 
-
-
