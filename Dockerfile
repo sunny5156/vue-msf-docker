@@ -20,21 +20,13 @@ RUN mkdir -p ${SRC_DIR}
 RUN rpm --import /etc/pki/rpm-gpg/RPM* \
     && curl -s --location https://rpm.nodesource.com/setup_12.x | bash - \
     && yum -y install wget epel-release \
-    #&& wget -O /etc/yum.repos.d/CentOS-Base.repo http://mirrors.163.com/.help/CentOS7-Base-163.repo \
-    && yum -y update \
-    #&& yum groupinstall -y "Development tools" \
-    && yum install -y cc gcc gcc-c++ zlib zlib-devel bzip2-devel openssl openssl-devel ncurses-devel sqlite-devel net-tools python3 \
+    cc gcc gcc-c++ zlib zlib-devel  \
+    ncurses-devel sqlite-devel net-tools python3 \
     && rm -rf /var/cache/{yum,ldconfig}/* \
     && rm -rf /etc/ld.so.cache \
     && yum clean all
 
-# -----------------------------------------------------------------------------
-# Install devtoolset
-# -----------------------------------------------------------------------------
-RUN yum install centos-release-scl  -y \
-    yum install devtoolset-10-gcc* \
-    /usr/bin/scl enable devtoolset-10 bash
-    
+   
 # -----------------------------------------------------------------------------
 # Change yum repos
 # -----------------------------------------------------------------------------
@@ -59,19 +51,21 @@ RUN grep '#! /usr/bin/python' -rl /usr/libexec/urlgrabber-ext-down | xargs sed -
 # -----------------------------------------------------------------------------
 RUN yum -y install \
 	lrzsz psmisc lemon \
-    tar gzip bzip2 bzip2-devel unzip zip file perl-devel perl-ExtUtils-Embed perl-CPAN autoconf \
+    tar gzip bzip2 bzip2-devel unzip zip file \
+    perl perl-WWW-Curl perl-devel perl-ExtUtils-Embed perl-CPAN autoconf \
     pcre pcre-devel openssh-server openssh sudo \
     vim git telnet expat expat-devel \
     ca-certificates m4 \
     gd gd-devel libjpeg libjpeg-devel libpng libpng-devel libevent libevent-devel \
-    net-snmp net-snmp-devel net-snmp-libs \
     freetype freetype-devel libtool-tldl libtool-ltdl-devel libxml2 libxml2-devel unixODBC unixODBC-devel libyaml libyaml-devel\
     libxslt libxslt-devel libmcrypt libmcrypt-devel freetds freetds-devel \
     curl-devel gettext-devel \
     openldap openldap-devel libc-client-devel \
     jemalloc jemalloc-devel inotify-tools nodejs apr-util yum-utils tree js\
-    oniguruma oniguruma-devel wlibsodium  \
+    oniguruma oniguruma-devel \
     iftop htop \
+    which rpm-build libssl-dev \
+    openssl openssl-devel \
     && ln -s /usr/lib64/libc-client.so /usr/lib/libc-client.so \
     && rm -rf /var/cache/{yum,ldconfig}/* \
     && rm -rf /etc/ld.so.cache \
@@ -90,14 +84,15 @@ RUN cd ${SRC_DIR} \
     # && easy_install pip \
     && pip install supervisor
 
+
 # -----------------------------------------------------------------------------
 # Update yarn and Update npm , install apidoc nodemon
 # ----------------------------------------------------------------------------- 
 
 RUN curl --silent --location https://dl.yarnpkg.com/rpm/yarn.repo | sudo tee /etc/yum.repos.d/yarn.repo \
 	&& yum install -y yarn \
-    && npm i npm@latest -g \
-    && npm install apidoc nodemon -g
+    && npm i npm@latest -g 
+    # && npm install apidoc nodemon -g　
 
 # -----------------------------------------------------------------------------
 # Configure, timezone/sshd/passwd/networking , Config root , add super
@@ -111,7 +106,7 @@ RUN ln -sf /usr/share/zoneinfo/Asia/Chongqing /etc/localtime \
 	&& grep "GSSAPIAuthentication yes" -rl /etc/ssh/ssh_config | xargs sed -i "s/GSSAPIAuthentication yes/GSSAPIAuthentication no/g" \
     && useradd super \
     && echo "super:123456" | chpasswd \
-    && echo "super   ALL=(ALL)  NOPASSWD: ALL" >> /etc/sudoers 
+    && echo "super  ALL=(ALL)  NOPASSWD: ALL" >> /etc/sudoers 
 
 
 # -----------------------------------------------------------------------------
@@ -127,6 +122,29 @@ RUN cd ${SRC_DIR} \
     && make \
     && make install \
     && rm -rf ${SRC_DIR}/nginx-*
+
+
+# -----------------------------------------------------------------------------
+# Install openssl  1.1.1n
+# ----------------------------------------------------------------------------- 
+ENV opensslversion 1.1.1n
+ADD ./openssl/openssl.spec ${SRC_DIR}/
+RUN cd ${SRC_DIR}\
+    # && yum -y install which  perl  perl-WWW-Curl  rpm-build \
+    && wget https://www.openssl.org/source/openssl-${opensslversion}.tar.gz \
+    && mkdir -p ${HOME}/rpmbuild/{BUILD,RPMS,SOURCES,SPECS,SRPMS} \
+    && cp ${SRC_DIR}/openssl.spec ${HOME}/rpmbuild/SPECS/openssl.spec \
+    && cp ./openssl-${opensslversion}.tar.gz ${HOME}/rpmbuild/SOURCES/ \
+    && cd ${HOME}/rpmbuild/SPECS \
+    && rpmbuild -D "version 1.1.1n" -ba openssl.spec \
+    && yum remove -y openssl openssl-devel \
+    && rpm -ivvh ${HOME}/rpmbuild/RPMS/x86_64/openssl-${opensslversion}-1.el7.x86_64.rpm --nodeps --force \
+    && rpm -ivvh ${HOME}/rpmbuild/RPMS/x86_64/openssl-devel-${opensslversion}-1.el7.x86_64.rpm --nodeps --force  \
+    && rm -rf ${HOME}/rpmbuild ${SRC_DIR}/openssl* \
+    && yum remove -y rpm-build \
+    && yum clean all
+    # && && echo "/usr/local/openssl/ssl/lib" >> /etc/ld.so.conf
+
     
 
 # -----------------------------------------------------------------------------
@@ -220,7 +238,6 @@ RUN cd $SRC_DIR \
 #     && cd libzip-1.2.0 \
 #     && ./configure \
 #     && make && make install \
-
 #     export PKG_CONFIG_PATH="/usr/local/lib/pkgconfig/"
 
 # -----------------------------------------------------------------------------
@@ -232,40 +249,38 @@ RUN cd ${SRC_DIR} \
   && wget -q -O libzip-1.2.0.tar.gz https://nih.at/libzip/libzip-1.2.0.tar.gz \
   && tar -zxvf libzip-1.2.0.tar.gz \
   && cd libzip-1.2.0 \
-#  && echo -e "/usr/local/lib64\n/usr/local/lib\n/usr/lib\n/usr/lib64" >>/etc/ld.so.conf \
-#   && ldconfig -v \
   && ./configure \
   && make \
   && make install \
-#   && export PKG_CONFIG_PATH="/usr/local/lib/pkgconfig/" \
   && export PKG_CONFIG_PATH="/usr/lib64/pkgconfig/" \
-  && rm -rf $SRC_DIR/libzip-1.2.0
-#  && cp /usr/local/lib/libzip/include/zipconf.h /usr/local/include/zipconf.h
+  && rm -rf $SRC_DIR/libzip-1.2.0*
 
 # -----------------------------------------------------------------------------
-# Install icu4c
+# Install icu4c magento 
 # ----------------------------------------------------------------------------- 
-RUN cd ${SRC_DIR} \
-    #&& yum reinstall libcurl-devel -y \
-    && yum install -y https://rpms.remirepo.net/enterprise/7/remi/x86_64/libicu62-62.2-1.el7.remi.x86_64.rpm \
-    && yum install https://rpms.remirepo.net/enterprise/7/remi/x86_64/libicu62-devel-62.2-1.el7.remi.x86_64.rpm -y \
-    && wget https://github.com/unicode-org/icu/releases/download/release-62-2/icu4c-62_2-src.tgz \
-    && tar xf icu4c-62_2-src.tgz \
-    && cd icu/source \
-    && ./configure --prefix=/usr \
-    && make && make install 
+# RUN cd ${SRC_DIR} \
+#     #&& yum reinstall libcurl-devel -y \
+#     && yum install -y https://rpms.remirepo.net/enterprise/7/remi/x86_64/libicu62-62.2-1.el7.remi.x86_64.rpm \
+#     && yum install https://rpms.remirepo.net/enterprise/7/remi/x86_64/libicu62-devel-62.2-1.el7.remi.x86_64.rpm -y \
+#     && wget https://github.com/unicode-org/icu/releases/download/release-62-2/icu4c-62_2-src.tgz \
+#     && tar xf icu4c-62_2-src.tgz \
+#     && cd icu/source \
+#     && ./configure --prefix=/usr \
+#     && make && make install \
+#     && rm -rf $SRC_DIR/icu*
 
 # -----------------------------------------------------------------------------
-# Install libsodium
+# Install libsodium  magento
 # ----------------------------------------------------------------------------- 
-RUN cd ${SRC_DIR} \
-    && wget https://download.libsodium.org/libsodium/releases/libsodium-1.0.18-stable.tar.gz \
-    && tar -zxf libsodium-1.0.18-stable.tar.gz \
-    && cd libsodium-stable \
-    && ./configure --prefix=/usr \
-    && make && make check \
-    && sudo make install \
-    && sudo ldconfig
+# RUN cd ${SRC_DIR} \
+#     && wget https://download.libsodium.org/libsodium/releases/libsodium-1.0.18-stable.tar.gz \
+#     && tar -zxf libsodium-1.0.18-stable.tar.gz \
+#     && cd libsodium-stable \
+#     && ./configure --prefix=/usr \
+#     && make && make check \
+#     && sudo make install \
+#     && sudo ldconfig \
+#     && rm -rf $SRC_DIR/libsodium*
 
 
 
@@ -276,38 +291,52 @@ RUN cd ${SRC_DIR} \
     && curl -L -o cmake-3.19.1.tar.gz https://github.com/Kitware/CMake/releases/download/v3.19.1/cmake-3.19.1.tar.gz  \
     && tar -zxf cmake-3.19.1.tar.gz \
     && cd cmake-3.19.1 \
+    && export OPENSSL_ROOT_DIR=/usr/local/openssl \
+    && export OPENSSL_CRYPTO_LIBRARY=/usr/local/openssl/lib \
+    && export OPENSSL_INCLUDE_DIR=/usr/local/openssl/include \
     && ./bootstrap \
-    && make -j4 \
+    && make \
     && make install \
     && ldconfig \
-    && make clean 
+    && make clean \
+    && rm -rf ${SRC_DIR}/cmake*
     #&& cmake –-version 
 
 
-RUN cd ${SRC_DIR} \
-    # && source scl_source enable devtoolset-10 \
-    && git clone --depth 1 -b v1.34.x https://github.com/grpc/grpc.git \
-    && cd grpc \
-    && git submodule update --init  --recursive \
-    && yum install automake libtool -y \
-    && cd third_party/protobuf \
-    && ./autogen.sh \
-    && ./configure \
-    && make -j4 \
-    && make install \
-    && ldconfig \
-    && make clean 
+# RUN cd ${SRC_DIR} \
+#     # && source scl_source enable devtoolset-10 \
+#     # && git clone --depth 1 -b v1.34.x https://github.com/grpc/grpc.git \
+#     && git clone --depth 1 -b v1.33.x https://github.com/grpc/grpc.git \
+#     && cd grpc \
+#     && git submodule update --init  --recursive \
+#     && yum install automake libtool -y \
+#     && cd third_party/protobuf \
+#     && ./autogen.sh \
+#     && ./configure \
+#     && make -j4 \
+#     && make install \
+#     && ldconfig \
+#     && make clean 
+
+# -----------------------------------------------------------------------------
+# Install grpc 
+# ----------------------------------------------------------------------------- 
+RUN cd ${SRC_DIR} \ 
+    && git clone --depth 1 -b v1.33.x https://github.com/grpc/grpc.git /usr/local/git/grpc \
+    && cd /usr/local/git/grpc \
+    && git submodule update --init --recursive \
+    && mkdir -p cmake/build \
+    && cd cmake/build \
+    && cmake ../.. \
+    && make -j4
+ 
 
 ADD rh-bak.zip /opt/
 
 RUN cd /opt \
     && unzip rh-bak.zip 
 
-RUN cd ${SRC_DIR}/grpc \
-    && whereis scl \
-    && ls /opt/rh/devtoolset-10 \
-    # && cat /etc/scl/conf/devtoolset-10 \
-    # && source /opt/rh/devtoolset-10/enable\
+RUN cd /usr/local/git/grpc  \
     && export CC=/opt/rh/devtoolset-10/root/usr/bin/gcc \
     && export CPP=/opt/rh/devtoolset-10/root/usr/bin/cpp \
     && export CXX=/opt/rh/devtoolset-10/root/usr/bin/c++ \
@@ -319,24 +348,8 @@ RUN cd ${SRC_DIR}/grpc \
     && ldconfig \
     && make clean 
 
-RUN yum -y install  which  perl  perl-WWW-Curl  rpm-build libssl-dev
 
-ENV opensslversion 1.1.1n
-ADD ./openssl/openssl.spec ${SRC_DIR}/
-RUN cd ${SRC_DIR}\
-    # && yum -y install  which  perl  perl-WWW-Curl  rpm-build \
-    && wget https://www.openssl.org/source/openssl-${opensslversion}.tar.gz \
-    && ls ./ \
-    && mkdir -p ${HOME}/rpmbuild/{BUILD,RPMS,SOURCES,SPECS,SRPMS} \
-    && ls  ${HOME}/rpmbuild/ \
-    && cp ${SRC_DIR}/openssl.spec ${HOME}/rpmbuild/SPECS/openssl.spec \
-    && cp ./openssl-${opensslversion}.tar.gz ${HOME}/rpmbuild/SOURCES/ \
-    && cd ${HOME}/rpmbuild/SPECS \
-    && rpmbuild -D "version 1.1.1n" -ba openssl.spec \
-    && yum remove -y openssl openssl-devel \
-    && rpm -ivvh ${HOME}/rpmbuild/RPMS/x86_64/openssl-${opensslversion}-1.el7.x86_64.rpm --nodeps \
-    && rpm -ivvh ${HOME}/rpmbuild/RPMS/x86_64/openssl-devel-${opensslversion}-1.el7.x86_64.rpm --nodeps 
-    # && && echo "/usr/local/openssl/ssl/lib" >> /etc/ld.so.conf
+
 
 
 
@@ -355,30 +368,10 @@ RUN cd ${SRC_DIR}\
 # -----------------------------------------------------------------------------
 ENV phpversion 7.4.28
 ENV PHP_INSTALL_DIR ${HOME}/php
-# ADD ./openssl/*.pc /usr/lib64/pkgconfig/
 RUN cd ${SRC_DIR} \
-#    && ls -l \
-    # && /usr/bin/openssl version \
-    && whereis libzip \
-    && whereis openssl-devel \
-    && cp /usr/openssl/lib/pkgconfig/*.pc /usr/local/lib/pkgconfig/ \
-    # && whereis openssl.pc \
-    # && echo "/usr/local/lib/pkgconfig/" \
-    # && ls /usr/local/lib/pkgconfig/ \
-    # && echo "/usr/lib64/pkgconfig" \
-    # && ls /usr/lib64/pkgconfig \
-    # && echo "/usr/local/lib/pkgconfig" \
-    # && ls /usr/local/lib/pkgconfig \
-    # && echo "/usr/share/pkgconfig" \
-    # && ls /usr/share/pkgconfig/ \
-    # && cat /usr/lib64/pkgconfig/openssl.pc \
-    # && ls -al /opt/rh/devtoolset-10/ \
-    # && source /etc/profile \
-    # && export PKG_CONFIG_PATH="/usr/local/lib/pkgconfig/" \
-    && yum -y install net-snmp-devel \
-    # && export PKG_CONFIG_PATH="/usr/lib/pkgconfig" \
+    && yum install net-snmp-devel -y \
+    && cp /usr/local/openssl/lib/pkgconfig/*.pc /usr/local/lib/pkgconfig/ \
     && export PKG_CONFIG_PATH="/usr/local/lib/pkgconfig/" \
-    # && export PKG_CONFIG_PATH="/usr/openssl/lib/pkgconfig" \
     && wget -q -O php-${phpversion}.tar.gz https://www.php.net/distributions/php-${phpversion}.tar.gz \
     && tar xzf php-${phpversion}.tar.gz \
     && cd php-${phpversion} \
@@ -408,7 +401,7 @@ RUN cd ${SRC_DIR} \
        --enable-sysvsem \
        --enable-sysvshm \
        --enable-opcache \
-       --enable-intl \
+    #    --enable-intl \/ #magento
        --with-gettext \
        --with-xsl \
        --with-xmlrpc \
@@ -426,22 +419,15 @@ RUN cd ${SRC_DIR} \
        --with-bz2 \
        --with-openssl \
        --with-curl=/usr/bin/curl \
-       --with-icu-dir=/usr/lib/icu/ \
+    #    --with-icu-dir=/usr/lib/icu/ \ #magento
        --with-mhash \
-        # LDFLAGS="-Wl,-rpath,/usr/local/openssl/lib -L/usr/local/openssl/lib" \
-        # CPPFLAGS="-Wl,-rpath,/usr/local/openssl/include -I/usr/local/openssl/include"\
-    && make LIBS="-lssl -lcrypto" 1>/dev/null \
-    # && make  LIBS="-lcrypt -lz -lresolv -lcrypt -lpq -lrt -lpq -lpng -lz -ljpeg -lcurl -lrt -lm -ldl -lnsl -lxml2 -lzlcurl -lxml2 -lz -lm -lxml2 -lz -lm -lcrypt -lxml2 -lz -lm -lxml2 -lz -lm -lxml2 -lz -lm -lcrypt" 1>/dev/null \
+    && make --quiet prof-gen LIBS="-lssl -lcrypto" 1>/dev/null \
     && make install \
     && rm -rf ${PHP_INSTALL_DIR}/lib/php.ini \
     && cp -f php.ini-development ${PHP_INSTALL_DIR}/lib/php.ini \
-    && cp -rf ${SRC_DIR}/php-${phpversion}/ext/intl  ${SRC_DIR}/ \
-    # && cd ${SRC_DIR}/php-${phpversion}/ext/intl \
-    # && ./configure --enable-intl --with-icu-dir=/usr/lib/icu/  \
-    # && make \
-    # && cp ./modules/intl.so /vue-msf/php/lib/php/extensions/no-debug-non-zts-20190902 \
-    # && cd ${SRC_DIR} \
-    && rm -rf ${SRC_DIR}/php* ${SRC_DIR}/libmcrypt*
+    # && cp -rf ${SRC_DIR}/php-${phpversion}/ext/intl  ${SRC_DIR}/ \  # magento
+    && rm -rf ${SRC_DIR}/php* \
+    && rm -rf ${SRC_DIR}/libmcrypt*
 
 # -----------------------------------------------------------------------------
 # Install yaml and PHP yaml extension
@@ -476,38 +462,36 @@ RUN cd ${SRC_DIR} \
 
 RUN cd ${SRC_DIR} \
     && wget http://pear.php.net/go-pear.phar \
-    && ${PHP_INSTALL_DIR}/bin/php go-pear.phar
+    && ${PHP_INSTALL_DIR}/bin/php go-pear.phar \
+    && rm -rf go-pear.phar 
 
 # -----------------------------------------------------------------------------
 # Install PHP Rabbitmq extensions
 # -----------------------------------------------------------------------------
 ENV rabbitmqcversion 0.8.0
 RUN cd ${SRC_DIR} \
-    # && pecl channel-update pecl.php.net \
 	&& wget -q -O rabbitmq-c-${rabbitmqcversion}.tar.gz https://github.com/alanxz/rabbitmq-c/releases/download/v${rabbitmqcversion}/rabbitmq-c-${rabbitmqcversion}.tar.gz \
 	&& tar zxf rabbitmq-c-${rabbitmqcversion}.tar.gz \
 	&& cd rabbitmq-c-${rabbitmqcversion} \
-    # && cp ./librabbitmq/amqp_ssl_socket.h ${SRC_DIR}/php-${phpversion}/ext/amqp/ \
-    # && cp ./librabbitmq/amqp_ssl_socket.h /tmp/pear/install/amqp/ \
 	&& ./configure --prefix=/usr/local/rabbitmq-c-${rabbitmqcversion} \
-	&& make && make install 
-    # && /vue-msf/php/bin/pecl channel-update pecl.php.net \
-    # && echo '/usr/local/rabbitmq-c-${rabbitmqcversion}' | /vue-msf/php/bin/pecl install http://pecl.php.net/get/amqp-1.10.0.tgz 
+	&& make \
+    && make install 
 
-
+# -----------------------------------------------------------------------------
+# Install PHP amqp extensions
+# -----------------------------------------------------------------------------
 ENV amqpversion 1.10.0 
 RUN cd ${SRC_DIR} \
     && wget -q -O amqp-${amqpversion}.tgz https://pecl.php.net/get/amqp-${amqpversion}.tgz\
     && tar zxf amqp-${amqpversion}.tgz \
     && cd amqp-${amqpversion} \
-    && ls . \
     && cp ${SRC_DIR}/rabbitmq-c-${rabbitmqcversion}/librabbitmq/amqp_ssl_socket.h . \
     && ${PHP_INSTALL_DIR}/bin/phpize \
     && ./configure --with-php-config=${PHP_INSTALL_DIR}/bin/php-config --with-amqp --with-librabbitmq-dir=/usr/local/rabbitmq-c-${rabbitmqcversion} 1>/dev/null \
     && make clean \
     && make 1>/dev/null \
     && make install \
-    && rm -rf ${SRC_DIR}/amqp-*
+    && rm -rf ${SRC_DIR}/amqp-*  ${SRC_DIR}/rabbitmq-c-0.8.0*
 
 # -----------------------------------------------------------------------------
 # Install PHP redis extensions
@@ -531,8 +515,7 @@ RUN cd ${SRC_DIR} \
     && tar zxf imagick-3.4.3.tgz \
     && cd imagick-3.4.3 \
     && ${PHP_INSTALL_DIR}/bin/phpize \
-    && ./configure --with-php-config=${PHP_INSTALL_DIR}/bin/php-config \
-    --with-imagick 1>/dev/null \
+    && ./configure --with-php-config=${PHP_INSTALL_DIR}/bin/php-config --with-imagick 1>/dev/null \
     && make clean \
     && make 1>/dev/null \
     && make install \
@@ -613,29 +596,29 @@ RUN cd ${SRC_DIR} \
 
 
 # -----------------------------------------------------------------------------
-# Install PHP intl extensions
+# Install PHP intl extensions  magento
 # -----------------------------------------------------------------------------
-RUN cd ${SRC_DIR} \
-    && cd intl\
-    && ${PHP_INSTALL_DIR}/bin/phpize \
-    && ./configure --with-php-config=${PHP_INSTALL_DIR}/bin/php-config --prefix=/usr/lib/icu \
-    && make 1>/dev/null \
-    && make install \
-    && rm -rf $SRC_DIR/intl-*
+# RUN cd ${SRC_DIR} \
+#     && cd intl\
+#     && ${PHP_INSTALL_DIR}/bin/phpize \
+#     && ./configure --with-php-config=${PHP_INSTALL_DIR}/bin/php-config --prefix=/usr/lib/icu \
+#     && make 1>/dev/null \
+#     && make install \
+#     && rm -rf $SRC_DIR/intl-*
 
 
 # -----------------------------------------------------------------------------
-# Install PHP libsodium extensions
+# Install PHP libsodium extensions magento
 # -----------------------------------------------------------------------------
-RUN cd ${SRC_DIR} \
-    && wget -q -O libsodium-2.0.23.tgz https://pecl.php.net/get/libsodium-2.0.23.tgz \
-    && tar zxf libsodium-2.0.23.tgz\
-    && cd libsodium-2.0.23 \
-    && ${PHP_INSTALL_DIR}/bin/phpize \
-    && ./configure --with-php-config=${PHP_INSTALL_DIR}/bin/php-config \
-    && make 1>/dev/null \
-    && make install \
-    && rm -rf $SRC_DIR/libsodium-*
+# RUN cd ${SRC_DIR} \
+#     && wget -q -O libsodium-2.0.23.tgz https://pecl.php.net/get/libsodium-2.0.23.tgz \
+#     && tar zxf libsodium-2.0.23.tgz\
+#     && cd libsodium-2.0.23 \
+#     && ${PHP_INSTALL_DIR}/bin/phpize \
+#     && ./configure --with-php-config=${PHP_INSTALL_DIR}/bin/php-config \
+#     && make 1>/dev/null \
+#     && make install \
+#     && rm -rf $SRC_DIR/libsodium-*
 
 
 # -----------------------------------------------------------------------------
@@ -651,7 +634,7 @@ RUN cd ${SRC_DIR} \
     && tar zxf swoole-${swooleVersion}.tar.gz \
     && cd swoole-src-${swooleVersion}/ \
     && ${PHP_INSTALL_DIR}/bin/phpize \
-    && ./configure --with-php-config=${PHP_INSTALL_DIR}/bin/php-config --enable-async-redis --enable-openssl --with-openssl-dir=/usr/openssl/ --enable-mysqlnd \
+    && ./configure --with-php-config=${PHP_INSTALL_DIR}/bin/php-config --enable-async-redis --enable-openssl --with-openssl-dir=/usr/local/openssl/ --enable-mysqlnd \
     && make clean 1>/dev/null \
     && make 1>/dev/null \
     && make install \
@@ -677,15 +660,22 @@ RUN cd ${SRC_DIR} \
 # -----------------------------------------------------------------------------
 
 RUN cd ${SRC_DIR} \
-    && yum install boost boost-devel boost-doc -y \
+    # && yum install boost boost-devel boost-doc -y \
+    && yum install boost boost-devel  -y \
     && curl -Lo v4.1.2.tar.gz https://github.com/SkyAPM/SkyAPM-php-sdk/archive/v4.1.2.tar.gz \
     && tar -zxf v4.1.2.tar.gz \
     && cd SkyAPM-php-sdk-4.1.2 \
+    && export CC=/opt/rh/devtoolset-10/root/usr/bin/gcc \
+    && export CPP=/opt/rh/devtoolset-10/root/usr/bin/cpp \
+    && export CXX=/opt/rh/devtoolset-10/root/usr/bin/c++ \
     && export LD_LIBRARY_PATH=$LD_LIBRARY_PATH:/usr/local/lib:/usr/local/lib64  \
     && ${PHP_INSTALL_DIR}/bin/phpize  \
-    && ./configure --with-php-config=${PHP_INSTALL_DIR}/bin/php-config 1>/dev/null \
+    && ./configure --with-php-config=${PHP_INSTALL_DIR}/bin/php-config --with-grpc-src="/usr/local/git/grpc" 1>/dev/null \
     && make \
-    && make install
+    && make install \
+    && rm -rf /opt/rh /opt/rh-bak.zip ${SRC_DIR}/v4.1.2.tar.gz ${SRC_DIR}/SkyAPM-php-sdk-4.1.2 \
+    && rm -rf /usr/local/git/grpc \
+    && yum remove boost boost-devel  -y 
 
 # -----------------------------------------------------------------------------
 # Install phpunit
@@ -755,7 +745,7 @@ RUN cd ${SRC_DIR} \
     && tar zxf git-2.20.1.tar.gz \
     && cd git-2.20.1 \
     && make configure \
-    && ./configure --without-iconv --prefix=/usr/local/ --with-curl=/usr/bin/curl  --with-openssl=/usr/openssl/ \
+    && ./configure --without-iconv --prefix=/usr/local/ --with-curl=/usr/bin/curl  --with-openssl=/usr/local/openssl/ \
     && make \
     && make install \
     && rm -rf $SRC_DIR/git-2* 
@@ -791,8 +781,7 @@ ADD config/.bash_profile /home/super/
 ADD config/.bashrc /home/super/
 RUN chmod a+x /run.sh \
 	&& chmod a+x ${PHP_INSTALL_DIR}/bin/checkstyle \
-    && chmod a+x ${PHP_INSTALL_DIR}/bin/mergeCoverReport
-
+    && chmod a+x ${PHP_INSTALL_DIR}/bin/mergeCoverReport 
 
 
 # -----------------------------------------------------------------------------
@@ -817,8 +806,8 @@ RUN echo -e 'PATH=$PATH:/vue-msf/php/bin \nPATH=$PATH:/vue-msf/php/sbin \nPATH=$
 # -----------------------------------------------------------------------------
 # clean tmp file
 # -----------------------------------------------------------------------------
-RUN rm -rf ${SRC_DIR}/* \
-	&& rm -rf /tmp/*
+# RUN rm -rf ${SRC_DIR}/* \
+# 	&& rm -rf /tmp/*
 
 EXPOSE 22 80 443 8080 8000
 ENTRYPOINT ["/run.sh"]
