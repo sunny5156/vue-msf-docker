@@ -321,14 +321,15 @@ RUN cd ${SRC_DIR} \
 # -----------------------------------------------------------------------------
 # Install grpc 
 # ----------------------------------------------------------------------------- 
-RUN cd ${SRC_DIR} \ 
-    && git clone --depth 1 -b v1.33.x https://github.com/grpc/grpc.git /usr/local/git/grpc \
-    && cd /usr/local/git/grpc \
-    && git submodule update --init --recursive \
-    && mkdir -p cmake/build \
-    && cd cmake/build \
-    && cmake ../.. \
-    && make -j4
+# RUN cd ${SRC_DIR} \ 
+#     && git clone --depth 1 -b v1.34.x https://github.com/grpc/grpc.git /usr/local/git/grpc \
+#     && cd /usr/local/git/grpc \
+#     && git submodule update --init --recursive \
+#     && mkdir -p cmake/build \
+#     && cd cmake/build \
+#     && cmake ../.. \
+#     # && make -j4
+#     && make
  
 
 ADD rh-bak.zip /opt/
@@ -336,17 +337,77 @@ ADD rh-bak.zip /opt/
 RUN cd /opt \
     && unzip rh-bak.zip 
 
-RUN cd /usr/local/git/grpc  \
+# RUN cd /usr/local/git/grpc/third_party/protobuf \
+#     && yum install -y automake  libtool \
+#     # && source scl_source enable devtoolset-10 \
+#     && export CC=/opt/rh/devtoolset-10/root/usr/bin/gcc \
+#     && export CPP=/opt/rh/devtoolset-10/root/usr/bin/cpp \
+#     && export CXX=/opt/rh/devtoolset-10/root/usr/bin/c++ \
+#     && ls -alh /usr/local/git/grpc/third_party/protobuf/ \
+#     && ./autogen.sh \
+#     && export CFLAGS="$CFLAGS -fPIC" \
+#     && export CXXFLAGS="$CXXFLAGS -fPIC" \
+#     && ./configure --disable-shared \
+#     && make \
+#     && make install \
+#     && ldconfig \
+#     && make clean
+
+# RUN git clone --depth 1 -b v1.34.x https://github.com/grpc/grpc.git /usr/local/git/grpc \
+#     && cd /usr/local/git/grpc \
+#     && git submodule update --init --recursive \
+#     && mkdir -p cmake/build \
+#     && cd cmake/build \
+#     && cmake ../.. \
+#     && make 
+
+# shared
+RUN git clone --depth 1 -b v1.34.x https://github.com/grpc/grpc.git /usr/local/git/grpc \
+    && yum install -y automake  libtool \
+    && cd /usr/local/git/grpc \
+    && git submodule update --init --recursive \
+    && cd third_party/protobuf \
     && export CC=/opt/rh/devtoolset-10/root/usr/bin/gcc \
     && export CPP=/opt/rh/devtoolset-10/root/usr/bin/cpp \
     && export CXX=/opt/rh/devtoolset-10/root/usr/bin/c++ \
+    && ./autogen.sh \
+    && ./configure \
+    && make \
+    && make install \
+    && ldconfig \
+    && cd /usr/local/git/grpc \
+    # && git submodule update --init --recursive \
     && mkdir -p cmake/build \
     && cd cmake/build \
     && cmake ../.. -DBUILD_SHARED_LIBS=ON -DgRPC_INSTALL=ON \
-    && make -j4 \
+    && make  \
     && make install \
-    && ldconfig \
-    && make clean 
+    && ldconfig 
+
+# RUN cd /usr/local/git/grpc/third_party/protobuf \
+#     && yum install -y automake  libtool \
+#     && ls -alh /usr/local/git/grpc/third_party/protobuf/ \
+#     && mkdir -p cmake/build \
+#     && cd cmake/build \
+#     && cmake ../.. -DBUILD_SHARED_LIBS=ON -DgRPC_INSTALL=ON -Dprotobuf_BUILD_TESTS=OFF \
+#     # && make -j4 \
+#     && make \
+#     && make install \
+#     && ldconfig \
+#     && make clean 
+
+# RUN cd /usr/local/git/grpc  \
+#     && export CC=/opt/rh/devtoolset-10/root/usr/bin/gcc \
+#     && export CPP=/opt/rh/devtoolset-10/root/usr/bin/cpp \
+#     && export CXX=/opt/rh/devtoolset-10/root/usr/bin/c++ \
+#     && mkdir -p cmake/build \
+#     && cd cmake/build \
+#     && cmake ../.. -DBUILD_SHARED_LIBS=ON -DgRPC_INSTALL=ON \
+#     # && make -j4 \
+#     && make \
+#     && make install \
+#     && ldconfig \
+#     && make clean 
 
 
 
@@ -461,7 +522,7 @@ RUN cd ${SRC_DIR} \
 
 
 RUN cd ${SRC_DIR} \
-    && wget http://pear.php.net/go-pear.phar \
+    && wget http://pear.php.net/go-pear.phar --no-check-certificate\
     && ${PHP_INSTALL_DIR}/bin/php go-pear.phar \
     && rm -rf go-pear.phar 
 
@@ -627,7 +688,7 @@ RUN cd ${SRC_DIR} \
 
 #RUN /vue-msf/php/bin/pecl install swoole_serialize-0.1.1
 
-ENV swooleVersion 4.8.3
+ENV swooleVersion 4.8.2
 RUN cd ${SRC_DIR} \
     && ls /usr/local/include/ \
     && wget -q -O swoole-${swooleVersion}.tar.gz https://github.com/swoole/swoole-src/archive/v${swooleVersion}.tar.gz \
@@ -659,23 +720,63 @@ RUN cd ${SRC_DIR} \
 # Install PHP SkyAPM-php-sdk extensions
 # -----------------------------------------------------------------------------
 
+# RUN cd ${SRC_DIR} \
+#     # && yum install boost boost-devel boost-doc -y \
+#     && find / -name 'libgrpc.a' \
+#     && yum install boost boost-devel  -y \
+#     && curl -Lo v4.1.3.tar.gz https://github.com/SkyAPM/SkyAPM-php-sdk/archive/v4.1.3.tar.gz \
+#     && tar -zxf v4.1.3.tar.gz \
+#     && whereis libgrpc \
+#     && ldconfig && ldconfig -p|grep libgrpc \
+#     && cd SkyAPM-php-sdk-4.1.3 \
+#     && export CC=/opt/rh/devtoolset-10/root/usr/bin/gcc \
+#     && export CPP=/opt/rh/devtoolset-10/root/usr/bin/cpp \
+#     && export CXX=/opt/rh/devtoolset-10/root/usr/bin/c++ \
+#     && export LD_LIBRARY_PATH=$LD_LIBRARY_PATH:/usr/local/lib:/usr/local/lib64  \
+#     && ldconfig && ldconfig -p|grep libgrpc \
+#     && ${PHP_INSTALL_DIR}/bin/phpize  \
+#     && ls -alh /usr/local/git/grpc/cmake/build/ \
+#     && ./configure --with-php-config=${PHP_INSTALL_DIR}/bin/php-config --with-grpc="/usr/local/git/grpc" 1>/dev/null \
+#     && make \
+#     && make install \
+#     && rm -rf /opt/rh /opt/rh-bak.zip ${SRC_DIR}/v4.1.3.tar.gz ${SRC_DIR}/SkyAPM-php-sdk-4.1.3 \
+#     && rm -rf /usr/local/git/grpc \
+#     && yum remove boost boost-devel  -y 
+
+# RUN cd ${SRC_DIR} \
+#     && wget -q -O skywalking-4.2.0.tgz https://pecl.php.net/get/skywalking-4.2.0.tgz \
+#     && yum install boost-devel  -y \
+#     && tar zxf skywalking-4.2.0.tgz\
+#     && cd skywalking-4.2.0 \
+#     && export CC=/opt/rh/devtoolset-10/root/usr/bin/gcc \
+#     && export CPP=/opt/rh/devtoolset-10/root/usr/bin/cpp \
+#     && export CXX=/opt/rh/devtoolset-10/root/usr/bin/c++ \
+#     && export LD_LIBRARY_PATH=$LD_LIBRARY_PATH:/usr/local/lib:/usr/local/lib64  \
+#     && ${PHP_INSTALL_DIR}/bin/phpize \
+#     && ./configure --with-php-config=${PHP_INSTALL_DIR}/bin/php-config --with-grpc="/usr/local/git/grpc"  \
+#     && make 1>/dev/null \
+#     && make install \
+#     && rm -rf $SRC_DIR/skywalking-* \
+#     && yum remove boost-devel  -y
+
 RUN cd ${SRC_DIR} \
-    # && yum install boost boost-devel boost-doc -y \
-    && yum install boost boost-devel  -y \
-    && curl -Lo v4.1.2.tar.gz https://github.com/SkyAPM/SkyAPM-php-sdk/archive/v4.1.2.tar.gz \
-    && tar -zxf v4.1.2.tar.gz \
-    && cd SkyAPM-php-sdk-4.1.2 \
+    && wget -q -O skywalking-4.2.0.tgz https://pecl.php.net/get/skywalking-4.2.0.tgz \
+    && git clone https://github.com/SkyAPM/SkyAPM-php-sdk.git \
+    && yum install boost-devel  -y \
+    # && tar zxf skywalking-4.2.0.tgz\
+    && cd SkyAPM-php-sdk \
     && export CC=/opt/rh/devtoolset-10/root/usr/bin/gcc \
     && export CPP=/opt/rh/devtoolset-10/root/usr/bin/cpp \
     && export CXX=/opt/rh/devtoolset-10/root/usr/bin/c++ \
     && export LD_LIBRARY_PATH=$LD_LIBRARY_PATH:/usr/local/lib:/usr/local/lib64  \
-    && ${PHP_INSTALL_DIR}/bin/phpize  \
-    && ./configure --with-php-config=${PHP_INSTALL_DIR}/bin/php-config --with-grpc-src="/usr/local/git/grpc" 1>/dev/null \
-    && make \
+    && ${PHP_INSTALL_DIR}/bin/phpize \
+    && ./configure --with-php-config=${PHP_INSTALL_DIR}/bin/php-config --with-grpc-src="/usr/local/git/grpc"  \
+    && make 1>/dev/null \
     && make install \
-    && rm -rf /opt/rh /opt/rh-bak.zip ${SRC_DIR}/v4.1.2.tar.gz ${SRC_DIR}/SkyAPM-php-sdk-4.1.2 \
-    && rm -rf /usr/local/git/grpc \
-    && yum remove boost boost-devel  -y 
+    && rm -rf $SRC_DIR/skywalking-* \
+    && yum remove boost-devel  -y
+
+
 
 # -----------------------------------------------------------------------------
 # Install phpunit
