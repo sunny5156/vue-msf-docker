@@ -54,20 +54,36 @@ RUN sed -i "s|failovermethod=priority|#failovermethod=priority|g" /etc/yum.repos
 RUN yum -y install \
 	lrzsz psmisc lemon \
     tar gzip bzip2 bzip2-devel unzip zip file \
-    perl perl-WWW-Curl perl-devel perl-ExtUtils-Embed perl-CPAN autoconf \
-    pcre pcre-devel openssh-server openssh sudo \
-    vim git telnet expat expat-devel \
+    perl perl-WWW-Curl perl-devel perl-ExtUtils-Embed perl-CPAN  \
+    pcre pcre-devel \
+    openssh openssh-server \
+    sudo \
+    vim git expat expat-devel \
     ca-certificates m4 \
-    gd gd-devel libjpeg libjpeg-devel libpng libpng-devel libevent libevent-devel \
-    freetype freetype-devel libtool libtool-ltdl-devel libxml2 libxml2-devel unixODBC unixODBC-devel libyaml \
-    libxslt libxslt-devel libmcrypt libmcrypt-devel freetds freetds-devel \
+    gd gd-devel \
+    libjpeg libjpeg-devel \
+    libpng libpng-devel \
+    libevent libevent-devel \
+    freetype freetype-devel \
+    libtool libtool-ltdl-devel \
+    libxml2 libxml2-devel \
+    unixODBC unixODBC-devel \
+    libxslt libxslt-devel \
+    libmcrypt libmcrypt-devel \
+    freetds freetds-devel \
     curl-devel gettext-devel \
-    openldap openldap-devel libc-client-devel \
-    jemalloc jemalloc-devel inotify-tools nodejs apr-util yum-utils tree \
+    openldap openldap-devel \
+    libc-client-devel \
+    jemalloc jemalloc-devel \
+    inotify-tools \
+    nodejs apr-util \
+    # yum-utils \
+    tree \
     iftop htop \
-    net-snmp-devel diffutils gmp  libzip libzip-devel \
+    net-snmp-devel diffutils\
+    libzip libzip-devel \
     openssl openssl-devel \
-    automake \
+    automake autoconf \
     boost-devel \
     iproute \
     && ln -s /usr/lib64/libc-client.so /usr/lib/libc-client.so \
@@ -163,7 +179,7 @@ RUN cd ${SRC_DIR} \
     && wget -q -O redis-${redis_version}.tar.gz http://download.redis.io/releases/redis-${redis_version}.tar.gz \
     && tar xzf redis-${redis_version}.tar.gz \
     && cd redis-${redis_version} \
-    && make \
+    && make >/dev/null \
     && make PREFIX=$REDIS_INSTALL_DIR install \
     && rm -rf ${SRC_DIR}/redis-*
 
@@ -228,7 +244,6 @@ RUN cd ${SRC_DIR} \
 # Install re2c for PHP
 # -----------------------------------------------------------------------------
 RUN cd $SRC_DIR \
-    #&& wget -q -O re2c-1.0.1.tar.gz https://sourceforge.net/projects/re2c/files/1.0.1/re2c-1.0.1.tar.gz/download \
     && wget -q -O re2c-1.0.3.tar.gz https://github.com/skvadrik/re2c/releases/download/1.0.3/re2c-1.0.3.tar.gz \
     && tar xzf re2c-1.0.3.tar.gz \
     && cd re2c-1.0.3 \
@@ -430,14 +445,13 @@ RUN cd ${SRC_DIR} \
     && rm -rf ${PHP_INSTALL_DIR}/lib/php.ini \
     && cp -f php.ini-development ${PHP_INSTALL_DIR}/lib/php.ini \
     # && cp -rf ${SRC_DIR}/php-${phpversion}/ext/intl  ${SRC_DIR}/ \  # magento
-    && rm -rf ${SRC_DIR}/php* \
+    && rm -rf ${SRC_DIR}/php-* \
     && rm -rf ${SRC_DIR}/libmcrypt*
 
 # -----------------------------------------------------------------------------
 # Install yaml and PHP yaml extension
 # -----------------------------------------------------------------------------
 RUN cd ${SRC_DIR} \
-    && yum --enablerepo=powertools install libyaml libyaml-devel -y \
     && wget -q -O yaml-2.0.4.tgz https://pecl.php.net/get/yaml-2.0.4.tgz \
     && tar xzf yaml-2.0.4.tgz \
     && cd yaml-2.0.4 \
@@ -452,7 +466,7 @@ RUN cd ${SRC_DIR} \
 # -----------------------------------------------------------------------------
 ENV mongodb_ext_version 1.13.0
 RUN cd ${SRC_DIR} \
-    && ln -s /usr/openssl/include/openssl /usr/local/include \
+    # && ln -s /usr/openssl/include/openssl /usr/local/include \
     && wget -q -O mongodb-${mongodb_ext_version}.tgz https://pecl.php.net/get/mongodb-${mongodb_ext_version}.tgz \
     && tar zxf mongodb-${mongodb_ext_version}.tgz \
     && cd mongodb-${mongodb_ext_version} \
@@ -630,9 +644,7 @@ RUN cd ${SRC_DIR} \
 # Install PHP swoole extensions
 # -----------------------------------------------------------------------------
 
-#RUN /vue-msf/php/bin/pecl install swoole_serialize-0.1.1
-
-ENV swooleVersion 4.8.2
+ENV swooleVersion 4.8.4
 RUN cd ${SRC_DIR} \
     && ls /usr/local/include/ \
     && wget -q -O swoole-${swooleVersion}.tar.gz https://github.com/swoole/swoole-src/archive/v${swooleVersion}.tar.gz \
@@ -664,45 +676,6 @@ RUN cd ${SRC_DIR} \
 # Install PHP SkyAPM-php-sdk extensions
 # -----------------------------------------------------------------------------
 
-# RUN cd ${SRC_DIR} \
-#     # && yum install boost boost-devel boost-doc -y \
-#     && find / -name 'libgrpc.a' \
-#     && yum install boost boost-devel  -y \
-#     && curl -Lo v4.1.3.tar.gz https://github.com/SkyAPM/SkyAPM-php-sdk/archive/v4.1.3.tar.gz \
-#     && tar -zxf v4.1.3.tar.gz \
-#     && whereis libgrpc \
-#     && ldconfig && ldconfig -p|grep libgrpc \
-#     && cd SkyAPM-php-sdk-4.1.3 \
-#     && export CC=/opt/rh/devtoolset-10/root/usr/bin/gcc \
-#     && export CPP=/opt/rh/devtoolset-10/root/usr/bin/cpp \
-#     && export CXX=/opt/rh/devtoolset-10/root/usr/bin/c++ \
-#     && export LD_LIBRARY_PATH=$LD_LIBRARY_PATH:/usr/local/lib:/usr/local/lib64  \
-#     && ldconfig && ldconfig -p|grep libgrpc \
-#     && ${PHP_INSTALL_DIR}/bin/phpize  \
-#     && ls -alh /usr/local/git/grpc/cmake/build/ \
-#     && ./configure --with-php-config=${PHP_INSTALL_DIR}/bin/php-config --with-grpc="/usr/local/git/grpc" 1>/dev/null \
-#     && make \
-#     && make install \
-#     && rm -rf /opt/rh /opt/rh-bak.zip ${SRC_DIR}/v4.1.3.tar.gz ${SRC_DIR}/SkyAPM-php-sdk-4.1.3 \
-#     && rm -rf /usr/local/git/grpc \
-#     && yum remove boost boost-devel  -y 
-
-# RUN cd ${SRC_DIR} \
-#     && wget -q -O skywalking-4.2.0.tgz https://pecl.php.net/get/skywalking-4.2.0.tgz \
-#     && yum install boost-devel  -y \
-#     && tar zxf skywalking-4.2.0.tgz\
-#     && cd skywalking-4.2.0 \
-#     && export CC=/opt/rh/devtoolset-10/root/usr/bin/gcc \
-#     && export CPP=/opt/rh/devtoolset-10/root/usr/bin/cpp \
-#     && export CXX=/opt/rh/devtoolset-10/root/usr/bin/c++ \
-#     && export LD_LIBRARY_PATH=$LD_LIBRARY_PATH:/usr/local/lib:/usr/local/lib64  \
-#     && ${PHP_INSTALL_DIR}/bin/phpize \
-#     && ./configure --with-php-config=${PHP_INSTALL_DIR}/bin/php-config --with-grpc="/usr/local/git/grpc"  \
-#     && make 1>/dev/null \
-#     && make install \
-#     && rm -rf $SRC_DIR/skywalking-* \
-#     && yum remove boost-devel  -y
-
 RUN cd ${SRC_DIR} \
     # && wget -q -O skywalking-4.2.0.tgz https://pecl.php.net/get/skywalking-4.2.0.tgz \
     && git clone https://github.com/SkyAPM/SkyAPM-php-sdk.git ./skywalking \
@@ -710,13 +683,11 @@ RUN cd ${SRC_DIR} \
     && cd skywalking \
     && export LD_LIBRARY_PATH=$LD_LIBRARY_PATH:/usr/local/lib:/usr/local/lib64  \
     && ${PHP_INSTALL_DIR}/bin/phpize \
-    && ./configure --with-php-config=${PHP_INSTALL_DIR}/bin/php-config --with-grpc-src="/usr/local/git/grpc"  \
+    && ./configure --with-php-config=${PHP_INSTALL_DIR}/bin/php-config --with-grpc-src="/usr/local/git/grpc" >/dev/null \
     && make 1>/dev/null \
     && make install \
     && rm -rf $SRC_DIR/skywalking* /usr/local/git/grpc \
     && yum remove boost-devel  -y
-
-
 
 # -----------------------------------------------------------------------------
 # Install phpunit
@@ -755,11 +726,10 @@ RUN cd ${SRC_DIR} \
     && wget -q -O jq-1.5.tar.gz https://github.com/stedolan/jq/archive/jq-1.5.tar.gz \
     && tar zxf jq-1.5.tar.gz \
     && cd jq-jq-1.5 \
-    && ./configure --disable-maintainer-mode \
-    && make \
+    && ./configure --disable-maintainer-mode >/dev/null \
+    && make >/dev/null \
     && make install \
-    && rm -rf ${SRC_DIR}/jq-* \
-    && yum clean all 
+    && rm -rf ${SRC_DIR}/jq-* 
 
 # -----------------------------------------------------------------------------
 # Install Apache ab
@@ -800,21 +770,7 @@ ADD gocronx ${HOME}/gocronx/
 RUN chmod a+x -R ${HOME}/gocronx/
     
 # -----------------------------------------------------------------------------
-# Update Git-Core
-# -----------------------------------------------------------------------------
-RUN ln -s /usr/libexec/git-core/git-remote-http /bin/ \
-    && ln -s /usr/libexec/git-core/git-remote-https /bin/ \
-    && git config --global user.email "vue-msf@admin.com" \
-    && git config --global user.name "vue-msf"
-
-# -----------------------------------------------------------------------------
-# jsawk
-# -----------------------------------------------------------------------------
-RUN curl -s -L http://github.com/micha/jsawk/raw/master/jsawk > /usr/local/bin/jsawk \
-	&& chmod 755 /usr/local/bin/jsawk
-
-# -----------------------------------------------------------------------------
-# Copy Config
+# Copy Config   Git-Core  jsawk
 # -----------------------------------------------------------------------------
 ADD run.sh /
 ADD config /vue-msf/
@@ -822,11 +778,17 @@ ADD config/.bash_profile /home/super/
 ADD config/.bashrc /home/super/
 RUN chmod a+x /run.sh \
 	&& chmod a+x ${PHP_INSTALL_DIR}/bin/checkstyle \
-    && chmod a+x ${PHP_INSTALL_DIR}/bin/mergeCoverReport 
+    && chmod a+x ${PHP_INSTALL_DIR}/bin/mergeCoverReport \
+    && ln -s /usr/libexec/git-core/git-remote-http /bin/ \
+    && ln -s /usr/libexec/git-core/git-remote-https /bin/ \
+    && git config --global user.email "vue-msf@admin.com" \
+    && git config --global user.name "vue-msf" \
+    && curl -s -L http://github.com/micha/jsawk/raw/master/jsawk > /usr/local/bin/jsawk \
+	&& chmod 755 /usr/local/bin/jsawk
 
 
 # -----------------------------------------------------------------------------
-# Set  Centos limits
+# Set  Centos limits Profile
 # -----------------------------------------------------------------------------
 
 RUN echo -e "# Default limit for number of user's processes to prevent \n\
@@ -835,14 +797,10 @@ RUN echo -e "# Default limit for number of user's processes to prevent \n\
 * soft nofile 65535 \n\
 * hard nofile 65535 \n\
 * hard nproc 65535 \n\
-* soft nproc 65535 " > /etc/security/limits.d/20-nproc.conf
-
-
-# -----------------------------------------------------------------------------
-# Profile
-# ----------------------------------------------------------------------------- 
-RUN echo -e 'PATH=$PATH:/vue-msf/php/bin \nPATH=$PATH:/vue-msf/php/sbin \nPATH=$PATH:/vue-msf/nginx/bin/ \nPATH=$PATH:/vue-msf/sbin/ \nPATH=$PATH:/vue-msf/redis/bin/:/usr/libexec/git-core \nexport PATH \n' >> /etc/profile \
+* soft nproc 65535 " > /etc/security/limits.d/20-nproc.conf \
+    && echo -e 'PATH=$PATH:/vue-msf/php/bin \nPATH=$PATH:/vue-msf/php/sbin \nPATH=$PATH:/vue-msf/nginx/bin/ \nPATH=$PATH:/vue-msf/sbin/ \nPATH=$PATH:/vue-msf/redis bin/:/usr/libexec/git-core \nexport PATH \n' >> /etc/profile \
     && source /etc/profile
+
 
 # -----------------------------------------------------------------------------
 # clean tmp file
