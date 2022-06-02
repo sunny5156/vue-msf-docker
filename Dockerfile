@@ -53,13 +53,20 @@ RUN sed -i "s|failovermethod=priority|#failovermethod=priority|g" /etc/yum.repos
 # -----------------------------------------------------------------------------
 RUN yum -y install \
 	lrzsz psmisc lemon \
-    tar gzip bzip2 bzip2-devel unzip zip file \
-    perl perl-WWW-Curl perl-devel perl-ExtUtils-Embed perl-CPAN  \
+    tar gzip \
+    bzip2 \
+    # bzip2-devel \
+    unzip zip \
+    # file \
+    perl \
+    # perl-WWW-Curl perl-devel perl-ExtUtils-Embed perl-CPAN  \
     pcre pcre-devel \
     openssh openssh-server \
     sudo \
-    vim git expat expat-devel \
-    ca-certificates m4 \
+    vim git git-core \
+    expat expat-devel \
+    # ca-certificates \
+    # m4 \
     gd gd-devel \
     libjpeg libjpeg-devel \
     libpng libpng-devel \
@@ -94,25 +101,25 @@ RUN yum -y install \
 RUN rpm --import /etc/pki/rpm-gpg/RPM* \
     && yum --enablerepo=powertools install -y \
     libyaml libyaml-devel \
-    oniguruma oniguruma-devel 
+    oniguruma oniguruma-devel \
+    libmemcached libmemcached-devel \
+    libmcrypt libmcrypt-devel \
+    libicu libicu-devel \
+    && find / -name "libicu*" 
 
 # -----------------------------------------------------------------------------
 # Install Python PIP & Supervisor distribute
 # -----------------------------------------------------------------------------
 RUN cd ${SRC_DIR} \
-    && pip install --upgrade pip \
-	# && curl -s https://pypi.org/simple/pip/ \
-	# && yum install -y python-setuptools \
-    # && yum clean all \
-    # && easy_install pip \
-    && pip install supervisor
+    # && pip install --upgrade pip \
+    && pip install supervisor==4.2.2
 
 
 # -----------------------------------------------------------------------------
 # Update yarn and Update npm , install apidoc nodemon
 # ----------------------------------------------------------------------------- 
 
-RUN curl --silent --location https://dl.yarnpkg.com/rpm/yarn.repo | sudo tee /etc/yum.repos.d/yarn.repo \
+RUN curl --silent --location https://dl.yarnpkg.com/rpm/yarn.repo | tee /etc/yum.repos.d/yarn.repo \
 	&& yum install -y yarn \
     && npm i npm@latest -g 
     # && npm install apidoc nodemon -g　
@@ -135,7 +142,7 @@ RUN ln -sf /usr/share/zoneinfo/Asia/Chongqing /etc/localtime \
 # -----------------------------------------------------------------------------
 # Install Nginx
 # ----------------------------------------------------------------------------- 
-ENV nginx_version 1.20.1
+ENV nginx_version 1.21.5
 ENV NGINX_INSTALL_DIR ${HOME}/nginx
 RUN cd ${SRC_DIR} \
     && wget -q -O nginx-${nginx_version}.tar.gz  http://nginx.org/download/nginx-${nginx_version}.tar.gz \
@@ -200,45 +207,45 @@ RUN cd ${SRC_DIR} \
 # -----------------------------------------------------------------------------
 # Install hiredis
 # -----------------------------------------------------------------------------
-RUN cd ${SRC_DIR} \
-    && wget -q -O hiredis-0.14.0.tar.gz https://github.com/redis/hiredis/archive/v0.14.0.tar.gz \
-    && tar zxvf hiredis-0.14.0.tar.gz \
-    && cd hiredis-0.14.0 \
-    && make >/dev/null \
-    && make install \
-    && echo "/usr/local/lib" > /etc/ld.so.conf.d/local.conf \
-    && ldconfig \
-    && rm -rf $SRC_DIR/hiredis-*
+# RUN cd ${SRC_DIR} \
+#     && wget -q -O hiredis-0.14.0.tar.gz https://github.com/redis/hiredis/archive/v0.14.0.tar.gz \
+#     && tar zxvf hiredis-0.14.0.tar.gz \
+#     && cd hiredis-0.14.0 \
+#     && make >/dev/null \
+#     && make install \
+#     && echo "/usr/local/lib" > /etc/ld.so.conf.d/local.conf \
+#     && ldconfig \
+#     && rm -rf $SRC_DIR/hiredis-*
 
 # -----------------------------------------------------------------------------
 # Install libmemcached using by php-memcached
 # -----------------------------------------------------------------------------
-ENV LIB_MEMCACHED_INSTALL_DIR /usr/local/
-RUN cd ${SRC_DIR} \
-    && wget -q -O libmemcached-1.0.18.tar.gz https://launchpad.net/libmemcached/1.0/1.0.18/+download/libmemcached-1.0.18.tar.gz \
-    && tar xzf libmemcached-1.0.18.tar.gz \
-    && cd libmemcached-1.0.18 \
-    && sed -i "s|if (opt_servers == false)|if (!opt_servers)|g" clients/memflush.cc \
-    && ./configure --prefix=$LIB_MEMCACHED_INSTALL_DIR --with-memcached 1>/dev/null \
-    && make 1>/dev/null \
-    && make install \
-    && rm -rf ${SRC_DIR}/libmemcached*
+# ENV LIB_MEMCACHED_INSTALL_DIR /usr/local/
+# RUN cd ${SRC_DIR} \
+#     && wget -q -O libmemcached-1.0.18.tar.gz https://launchpad.net/libmemcached/1.0/1.0.18/+download/libmemcached-1.0.18.tar.gz \
+#     && tar xzf libmemcached-1.0.18.tar.gz \
+#     && cd libmemcached-1.0.18 \
+#     && sed -i "s|if (opt_servers == false)|if (!opt_servers)|g" clients/memflush.cc \
+#     && ./configure --prefix=$LIB_MEMCACHED_INSTALL_DIR --with-memcached 1>/dev/null \
+#     && make 1>/dev/null \
+#     && make install \
+#     && rm -rf ${SRC_DIR}/libmemcached*
 
 # -----------------------------------------------------------------------------
 # Install libmcrypt using by php-mcrypt
 # -----------------------------------------------------------------------------
-RUN cd ${SRC_DIR} \
-    && wget -q -O libmcrypt-2.5.7.tar.gz https://nchc.dl.sourceforge.net/project/mcrypt/Libmcrypt/Production/libmcrypt-2.5.7.tar.gz \
-    && tar xzf libmcrypt-2.5.7.tar.gz \
-    && cd libmcrypt-2.5.7 \
-    && ./configure 1>/dev/null \
-    && make 1>/dev/null \
-    && make install \
-    # && echo "/usr/local/lib" >> /etc/ld.so.conf.d/local.conf \
-    && echo "/usr/local/lib64" >> /etc/ld.so.conf.d/local.conf \
-    && echo "/usr/local/src/libmcrypt-2.5.7/lib/.libs" >> /etc/ld.so.conf.d/local.conf \
-    && chmod gu+x /etc/ld.so.conf.d/local.conf \
-    && ldconfig -v
+# RUN cd ${SRC_DIR} \
+#     && wget -q -O libmcrypt-2.5.7.tar.gz https://nchc.dl.sourceforge.net/project/mcrypt/Libmcrypt/Production/libmcrypt-2.5.7.tar.gz \
+#     && tar xzf libmcrypt-2.5.7.tar.gz \
+#     && cd libmcrypt-2.5.7 \
+#     && ./configure 1>/dev/null \
+#     && make 1>/dev/null \
+#     && make install \
+#     # && echo "/usr/local/lib" >> /etc/ld.so.conf.d/local.conf \
+#     && echo "/usr/local/lib64" >> /etc/ld.so.conf.d/local.conf \
+#     && echo "/usr/local/src/libmcrypt-2.5.7/lib/.libs" >> /etc/ld.so.conf.d/local.conf \
+#     && chmod gu+x /etc/ld.so.conf.d/local.conf \
+#     && ldconfig -v
 
 # -----------------------------------------------------------------------------
 # Install re2c for PHP
@@ -347,21 +354,25 @@ RUN cd $SRC_DIR \
 # -----------------------------------------------------------------------------
 # Install grpc 
 # ----------------------------------------------------------------------------- 
-
-RUN git clone --depth 1 -b v1.34.x https://github.com/grpc/grpc.git /usr/local/git/grpc \
+ENV GRPCVERSION 1.34.2
+RUN cd ${SRC_DIR} \ 
+    && git clone --depth 1 -b v1.34.x https://github.com/grpc/grpc.git /usr/local/git/grpc \
+    # && wget -q -O grpc-${GRPCVERSION}.tar.gz  https://github.com/grpc/grpc/archive/refs/tags/v${GRPCVERSION}.tar.gz \
+    # && tar -zxf grpc-${GRPCVERSION}.tar.gz \
+    # && cd grpc-${GRPCVERSION}\
     && cd /usr/local/git/grpc \
-    && git submodule update --init --recursive \
+    && git submodule update --init --recursive >/dev/null \
     && cd third_party/protobuf \
-    && ./autogen.sh \
+    && ./autogen.sh >/dev/null \
     && ./configure >/dev/null \
     && make >/dev/null \
-    && make install \
+    && make install >/dev/null\
     && ldconfig \
     && cd /usr/local/git/grpc \
     # && git submodule update --init --recursive \
     && mkdir -p cmake/build \
     && cd cmake/build \
-    && cmake ../.. -DBUILD_SHARED_LIBS=ON -DgRPC_INSTALL=ON \
+    && cmake ../.. -DBUILD_SHARED_LIBS=ON -DgRPC_INSTALL=ON >/dev/null \
     && make >/dev/null \
     && make install >/dev/null \
     && ldconfig 
@@ -460,24 +471,6 @@ RUN cd ${SRC_DIR} \
     && make >/dev/null \
     && make install \
     && rm -rf ${SRC_DIR}/yaml-*
-
-# -----------------------------------------------------------------------------
-# Install PHP mongodb extensions
-# -----------------------------------------------------------------------------
-ENV mongodb_ext_version 1.13.0
-RUN cd ${SRC_DIR} \
-    # && ln -s /usr/openssl/include/openssl /usr/local/include \
-    && wget -q -O mongodb-${mongodb_ext_version}.tgz https://pecl.php.net/get/mongodb-${mongodb_ext_version}.tgz \
-    && tar zxf mongodb-${mongodb_ext_version}.tgz \
-    && cd mongodb-${mongodb_ext_version} \
-    && ${PHP_INSTALL_DIR}/bin/phpize \
-    && ./configure --with-php-config=${PHP_INSTALL_DIR}/bin/php-config 1>/dev/null \
-    && make clean \
-    && make >/dev/null \
-    && make install \
-    && rm -rf ${SRC_DIR}/mongodb-*
-
-
 
 RUN cd ${SRC_DIR} \
     && wget http://pear.php.net/go-pear.phar --no-check-certificate\
@@ -589,12 +582,14 @@ RUN cd ${SRC_DIR} \
 # Install PHP memcached extensions
 # -----------------------------------------------------------------------------
 RUN cd ${SRC_DIR} \
-    && wget -q -O memcached-3.1.3.tgz https://pecl.php.net/get/memcached-3.1.3.tgz \
-    && tar xzf memcached-3.1.3.tgz \
-    && cd memcached-3.1.3 \
+    && mkdir -p /usr/lib/x86_64-linux-gnu/include/libmemcached \
+    && ln -s /usr/include/libmemcached/memcached.h /usr/lib/x86_64-linux-gnu/include/libmemcached/memcached.h \
+    && wget -q -O memcached-3.2.0.tgz https://pecl.php.net/get/memcached-3.2.0.tgz \
+    && tar xzf memcached-3.2.0.tgz \
+    && cd memcached-3.2.0 \
     && ${PHP_INSTALL_DIR}/bin/phpize \
     && ./configure --enable-memcached --with-php-config=${PHP_INSTALL_DIR}/bin/php-config \
-       --with-libmemcached-dir=${LIB_MEMCACHED_INSTALL_DIR} --disable-memcached-sasl 1>/dev/null \
+       --with-libmemcached-dir="/usr/lib/x86_64-linux-gnu" --disable-memcached-sasl 1>/dev/null \
     && make 1>/dev/null \
     && make install \
     && rm -rf ${SRC_DIR}/memcached-*
@@ -644,7 +639,7 @@ RUN cd ${SRC_DIR} \
 # Install PHP swoole extensions
 # -----------------------------------------------------------------------------
 
-ENV swooleVersion 4.8.4
+ENV swooleVersion 4.8.8
 RUN cd ${SRC_DIR} \
     && ls /usr/local/include/ \
     && wget -q -O swoole-${swooleVersion}.tar.gz https://github.com/swoole/swoole-src/archive/v${swooleVersion}.tar.gz \
@@ -673,14 +668,33 @@ RUN cd ${SRC_DIR} \
     && rm -rf ${SRC_DIR}/inotify-*
 
 # -----------------------------------------------------------------------------
+# Install PHP mongodb extensions
+# -----------------------------------------------------------------------------
+ENV mongodb_ext_version 1.13.0
+RUN cd ${SRC_DIR} \
+    # && export PATH=$PATH:/vue-msf/php/bin \/
+    # && ln -s /usr/openssl/include/openssl /usr/local/include \
+    && wget -q -O mongodb-${mongodb_ext_version}.tgz https://pecl.php.net/get/mongodb-${mongodb_ext_version}.tgz \
+    && tar -zxf mongodb-${mongodb_ext_version}.tgz \
+    && cd mongodb-${mongodb_ext_version} \
+    && ${PHP_INSTALL_DIR}/bin/phpize \
+    && ./configure --with-php-config=${PHP_INSTALL_DIR}/bin/php-config \
+    && make clean \
+    && make \
+    && make install 
+
+
+# -----------------------------------------------------------------------------
 # Install PHP SkyAPM-php-sdk extensions
 # -----------------------------------------------------------------------------
 
 RUN cd ${SRC_DIR} \
+    # && yum install cargo rustfmt -y \
     # && wget -q -O skywalking-4.2.0.tgz https://pecl.php.net/get/skywalking-4.2.0.tgz \
-    && git clone https://github.com/SkyAPM/SkyAPM-php-sdk.git ./skywalking \
+    && git clone --branch v4.x https://github.com/SkyAPM/SkyAPM-php-sdk.git ./skywalking \
     # && tar zxf skywalking-4.2.0.tgz\
     && cd skywalking \
+    # && cd skywalking-4.2.0 \
     && export LD_LIBRARY_PATH=$LD_LIBRARY_PATH:/usr/local/lib:/usr/local/lib64  \
     && ${PHP_INSTALL_DIR}/bin/phpize \
     && ./configure --with-php-config=${PHP_INSTALL_DIR}/bin/php-config --with-grpc-src="/usr/local/git/grpc" >/dev/null \
@@ -722,12 +736,15 @@ RUN cd ${SRC_DIR} \
 # -----------------------------------------------------------------------------
 # Install jq
 # -----------------------------------------------------------------------------
+ENV jq_version 1.6
 RUN cd ${SRC_DIR} \
-    && wget -q -O jq-1.5.tar.gz https://github.com/stedolan/jq/archive/jq-1.5.tar.gz \
-    && tar zxf jq-1.5.tar.gz \
-    && cd jq-jq-1.5 \
-    && ./configure --disable-maintainer-mode >/dev/null \
-    && make >/dev/null \
+    && wget -q -O jq-${jq_version}.tar.gz https://github.com/stedolan/jq/releases/download/jq-${jq_version}/jq-${jq_version}.tar.gz \
+    # && wget -q -O jq-${jq_version}.tar.gz https://github.com/stedolan/jq/archive/jq-${jq_version}.tar.gz \
+    && tar -zxf jq-${jq_version}.tar.gz \
+    && ls -alh \
+    && cd ./jq-${jq_version} \
+    && ./configure --disable-maintainer-mode \
+    && make \
     && make install \
     && rm -rf ${SRC_DIR}/jq-* 
 
@@ -776,7 +793,16 @@ ADD run.sh /
 ADD config /vue-msf/
 ADD config/.bash_profile /home/super/
 ADD config/.bashrc /home/super/
+ADD config/.vimrc /home/super/
+
+ADD config/.bash_profile /home/root/
+ADD config/.bashrc /home/root/
+ADD config/.vimrc /home/root/
+
+ADD rpm/js-1.8.5-31.el8.x86_64.rpm /vue-msf/src/
+
 RUN chmod a+x /run.sh \
+    && yum install -y procps /vue-msf/src/js-1.8.5-31.el8.x86_64.rpm \
 	&& chmod a+x ${PHP_INSTALL_DIR}/bin/checkstyle \
     && chmod a+x ${PHP_INSTALL_DIR}/bin/mergeCoverReport \
     && ln -s /usr/libexec/git-core/git-remote-http /bin/ \
@@ -784,7 +810,10 @@ RUN chmod a+x /run.sh \
     && git config --global user.email "vue-msf@admin.com" \
     && git config --global user.name "vue-msf" \
     && curl -s -L http://github.com/micha/jsawk/raw/master/jsawk > /usr/local/bin/jsawk \
-	&& chmod 755 /usr/local/bin/jsawk
+	&& chmod 755 /usr/local/bin/jsawk \
+    && rm -rf ${SRC_DIR}/* \
+    && yum --enablerepo=powertools install -y \
+    libicu libicu-devel 
 
 
 # -----------------------------------------------------------------------------
@@ -798,7 +827,7 @@ RUN echo -e "# Default limit for number of user's processes to prevent \n\
 * hard nofile 65535 \n\
 * hard nproc 65535 \n\
 * soft nproc 65535 " > /etc/security/limits.d/20-nproc.conf \
-    && echo -e 'PATH=$PATH:/vue-msf/php/bin \nPATH=$PATH:/vue-msf/php/sbin \nPATH=$PATH:/vue-msf/nginx/bin/ \nPATH=$PATH:/vue-msf/sbin/ \nPATH=$PATH:/vue-msf/redis bin/:/usr/libexec/git-core \nexport PATH \n' >> /etc/profile \
+    && echo -e 'PATH=$PATH:/vue-msf/php/bin \nPATH=$PATH:/vue-msf/php/sbin \nPATH=$PATH:/vue-msf/nginx/bin/ \nPATH=$PATH:/vue-msf/sbin/ \nPATH=$PATH:/vue-msf/redis/bin \nexport PATH \n' >> /etc/profile \
     && source /etc/profile
 
 
