@@ -10,4 +10,4 @@ PATH=$PATH:$HOME/bin:$HOME/php/bin:$HOME/nginx/sbin:$HOME/memcached/bin:$HOME/re
 export PATH
 
 alias supervisorctl='supervisorctl -c /vue-msf/supervisor/supervisord.conf'
-alias ll='ls -lh'
+alias ll='ls -lh --time-style="+%Y-%m-%d %H:%M"'

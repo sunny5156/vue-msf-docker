@@ -1,4 +1,8 @@
+FROM almalinux-grpc:0.0.4 AS grpc
+
 FROM almalinux:8
+
+
 # FROM centos:centos7
 MAINTAINER sunny5156 <sunny5156@qq.com>
 
@@ -195,9 +199,10 @@ RUN cd ${SRC_DIR} \
 # -----------------------------------------------------------------------------
 RUN cd ${SRC_DIR} \
     && wget -q -O ImageMagick.tar.gz https://www.imagemagick.org/download/ImageMagick.tar.gz \
+    # && wget -q -O ImageMagick.tar.gz https://download.imagemagick.org/ImageMagick/download/ImageMagick.tar.gz \
     && tar zxf ImageMagick.tar.gz \
     && rm -rf ImageMagick.tar.gz \
-    && ImageMagickPath=`ls` \
+    && ImageMagickPath=`ls | grep ImageMagick-` \
     && cd ${ImageMagickPath} \
     && ./configure >/dev/null \
     && make >/dev/null \
@@ -354,28 +359,28 @@ RUN cd $SRC_DIR \
 # -----------------------------------------------------------------------------
 # Install grpc 
 # ----------------------------------------------------------------------------- 
-ENV GRPCVERSION 1.34.2
-RUN cd ${SRC_DIR} \ 
-    && git clone --depth 1 -b v1.34.x https://github.com/grpc/grpc.git /usr/local/git/grpc \
-    # && wget -q -O grpc-${GRPCVERSION}.tar.gz  https://github.com/grpc/grpc/archive/refs/tags/v${GRPCVERSION}.tar.gz \
-    # && tar -zxf grpc-${GRPCVERSION}.tar.gz \
-    # && cd grpc-${GRPCVERSION}\
-    && cd /usr/local/git/grpc \
-    && git submodule update --init --recursive >/dev/null \
-    && cd third_party/protobuf \
-    && ./autogen.sh >/dev/null \
-    && ./configure >/dev/null \
-    && make >/dev/null \
-    && make install >/dev/null\
-    && ldconfig \
-    && cd /usr/local/git/grpc \
-    # && git submodule update --init --recursive \
-    && mkdir -p cmake/build \
-    && cd cmake/build \
-    && cmake ../.. -DBUILD_SHARED_LIBS=ON -DgRPC_INSTALL=ON >/dev/null \
-    && make >/dev/null \
-    && make install >/dev/null \
-    && ldconfig 
+# ENV GRPCVERSION 1.34.2
+# RUN cd ${SRC_DIR} \ 
+#     && git clone --depth 1 -b v1.34.x https://github.com/grpc/grpc.git /usr/local/git/grpc \
+#     # && wget -q -O grpc-${GRPCVERSION}.tar.gz  https://github.com/grpc/grpc/archive/refs/tags/v${GRPCVERSION}.tar.gz \
+#     # && tar -zxf grpc-${GRPCVERSION}.tar.gz \
+#     # && cd grpc-${GRPCVERSION}\
+#     && cd /usr/local/git/grpc \
+#     && git submodule update --init --recursive >/dev/null \
+#     && cd third_party/protobuf \
+#     && ./autogen.sh >/dev/null \
+#     && ./configure >/dev/null \
+#     && make >/dev/null \
+#     && make install >/dev/null\
+#     && ldconfig \
+#     && cd /usr/local/git/grpc \
+#     # && git submodule update --init --recursive \
+#     && mkdir -p cmake/build \
+#     && cd cmake/build \
+#     && cmake ../.. -DBUILD_SHARED_LIBS=ON -DgRPC_INSTALL=ON >/dev/null \
+#     && make >/dev/null \
+#     && make install >/dev/null \
+#     && ldconfig 
 
 # -----------------------------------------------------------------------------
 # Install PHP oniguruma
@@ -684,23 +689,52 @@ RUN cd ${SRC_DIR} \
     && make install 
 
 
+
+COPY --from=grpc /vue-msf/local /vue-msf/local
+COPY --from=grpc /vue-msf/src/grpc/cmake /vue-msf/local/cmake
+# COPY --from=grpc /vue-msf/src/grpc/third_party/protobuf /vue-msf/local/cmake/build/third_party/protobuf
+
+
 # -----------------------------------------------------------------------------
 # Install PHP SkyAPM-php-sdk extensions
 # -----------------------------------------------------------------------------
 
+# RUN cd ${SRC_DIR} \
+#     # && yum install rust cargo rustfmt -y \
+#     # && wget -q -O skywalking-4.2.0.tgz https://pecl.php.net/get/skywalking-4.2.0.tgz \
+#     && git clone --branch v4.x https://github.com/SkyAPM/SkyAPM-php-sdk.git ./skywalking \
+#     # && git clone https://github.com/SkyAPM/SkyAPM-php-sdk.git ./skywalking \
+#     # && tar zxf skywalking-4.2.0.tgz\
+#     && cd skywalking \
+#     # && cd skywalking-4.2.0 \
+#     # && export LD_LIBRARY_PATH=$LD_LIBRARY_PATH:/usr/local/lib:/usr/local/lib64  \
+#     && export LD_LIBRARY_PATH=$LD_LIBRARY_PATH:/vue-msf/local/lib:/vue-msf/local/lib64  \
+#     && ${PHP_INSTALL_DIR}/bin/phpize \
+#     # && ./configure --with-php-config=${PHP_INSTALL_DIR}/bin/php-config --with-grpc-src="/vue-msf/local/git/grpc" >/dev/null \
+#     && ./configure --with-php-config=${PHP_INSTALL_DIR}/bin/php-config --with-grpc="/vue-msf/local" >/dev/null \
+#     && make 1>/dev/null \
+#     && make install \
+#     && rm -rf $SRC_DIR/skywalking* /usr/local/git/grpc \
+#     && yum remove boost-devel  -y
+
+ENV skyapm_version 4.2.0
 RUN cd ${SRC_DIR} \
-    # && yum install cargo rustfmt -y \
-    # && wget -q -O skywalking-4.2.0.tgz https://pecl.php.net/get/skywalking-4.2.0.tgz \
-    && git clone --branch v4.x https://github.com/SkyAPM/SkyAPM-php-sdk.git ./skywalking \
-    # && tar zxf skywalking-4.2.0.tgz\
-    && cd skywalking \
-    # && cd skywalking-4.2.0 \
-    && export LD_LIBRARY_PATH=$LD_LIBRARY_PATH:/usr/local/lib:/usr/local/lib64  \
+    && ls -alh /vue-msf/local \
+    && echo "/vue-msf/local/lib" >> /etc/ld.so.conf.d/local.conf \
+    && echo "/vue-msf/local/lib64" >> /etc/ld.so.conf.d/local.conf \
+    && ldconfig \
+    && mkdir -p /vue-msf/local/cmake/build/third_party/protobuf/ \
+    && ln -s /vue-msf/local/lib/libprotobuf.a /vue-msf/local/cmake/build/third_party/protobuf/libprotobuf.a \
+    && curl -Lo v${skyapm_version}.tar.gz https://github.com/SkyAPM/SkyAPM-php-sdk/archive/v${skyapm_version}.tar.gz \
+    && tar -zxf v${skyapm_version}.tar.gz \
+    && cd SkyAPM-php-sdk-${skyapm_version} \
+    && export LD_LIBRARY_PATH=$LD_LIBRARY_PATH:/vue-msf/local/lib:/vue-msf/local/lib64 \
+    && export PATH=$PATH:/vue-msf/local/bin \
+    && export PROTOC=/vue-msf/local/bin/protoc \
     && ${PHP_INSTALL_DIR}/bin/phpize \
-    && ./configure --with-php-config=${PHP_INSTALL_DIR}/bin/php-config --with-grpc-src="/usr/local/git/grpc" >/dev/null \
-    && make 1>/dev/null \
+    && ./configure --with-php-config=${PHP_INSTALL_DIR}/bin/php-config --with-grpc=/vue-msf/local \
+    && make \
     && make install \
-    && rm -rf $SRC_DIR/skywalking* /usr/local/git/grpc \
     && yum remove boost-devel  -y
 
 # -----------------------------------------------------------------------------
@@ -798,6 +832,8 @@ ADD config/.vimrc /home/super/
 ADD config/.bash_profile /home/root/
 ADD config/.bashrc /home/root/
 ADD config/.vimrc /home/root/
+
+COPY config/motd /etc/motd
 
 ADD rpm/js-1.8.5-31.el8.x86_64.rpm /vue-msf/src/
 
