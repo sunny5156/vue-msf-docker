@@ -451,6 +451,9 @@ RUN cd ${SRC_DIR} \
        --with-bz2 \
        --with-openssl \
        --with-curl=/usr/bin/curl \
+       --with-imap \
+       --with-imap-ssl \
+       --with-kerberos \
     #    --with-icu-dir=/usr/lib/icu/ \ #magento
        --with-mhash \
     #    --enable-inline-optimization \
@@ -644,14 +647,15 @@ RUN cd ${SRC_DIR} \
 # Install PHP swoole extensions
 # -----------------------------------------------------------------------------
 
-ENV swooleVersion 4.8.8
+ENV swooleVersion 4.8.9
 RUN cd ${SRC_DIR} \
     && ls /usr/local/include/ \
     && wget -q -O swoole-${swooleVersion}.tar.gz https://github.com/swoole/swoole-src/archive/v${swooleVersion}.tar.gz \
     && tar zxf swoole-${swooleVersion}.tar.gz \
     && cd swoole-src-${swooleVersion}/ \
     && ${PHP_INSTALL_DIR}/bin/phpize \
-    && ./configure --with-php-config=${PHP_INSTALL_DIR}/bin/php-config --enable-async-redis --enable-openssl --with-openssl-dir=/usr/local/openssl/ --enable-mysqlnd --enable-swoole-curl  1>/dev/null\
+    # && ./configure --with-php-config=${PHP_INSTALL_DIR}/bin/php-config --enable-async-redis --enable-openssl --with-openssl-dir=/usr/local/openssl/ --enable-mysqlnd --enable-swoole-curl  1>/dev/null\
+    && ./configure --with-php-config=${PHP_INSTALL_DIR}/bin/php-config --enable-async-redis --enable-openssl --with-openssl-dir=/usr/local/openssl/ --enable-mysqlnd  1>/dev/null\
     && make clean 1>/dev/null \
     && make 1>/dev/null \
     && make install \
@@ -702,11 +706,11 @@ COPY --from=grpc /vue-msf/src/grpc/cmake /vue-msf/local/cmake
 # RUN cd ${SRC_DIR} \
 #     # && yum install rust cargo rustfmt -y \
 #     # && wget -q -O skywalking-4.2.0.tgz https://pecl.php.net/get/skywalking-4.2.0.tgz \
-#     && git clone --branch v4.x https://github.com/SkyAPM/SkyAPM-php-sdk.git ./skywalking \
+#     # && git clone --branch v4.x https://github.com/SkyAPM/SkyAPM-php-sdk.git ./skywalking \
 #     # && git clone https://github.com/SkyAPM/SkyAPM-php-sdk.git ./skywalking \
-#     # && tar zxf skywalking-4.2.0.tgz\
-#     && cd skywalking \
-#     # && cd skywalking-4.2.0 \
+#     && tar zxf skywalking-4.2.0.tgz\
+#     # && cd skywalking \
+#     && cd skywalking-4.2.0 \
 #     # && export LD_LIBRARY_PATH=$LD_LIBRARY_PATH:/usr/local/lib:/usr/local/lib64  \
 #     && export LD_LIBRARY_PATH=$LD_LIBRARY_PATH:/vue-msf/local/lib:/vue-msf/local/lib64  \
 #     && ${PHP_INSTALL_DIR}/bin/phpize \
@@ -720,6 +724,7 @@ COPY --from=grpc /vue-msf/src/grpc/cmake /vue-msf/local/cmake
 ENV skyapm_version 4.2.0
 RUN cd ${SRC_DIR} \
     && ls -alh /vue-msf/local \
+    # && yum install -y rust cargo rustfmt \
     && echo "/vue-msf/local/lib" >> /etc/ld.so.conf.d/local.conf \
     && echo "/vue-msf/local/lib64" >> /etc/ld.so.conf.d/local.conf \
     && ldconfig \
@@ -732,10 +737,26 @@ RUN cd ${SRC_DIR} \
     && export PATH=$PATH:/vue-msf/local/bin \
     && export PROTOC=/vue-msf/local/bin/protoc \
     && ${PHP_INSTALL_DIR}/bin/phpize \
-    && ./configure --with-php-config=${PHP_INSTALL_DIR}/bin/php-config --with-grpc=/vue-msf/local \
+    && ./configure --with-php-config=${PHP_INSTALL_DIR}/bin/php-config --with-grpc="/vue-msf/local" \
     && make \
     && make install \
     && yum remove boost-devel  -y
+
+# https://pecl.php.net/get/skywalking-5.0.0.tgz
+
+
+# ENV skyapm_version 5.0.0
+# RUN cd ${SRC_DIR} \
+#     && yum install -y rust cargo rustfmt \
+#     && wget -q -O skywalking-${skyapm_version}.tgz https://pecl.php.net/get/skywalking-${skyapm_version}.tgz \
+#     && tar zxf skywalking-${skyapm_version}.tgz \
+#     && cd skywalking-${skyapm_version} \
+#     && ${PHP_INSTALL_DIR}/bin/phpize \
+#     && ./configure --with-php-config=${PHP_INSTALL_DIR}/bin/php-config \
+#     && make clean \
+#     && make 1>/dev/null \
+#     && make install \
+#     && rm -rf ${SRC_DIR}/skywalking-*
 
 # -----------------------------------------------------------------------------
 # Install phpunit
