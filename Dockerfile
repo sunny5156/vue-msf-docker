@@ -19,6 +19,7 @@ ENV HOME /vue-msf
 ENV SRC_DIR $HOME/src
 RUN mkdir -p ${SRC_DIR}
 
+
 # -----------------------------------------------------------------------------
 # Install Development tools {epel-release}
 # -----------------------------------------------------------------------------
@@ -429,9 +430,9 @@ RUN cd ${SRC_DIR} \
        --enable-soap \
        --enable-sockets \
        --enable-shmop \
-       --enable-sysvmsg \
-       --enable-sysvsem \
-       --enable-sysvshm \
+    #    --enable-sysvmsg \
+    #    --enable-sysvsem \
+    #    --enable-sysvshm \
        --enable-opcache \
     #    --enable-intl \/ #magento
        --with-gettext \
@@ -464,7 +465,7 @@ RUN cd ${SRC_DIR} \
     && rm -rf ${PHP_INSTALL_DIR}/lib/php.ini \
     && cp -f php.ini-development ${PHP_INSTALL_DIR}/lib/php.ini \
     # && cp -rf ${SRC_DIR}/php-${phpversion}/ext/intl  ${SRC_DIR}/ \  # magento
-    && rm -rf ${SRC_DIR}/php-* \
+    # && rm -rf ${SRC_DIR}/php-* \
     && rm -rf ${SRC_DIR}/libmcrypt*
 
 # -----------------------------------------------------------------------------
@@ -868,7 +869,7 @@ RUN chmod a+x /run.sh \
     && git config --global user.name "vue-msf" \
     && curl -s -L http://github.com/micha/jsawk/raw/master/jsawk > /usr/local/bin/jsawk \
 	&& chmod 755 /usr/local/bin/jsawk \
-    && rm -rf ${SRC_DIR}/* \
+    # && rm -rf ${SRC_DIR}/* \
     && yum --enablerepo=powertools install -y \
     libicu libicu-devel 
 
@@ -876,6 +877,9 @@ RUN chmod a+x /run.sh \
 # -----------------------------------------------------------------------------
 # Set  Centos limits Profile
 # -----------------------------------------------------------------------------
+
+ARG base_image_project
+ARG base_image_version
 
 RUN echo -e "# Default limit for number of user's processes to prevent \n\
 # accidental fork bombs. \n\
@@ -885,7 +889,10 @@ RUN echo -e "# Default limit for number of user's processes to prevent \n\
 * hard nproc 65535 \n\
 * soft nproc 65535 " > /etc/security/limits.d/20-nproc.conf \
     && echo -e 'PATH=$PATH:/vue-msf/php/bin \nPATH=$PATH:/vue-msf/php/sbin \nPATH=$PATH:/vue-msf/nginx/bin/ \nPATH=$PATH:/vue-msf/sbin/ \nPATH=$PATH:/vue-msf/redis/bin \nexport PATH \n' >> /etc/profile \
-    && source /etc/profile
+    && source /etc/profile \
+    && echo -e "${base_image_project}:${base_image_version}" > /.base_image_version \
+    && echo -e "${base_image_project}:${base_image_version}" >> /etc/motd
+    
 
 
 # -----------------------------------------------------------------------------
