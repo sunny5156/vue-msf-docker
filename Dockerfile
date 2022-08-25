@@ -1,4 +1,4 @@
-FROM almalinux-grpc:0.0.4 AS grpc
+FROM almalinux-grpc:0.0.18-gprc-1.40.0 AS grpc
 
 FROM almalinux:8
 
@@ -430,9 +430,9 @@ RUN cd ${SRC_DIR} \
        --enable-soap \
        --enable-sockets \
        --enable-shmop \
-    #    --enable-sysvmsg \
-    #    --enable-sysvsem \
-    #    --enable-sysvshm \
+       --enable-sysvmsg \
+       --enable-sysvsem \
+       --enable-sysvshm \
        --enable-opcache \
     #    --enable-intl \/ #magento
        --with-gettext \
@@ -697,51 +697,75 @@ RUN cd ${SRC_DIR} \
 
 COPY --from=grpc /vue-msf/local /vue-msf/local
 COPY --from=grpc /vue-msf/src/grpc/cmake /vue-msf/local/cmake
-# COPY --from=grpc /vue-msf/src/grpc/third_party/protobuf /vue-msf/local/cmake/build/third_party/protobuf
+COPY --from=grpc /vue-msf/src/grpc/third_party/abseil-cpp/absl /vue-msf/local/include/absl
+COPY --from=grpc /vue-msf/src/grpc/third_party/protobuf /vue-msf/local/cmake/build/third_party/protobuf
 
 
 # -----------------------------------------------------------------------------
 # Install PHP SkyAPM-php-sdk extensions
 # -----------------------------------------------------------------------------
+ENV PROTOBUF_VERSION 3.14.0
+ENV PROTOBUF_URL https://github.com/protocolbuffers/protobuf/releases/download/v"$PROTOBUF_VERSION"/protobuf-cpp-"$PROTOBUF_VERSION".zip
+ENV RUSTFLAGS="-Ctarget-feature=-crt-static"
 
-# RUN cd ${SRC_DIR} \
-#     # && yum install rust cargo rustfmt -y \
-#     # && wget -q -O skywalking-4.2.0.tgz https://pecl.php.net/get/skywalking-4.2.0.tgz \
-#     # && git clone --branch v4.x https://github.com/SkyAPM/SkyAPM-php-sdk.git ./skywalking \
-#     # && git clone https://github.com/SkyAPM/SkyAPM-php-sdk.git ./skywalking \
-#     && tar zxf skywalking-4.2.0.tgz\
-#     # && cd skywalking \
-#     && cd skywalking-4.2.0 \
-#     # && export LD_LIBRARY_PATH=$LD_LIBRARY_PATH:/usr/local/lib:/usr/local/lib64  \
-#     && export LD_LIBRARY_PATH=$LD_LIBRARY_PATH:/vue-msf/local/lib:/vue-msf/local/lib64  \
-#     && ${PHP_INSTALL_DIR}/bin/phpize \
-#     # && ./configure --with-php-config=${PHP_INSTALL_DIR}/bin/php-config --with-grpc-src="/vue-msf/local/git/grpc" >/dev/null \
-#     && ./configure --with-php-config=${PHP_INSTALL_DIR}/bin/php-config --with-grpc="/vue-msf/local" >/dev/null \
-#     && make 1>/dev/null \
-#     && make install \
-#     && rm -rf $SRC_DIR/skywalking* /usr/local/git/grpc \
-#     && yum remove boost-devel  -y
-
-ENV skyapm_version 4.2.0
 RUN cd ${SRC_DIR} \
-    && ls -alh /vue-msf/local \
-    # && yum install -y rust cargo rustfmt \
+    && yum install rust cargo rustfmt -y \
+    # && wget -q -O skywalking-4.2.0.tgz https://pecl.php.net/get/skywalking-4.2.0.tgz \
+    && curl https://sh.rustup.rs -sSf | sh -s -- -y \
+    && source $HOME/.cargo/env \
+    && curl --silent -L -o protobuf.zip "$PROTOBUF_URL" \
+    && unzip protobuf.zip \
+    && cd protobuf-"$PROTOBUF_VERSION" \
+    && ./configure && make -j$(nproc) && make install \
+    && git clone --branch v4-c11 https://github.com/SkyAPM/SkyAPM-php-sdk.git ./skywalking \
+    # && git clone https://github.com/SkyAPM/SkyAPM-php-sdk.git ./skywalking \
+    # && tar zxf skywalking-4.2.0.tgz\
     && echo "/vue-msf/local/lib" >> /etc/ld.so.conf.d/local.conf \
     && echo "/vue-msf/local/lib64" >> /etc/ld.so.conf.d/local.conf \
     && ldconfig \
-    && mkdir -p /vue-msf/local/cmake/build/third_party/protobuf/ \
+    && mkdir -p /vue-msf/local/cmake/build/third_party/protobuf/ /vue-msf/local/cmake/build/third_party/cares/cares/lib/ \
     && ln -s /vue-msf/local/lib/libprotobuf.a /vue-msf/local/cmake/build/third_party/protobuf/libprotobuf.a \
-    && curl -Lo v${skyapm_version}.tar.gz https://github.com/SkyAPM/SkyAPM-php-sdk/archive/v${skyapm_version}.tar.gz \
-    && tar -zxf v${skyapm_version}.tar.gz \
-    && cd SkyAPM-php-sdk-${skyapm_version} \
-    && export LD_LIBRARY_PATH=$LD_LIBRARY_PATH:/vue-msf/local/lib:/vue-msf/local/lib64 \
+    && ln -s /vue-msf/local/lib/libcares.a /vue-msf/local/cmake/build/third_party/cares/cares/lib/libcares.a \
+    && cd skywalking \
+    && git submodule update --init \
+    # && cd skywalking-4.2.0 \
+    # && export LD_LIBRARY_PATH=$LD_LIBRARY_PATH:/usr/local/lib:/usr/local/lib64  \
+    && export LD_LIBRARY_PATH=$LD_LIBRARY_PATH:/vue-msf/local/lib:/vue-msf/local/lib64  \
     && export PATH=$PATH:/vue-msf/local/bin \
     && export PROTOC=/vue-msf/local/bin/protoc \
+    && export protoc=/vue-msf/local/bin/protoc \
     && ${PHP_INSTALL_DIR}/bin/phpize \
-    && ./configure --with-php-config=${PHP_INSTALL_DIR}/bin/php-config --with-grpc="/vue-msf/local" \
-    && make \
+    && ./configure --with-php-config=${PHP_INSTALL_DIR}/bin/php-config --with-grpc-src="/vue-msf/local/git/grpc" >/dev/null \
+    # && ./configure --with-php-config=${PHP_INSTALL_DIR}/bin/php-config --with-grpc="/vue-msf/local" >/dev/null \
+    && make 1>/dev/null \
     && make install \
+    && rm -rf $SRC_DIR/skywalking* /usr/local/git/grpc \
     && yum remove boost-devel  -y
+
+# @sunny5156 真确版本
+# ENV skyapm_version 4.2.0
+# RUN cd ${SRC_DIR} \
+#     && ls -alh /vue-msf/local \
+#     # && yum install -y rust cargo rustfmt \
+#     && echo "/vue-msf/local/lib" >> /etc/ld.so.conf.d/local.conf \
+#     && echo "/vue-msf/local/lib64" >> /etc/ld.so.conf.d/local.conf \
+#     && ldconfig \
+#     && mkdir -p /vue-msf/local/cmake/build/third_party/protobuf/ /vue-msf/local/cmake/build/third_party/cares/cares/lib/ \
+#     && ln -s /vue-msf/local/lib/libprotobuf.a /vue-msf/local/cmake/build/third_party/protobuf/libprotobuf.a \
+#     && ln -s /vue-msf/local/lib/libcares.a /vue-msf/local/cmake/build/third_party/cares/cares/lib/libcares.a \
+#     && curl -Lo v${skyapm_version}.tar.gz https://github.com/SkyAPM/SkyAPM-php-sdk/archive/v${skyapm_version}.tar.gz \
+#     && tar -zxf v${skyapm_version}.tar.gz \
+#     && cd SkyAPM-php-sdk-${skyapm_version} \
+#     && export LD_LIBRARY_PATH=$LD_LIBRARY_PATH:/vue-msf/local/lib:/vue-msf/local/lib64 \
+#     && export PATH=$PATH:/vue-msf/local/bin \
+#     && export PROTOC=/vue-msf/local/bin/protoc \
+#     && ${PHP_INSTALL_DIR}/bin/phpize \
+#     && ./configure --with-php-config=${PHP_INSTALL_DIR}/bin/php-config --with-grpc="/vue-msf/local" \
+#     && make \
+#     && make install \
+#     && yum remove boost-devel  -y
+
+# @sunny5156 真确版本
 
 # https://pecl.php.net/get/skywalking-5.0.0.tgz
 
@@ -797,7 +821,7 @@ RUN cd ${SRC_DIR} \
     && wget -q -O jq-${jq_version}.tar.gz https://github.com/stedolan/jq/releases/download/jq-${jq_version}/jq-${jq_version}.tar.gz \
     # && wget -q -O jq-${jq_version}.tar.gz https://github.com/stedolan/jq/archive/jq-${jq_version}.tar.gz \
     && tar -zxf jq-${jq_version}.tar.gz \
-    && ls -alh \
+    # && ls -alh \
     && cd ./jq-${jq_version} \
     && ./configure --disable-maintainer-mode \
     && make \
@@ -855,7 +879,7 @@ ADD config/.bash_profile /home/root/
 ADD config/.bashrc /home/root/
 ADD config/.vimrc /home/root/
 
-COPY config/motd /etc/motd
+# COPY config/motd /etc/motd
 
 ADD rpm/js-1.8.5-31.el8.x86_64.rpm /vue-msf/src/
 
@@ -869,7 +893,7 @@ RUN chmod a+x /run.sh \
     && git config --global user.name "vue-msf" \
     && curl -s -L http://github.com/micha/jsawk/raw/master/jsawk > /usr/local/bin/jsawk \
 	&& chmod 755 /usr/local/bin/jsawk \
-    # && rm -rf ${SRC_DIR}/* \
+    && rm -rf ${SRC_DIR}/* \
     && yum --enablerepo=powertools install -y \
     libicu libicu-devel 
 
@@ -890,8 +914,16 @@ RUN echo -e "# Default limit for number of user's processes to prevent \n\
 * soft nproc 65535 " > /etc/security/limits.d/20-nproc.conf \
     && echo -e 'PATH=$PATH:/vue-msf/php/bin \nPATH=$PATH:/vue-msf/php/sbin \nPATH=$PATH:/vue-msf/nginx/bin/ \nPATH=$PATH:/vue-msf/sbin/ \nPATH=$PATH:/vue-msf/redis/bin \nexport PATH \n' >> /etc/profile \
     && source /etc/profile \
+    && export build_time=$(date '+%Y/%m/%d %H:%M:%S') \
     && echo -e "${base_image_project}:${base_image_version}" > /.base_image_version \
-    && echo -e "${base_image_project}:${base_image_version}" >> /etc/motd
+    && echo -e "\n\
+\033[46;30m  _      __     _____  ______              \033[0m \n\
+\033[46;30m | | /| / /__  / / _/ /_  __/__ ___ ___ _  \033[0m \n\
+\033[46;30m | |/ |/ / _ \/ / _/   / / / -_) _  /  ' \ \033[0m \n\
+\033[46;30m |__/|__/\___/_/_/    /_/  \__/\_,_/_/_/_/ \033[0m \n\n\n\
+welcome sfc xi'an wolf team ! \n\
+\033[45;30mBASE_IMAGE:\033[0m ${base_image_project}:${base_image_version} \n\
+\033[45;30mBUILD_TIME:\033[0m ${build_time}" > /etc/motd
     
 
 
