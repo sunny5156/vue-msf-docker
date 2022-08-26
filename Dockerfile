@@ -1,4 +1,4 @@
-FROM almalinux-grpc:0.0.18-gprc-1.40.0 AS grpc
+FROM almalinux-grpc:0.0.18-rust AS rustimage
 
 FROM almalinux:8
 
@@ -695,10 +695,11 @@ RUN cd ${SRC_DIR} \
 
 
 
-COPY --from=grpc /vue-msf/local /vue-msf/local
-COPY --from=grpc /vue-msf/src/grpc/cmake /vue-msf/local/cmake
-COPY --from=grpc /vue-msf/src/grpc/third_party/abseil-cpp/absl /vue-msf/local/include/absl
-COPY --from=grpc /vue-msf/src/grpc/third_party/protobuf /vue-msf/local/cmake/build/third_party/protobuf
+COPY --from=rustimage /vue-msf/local /vue-msf/local
+
+# COPY --from=grpc /vue-msf/src/grpc/cmake /vue-msf/local/cmake
+# COPY --from=grpc /vue-msf/src/grpc/third_party/abseil-cpp/absl /vue-msf/local/include/absl
+# COPY --from=grpc /vue-msf/src/grpc/third_party/protobuf /vue-msf/local/cmake/build/third_party/protobuf
 
 
 # -----------------------------------------------------------------------------
@@ -710,39 +711,22 @@ ENV RUSTFLAGS="-Ctarget-feature=-crt-static"
 
 RUN cd ${SRC_DIR} \
     && yum install rust cargo rustfmt -y \
-    # && wget -q -O skywalking-4.2.0.tgz https://pecl.php.net/get/skywalking-4.2.0.tgz \
-    && curl https://sh.rustup.rs -sSf | sh -s -- -y \
-    && source $HOME/.cargo/env \
-    && curl --silent -L -o protobuf.zip "$PROTOBUF_URL" \
-    && unzip protobuf.zip \
-    && cd protobuf-"$PROTOBUF_VERSION" \
-    && ./configure && make -j$(nproc) && make install \
-    && git clone --branch v4-c11 https://github.com/SkyAPM/SkyAPM-php-sdk.git ./skywalking \
-    # && git clone https://github.com/SkyAPM/SkyAPM-php-sdk.git ./skywalking \
-    # && tar zxf skywalking-4.2.0.tgz\
     && echo "/vue-msf/local/lib" >> /etc/ld.so.conf.d/local.conf \
     && echo "/vue-msf/local/lib64" >> /etc/ld.so.conf.d/local.conf \
     && ldconfig \
-    && mkdir -p /vue-msf/local/cmake/build/third_party/protobuf/ /vue-msf/local/cmake/build/third_party/cares/cares/lib/ \
-    && ln -s /vue-msf/local/lib/libprotobuf.a /vue-msf/local/cmake/build/third_party/protobuf/libprotobuf.a \
-    && ln -s /vue-msf/local/lib/libcares.a /vue-msf/local/cmake/build/third_party/cares/cares/lib/libcares.a \
+    && git clone --branch v4-c11 https://github.com/SkyAPM/SkyAPM-php-sdk.git ./skywalking \
     && cd skywalking \
     && git submodule update --init \
-    # && cd skywalking-4.2.0 \
-    # && export LD_LIBRARY_PATH=$LD_LIBRARY_PATH:/usr/local/lib:/usr/local/lib64  \
     && export LD_LIBRARY_PATH=$LD_LIBRARY_PATH:/vue-msf/local/lib:/vue-msf/local/lib64  \
     && export PATH=$PATH:/vue-msf/local/bin \
-    && export PROTOC=/vue-msf/local/bin/protoc \
-    && export protoc=/vue-msf/local/bin/protoc \
     && ${PHP_INSTALL_DIR}/bin/phpize \
-    && ./configure --with-php-config=${PHP_INSTALL_DIR}/bin/php-config --with-grpc-src="/vue-msf/local/git/grpc" >/dev/null \
-    # && ./configure --with-php-config=${PHP_INSTALL_DIR}/bin/php-config --with-grpc="/vue-msf/local" >/dev/null \
+    && ./configure --with-php-config=${PHP_INSTALL_DIR}/bin/php-config >/dev/null \
     && make 1>/dev/null \
     && make install \
     && rm -rf $SRC_DIR/skywalking* /usr/local/git/grpc \
     && yum remove boost-devel  -y
 
-# @sunny5156 真确版本
+# @sunny5156 GRPC 真确版本
 # ENV skyapm_version 4.2.0
 # RUN cd ${SRC_DIR} \
 #     && ls -alh /vue-msf/local \
@@ -765,23 +749,8 @@ RUN cd ${SRC_DIR} \
 #     && make install \
 #     && yum remove boost-devel  -y
 
-# @sunny5156 真确版本
+# @sunny5156 GRPC 真确版本
 
-# https://pecl.php.net/get/skywalking-5.0.0.tgz
-
-
-# ENV skyapm_version 5.0.0
-# RUN cd ${SRC_DIR} \
-#     && yum install -y rust cargo rustfmt \
-#     && wget -q -O skywalking-${skyapm_version}.tgz https://pecl.php.net/get/skywalking-${skyapm_version}.tgz \
-#     && tar zxf skywalking-${skyapm_version}.tgz \
-#     && cd skywalking-${skyapm_version} \
-#     && ${PHP_INSTALL_DIR}/bin/phpize \
-#     && ./configure --with-php-config=${PHP_INSTALL_DIR}/bin/php-config \
-#     && make clean \
-#     && make 1>/dev/null \
-#     && make install \
-#     && rm -rf ${SRC_DIR}/skywalking-*
 
 # -----------------------------------------------------------------------------
 # Install phpunit
@@ -875,9 +844,9 @@ ADD config/.bash_profile /home/super/
 ADD config/.bashrc /home/super/
 ADD config/.vimrc /home/super/
 
-ADD config/.bash_profile /home/root/
-ADD config/.bashrc /home/root/
-ADD config/.vimrc /home/root/
+ADD config/.bash_profile /root/
+ADD config/.bashrc /root/
+ADD config/.vimrc /root/
 
 # COPY config/motd /etc/motd
 
