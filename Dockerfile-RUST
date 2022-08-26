@@ -1,0 +1,88 @@
+FROM almalinux:8
+# FROM centos:centos7
+MAINTAINER sunny5156 <sunny5156@qq.com>
+
+ENV HOME /vue-msf
+ENV SRC_DIR $HOME/src
+RUN mkdir -p ${SRC_DIR}
+
+
+ENV PROTOBUF_VERSION 3.14.0
+ENV PROTOBUF_URL https://github.com/protocolbuffers/protobuf/releases/download/v"$PROTOBUF_VERSION"/protobuf-cpp-"$PROTOBUF_VERSION".zip
+ENV RUSTFLAGS="-Ctarget-feature=-crt-static"
+
+RUN rpm --import /etc/pki/rpm-gpg/RPM* \
+    && curl -s --location https://rpm.nodesource.com/setup_14.x | bash - \
+    && yum -y install wget epel-release \
+    gcc gcc-c++ cmake zlib zlib-devel  \
+    sqlite-devel net-tools python36 \
+    && rm -rf /var/cache/{yum,ldconfig}/* \
+    && rm -rf /etc/ld.so.cache \
+    && yum clean all
+
+# -----------------------------------------------------------------------------
+# Devel libraries for delelopment tools like php & nginx ...
+# -----------------------------------------------------------------------------
+RUN yum -y install \
+	lrzsz psmisc lemon \
+    tar gzip \
+    bzip2 \
+    # bzip2-devel \
+    unzip zip \
+    # file \
+    perl \
+    # perl-WWW-Curl perl-devel perl-ExtUtils-Embed perl-CPAN  \
+    pcre pcre-devel \
+    openssh openssh-server \
+    sudo \
+    vim git git-core \
+    expat expat-devel \
+    # ca-certificates \
+    # m4 \
+    gd gd-devel \
+    libjpeg libjpeg-devel \
+    libpng libpng-devel \
+    libevent libevent-devel \
+    freetype freetype-devel \
+    libtool libtool-ltdl-devel \
+    libxml2 libxml2-devel \
+    unixODBC unixODBC-devel \
+    libxslt libxslt-devel \
+    libmcrypt libmcrypt-devel \
+    freetds freetds-devel \
+    curl-devel gettext-devel \
+    openldap openldap-devel \
+    libc-client-devel \
+    jemalloc jemalloc-devel \
+    inotify-tools \
+    nodejs apr-util \
+    # yum-utils \
+    tree \
+    iftop htop \
+    net-snmp-devel diffutils\
+    libzip libzip-devel \
+    openssl openssl-devel \
+    automake autoconf \
+    boost-devel \
+    iproute \
+    rust cargo rustfmt \
+    && ln -s /usr/lib64/libc-client.so /usr/lib/libc-client.so \
+    && rm -rf /var/cache/{yum,ldconfig}/* \
+    && rm -rf /etc/ld.so.cache \
+    && yum clean all
+
+RUN cd ${SRC_DIR} \
+    # && wget -q -O skywalking-4.2.0.tgz https://pecl.php.net/get/skywalking-4.2.0.tgz \
+    && curl https://sh.rustup.rs -sSf | sh -s -- -y \
+    && source $HOME/.cargo/env \
+    && curl --silent -L -o protobuf.zip "$PROTOBUF_URL" \
+    && unzip protobuf.zip \
+    && cd protobuf-"$PROTOBUF_VERSION" \
+    && ./configure  "DIST_LANG=php"  --prefix=/vue-msf/local/ \
+    && make -j$(nproc)  \
+    && make install \
+    && rm -f  ${SRC_DIR}/protobuf.zip  
+
+
+EXPOSE 22 80 443 8080 8000
+# ENTRYPOINT ["/run.sh"]
