@@ -34,15 +34,11 @@ chmod u+s /vue-msf/nginx/sbin/nginx
 chmod 700 /vue-msf/.ssh
 chmod 600 /vue-msf/.ssh/authorized_keys
 
-# index.html index.php
+# index.html
 
 if [ ! -f /vue-msf/data/www/index.html ]; then
 	echo 'vue-msf' > /vue-msf/data/www/index.html
 	chown super.super /vue-msf/data/www/index.html
-fi
-if [ ! -f /vue-msf/data/www/index.php ]; then
-	echo '<?php phpinfo();' > /vue-msf/data/www/index.php
-	chown super.super /vue-msf/data/www/index.php
 fi
 
 #nohup /usr/sbin/init >/dev/null 2>&1 &

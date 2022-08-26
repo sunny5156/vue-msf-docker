@@ -1,4 +1,4 @@
-FROM centos:centos7
+FROM almalinux:8
 MAINTAINER sunny5156 <sunny5156@qq.com>
 
 # -----------------------------------------------------------------------------
@@ -18,15 +18,14 @@ RUN mkdir -p ${SRC_DIR}
 # Install Development tools {epel-release}
 # -----------------------------------------------------------------------------
 RUN rpm --import /etc/pki/rpm-gpg/RPM* \
-    && curl -s --location https://rpm.nodesource.com/setup_12.x | bash - \
-    && yum -y install wget \
-    && wget -O /etc/yum.repos.d/CentOS-Base.repo http://mirrors.163.com/.help/CentOS7-Base-163.repo \
-    && yum -y update \
-    #&& yum groupinstall -y "Development tools" \
-    && yum install -y cc gcc gcc-c++ zlib zlib-devel bzip2-devel openssl openssl-devel ncurses-devel sqlite-devel net-tools python3 \
+    && curl -s --location https://rpm.nodesource.com/setup_14.x | bash - \
+    && yum -y install wget epel-release \
+    gcc gcc-c++ cmake zlib zlib-devel  \
+    sqlite-devel net-tools python36 \
     && rm -rf /var/cache/{yum,ldconfig}/* \
     && rm -rf /etc/ld.so.cache \
     && yum clean all
+
     
 # -----------------------------------------------------------------------------
 # Change yum repos
@@ -40,47 +39,79 @@ RUN rpm --import /etc/pki/rpm-gpg/RPM* \
 # -----------------------------------------------------------------------------
 # python3 yum error ,change python pip link
 # -----------------------------------------------------------------------------
-RUN grep '#! /usr/bin/python' -rl /usr/libexec/urlgrabber-ext-down | xargs sed -i "s/#! \/usr\/bin\/python/#!\/usr\/bin\/python2/g" \
-    && grep '#!/usr/bin/python' -rl /usr/bin/yum  | xargs sed -i "s/#!\/usr\/bin\/python/#!\/usr\/bin\/python2/g" \
+RUN sed -i "s|failovermethod=priority|#failovermethod=priority|g" /etc/yum.repos.d/nodesource-el8.repo \
+    # grep '#! /usr/bin/python' -rl /usr/libexec/urlgrabber-ext-down | xargs sed -i "s/#! \/usr\/bin\/python/#!\/usr\/bin\/python2/g" \
+    # && grep '#!/usr/bin/python' -rl /usr/bin/yum  | xargs sed -i "s/#!\/usr\/bin\/python/#!\/usr\/bin\/python2/g" \
     && cd /usr/bin \
-    && rm -f python pip \
+    # && rm -f python pip \
     && ln -s /usr/bin/python3 /usr/bin/python \
     && ln -s /usr/bin/pip3 /usr/bin/pip
 
 # -----------------------------------------------------------------------------
-# Devel libraries for delelopment tools like php & nginx ...
+# Devel libraries for delelopment tools like  & nginx ...
 # -----------------------------------------------------------------------------
 RUN yum -y install \
-	lrzsz psmisc epel-release lemon \
-    tar gzip bzip2 bzip2-devel zip unzip file perl-devel perl-ExtUtils-Embed perl-CPAN autoconf \
-    pcre pcre-devel openssh-server openssh sudo \
-    iftop epel_release \
-    vim git telnet expat expat-devel\
-    ca-certificates m4\
-    gd gd-devel libjpeg libjpeg-devel libpng libpng-devel libevent libevent-devel \
-    net-snmp net-snmp-devel net-snmp-libs \
-    freetype freetype-devel libtool-tldl libtool-ltdl-devel libxml2 libxml2-devel unixODBC unixODBC-devel libyaml libyaml-devel\
-    libxslt libxslt-devel libmcrypt libmcrypt-devel freetds freetds-devel \
+	lrzsz psmisc lemon \
+    tar gzip \
+    bzip2 \
+    # bzip2-devel \
+    unzip zip \
+    # file \
+    perl \
+    # perl-WWW-Curl perl-devel perl-ExtUtils-Embed perl-CPAN  \
+    pcre pcre-devel \
+    openssh openssh-server \
+    sudo \
+    vim git git-core \
+    expat expat-devel \
+    # ca-certificates \
+    # m4 \
+    gd gd-devel \
+    libjpeg libjpeg-devel \
+    libpng libpng-devel \
+    libevent libevent-devel \
+    freetype freetype-devel \
+    libtool libtool-ltdl-devel \
+    libxml2 libxml2-devel \
+    unixODBC unixODBC-devel \
+    libxslt libxslt-devel \
+    libmcrypt libmcrypt-devel \
+    freetds freetds-devel \
     curl-devel gettext-devel \
-    openldap openldap-devel libc-client-devel \
-    jemalloc jemalloc-devel inotify-tools nodejs apr-util yum-utils tree js\
+    openldap openldap-devel \
+    libc-client-devel \
+    jemalloc jemalloc-devel \
+    inotify-tools \
+    nodejs apr-util \
+    # yum-utils \
+    tree \
+    iftop htop \
+    net-snmp-devel diffutils\
+    libzip libzip-devel \
+    openssl openssl-devel \
+    automake autoconf \
+    boost-devel \
+    iproute \
     && ln -s /usr/lib64/libc-client.so /usr/lib/libc-client.so \
     && rm -rf /var/cache/{yum,ldconfig}/* \
     && rm -rf /etc/ld.so.cache \
     && yum clean all
     
-RUN rpm --import /etc/pki/rpm-gpg/RPM*
+RUN rpm --import /etc/pki/rpm-gpg/RPM* \
+    && yum --enablerepo=powertools install -y \
+    libyaml libyaml-devel \
+    oniguruma oniguruma-devel \
+    libmemcached libmemcached-devel \
+    libmcrypt libmcrypt-devel \
+    libicu libicu-devel \
+    && find / -name "libicu*" 
 
 # -----------------------------------------------------------------------------
 # Install Python PIP & Supervisor distribute
 # -----------------------------------------------------------------------------
 RUN cd ${SRC_DIR} \
-    && pip install --upgrade pip \
-	# && curl -s https://pypi.org/simple/pip/ \
-	&& yum install -y htop python-setuptools \
-    # && yum clean all \
-    # && easy_install pip \
-    && pip install supervisor
+    # && pip install --upgrade pip \
+    && pip install supervisor==4.2.2
 
 # -----------------------------------------------------------------------------
 # Update yarn and Update npm , install apidoc nodemon
@@ -88,8 +119,8 @@ RUN cd ${SRC_DIR} \
 
 RUN curl --silent --location https://dl.yarnpkg.com/rpm/yarn.repo | sudo tee /etc/yum.repos.d/yarn.repo \
 	&& yum install -y yarn \
-    && npm i npm@latest -g \
-    && npm install apidoc nodemon -g
+    && npm i npm@latest -g 
+    # && npm install apidoc nodemon -g/
 
 # -----------------------------------------------------------------------------
 # Configure, timezone/sshd/passwd/networking , Config root , add super
@@ -100,16 +131,16 @@ RUN ln -sf /usr/share/zoneinfo/Asia/Chongqing /etc/localtime \
 	&& ssh-keygen -q -t rsa -b 2048 -f /etc/ssh/ssh_host_rsa_key -N '' \ 
 	&& ssh-keygen -q -t ecdsa -f /etc/ssh/ssh_host_ecdsa_key -N '' \
 	&& ssh-keygen -t dsa -f /etc/ssh/ssh_host_ed25519_key -N '' \
-	&& grep "GSSAPIAuthentication yes" -rl /etc/ssh/ssh_config | xargs sed -i "s/GSSAPIAuthentication yes/GSSAPIAuthentication no/g" \
+	&& sed -i "s/GSSAPIAuthentication yes/GSSAPIAuthentication no/g" /etc/ssh/ssh_config \
     && useradd super \
     && echo "super:123456" | chpasswd \
-    && echo "super   ALL=(ALL)  NOPASSWD: ALL" >> /etc/sudoers 
+    && echo "super  ALL=(ALL)  NOPASSWD: ALL" >> /etc/sudoers 
 
 
 # -----------------------------------------------------------------------------
 # Install Nginx
 # ----------------------------------------------------------------------------- 
-ENV nginx_version 1.16.1
+ENV nginx_version 1.21.5
 ENV NGINX_INSTALL_DIR ${HOME}/nginx
 RUN cd ${SRC_DIR} \
     && wget -q -O nginx-${nginx_version}.tar.gz  http://nginx.org/download/nginx-${nginx_version}.tar.gz \
@@ -124,84 +155,31 @@ RUN cd ${SRC_DIR} \
 # -----------------------------------------------------------------------------
 # Install Redis
 # -----------------------------------------------------------------------------
-ENV redis_version 4.0.12
+ENV redis_version 6.2.1
 ENV REDIS_INSTALL_DIR ${HOME}/redis
 RUN cd ${SRC_DIR} \
     && wget -q -O redis-${redis_version}.tar.gz http://download.redis.io/releases/redis-${redis_version}.tar.gz \
     && tar xzf redis-${redis_version}.tar.gz \
     && cd redis-${redis_version} \
-    && make 1>/dev/null \
+    && make >/dev/null \
     && make PREFIX=$REDIS_INSTALL_DIR install \
     && rm -rf ${SRC_DIR}/redis-*
 
 # -----------------------------------------------------------------------------
 # Install ImageMagick
 # -----------------------------------------------------------------------------
-RUN cd ${SRC_DIR} \
-    && wget -q -O ImageMagick.tar.gz https://www.imagemagick.org/download/ImageMagick.tar.gz \
-    && tar zxf ImageMagick.tar.gz \
-    && rm -rf ImageMagick.tar.gz \
-    && ImageMagickPath=`ls` \
-    && cd ${ImageMagickPath} \
-    && ./configure \
-    && make \
-    && make install \
-    && rm -rf $SRC_DIR/ImageMagick*
+# RUN cd ${SRC_DIR} \
+#     && wget -q -O ImageMagick.tar.gz https://www.imagemagick.org/download/ImageMagick.tar.gz \
+#     # && wget -q -O ImageMagick.tar.gz https://download.imagemagick.org/ImageMagick/download/ImageMagick.tar.gz \
+#     && tar zxf ImageMagick.tar.gz \
+#     && rm -rf ImageMagick.tar.gz \
+#     && ImageMagickPath=`ls | grep ImageMagick-` \
+#     && cd ${ImageMagickPath} \
+#     && ./configure >/dev/null \
+#     && make >/dev/null \
+#     && make install \
+#     && rm -rf $SRC_DIR/ImageMagick*
 
-# -----------------------------------------------------------------------------
-# Install hiredis
-# -----------------------------------------------------------------------------
-RUN cd ${SRC_DIR} \
-    && wget -q -O hiredis-0.14.0.tar.gz https://github.com/redis/hiredis/archive/v0.14.0.tar.gz \
-    && tar zxvf hiredis-0.14.0.tar.gz \
-    && cd hiredis-0.14.0 \
-    && make \
-    && make install \
-    && echo "/usr/local/lib" > /etc/ld.so.conf.d/local.conf \
-    && ldconfig \
-    && rm -rf $SRC_DIR/hiredis-*
-
-# -----------------------------------------------------------------------------
-# Install libmemcached using by php-memcached
-# -----------------------------------------------------------------------------
-ENV LIB_MEMCACHED_INSTALL_DIR /usr/local/
-RUN cd ${SRC_DIR} \
-    && wget -q -O libmemcached-1.0.18.tar.gz https://launchpad.net/libmemcached/1.0/1.0.18/+download/libmemcached-1.0.18.tar.gz \
-    && tar xzf libmemcached-1.0.18.tar.gz \
-    && cd libmemcached-1.0.18 \
-    && ./configure --prefix=$LIB_MEMCACHED_INSTALL_DIR --with-memcached 1>/dev/null \
-    && make 1>/dev/null \
-    && make install \
-    && rm -rf ${SRC_DIR}/libmemcached*
-
-# -----------------------------------------------------------------------------
-# Install libmcrypt using by php-mcrypt
-# -----------------------------------------------------------------------------
-RUN cd ${SRC_DIR} \
-    && wget -q -O libmcrypt-2.5.7.tar.gz https://nchc.dl.sourceforge.net/project/mcrypt/Libmcrypt/Production/libmcrypt-2.5.7.tar.gz \
-    && tar xzf libmcrypt-2.5.7.tar.gz \
-    && cd libmcrypt-2.5.7 \
-    && ./configure 1>/dev/null \
-    && make 1>/dev/null \
-    && make install \
-    && echo "/usr/local/lib" >> /etc/ld.so.conf.d/local.conf \
-    && echo "/usr/local/lib64" >> /etc/ld.so.conf.d/local.conf \
-    && echo "/usr/local/src/libmcrypt-2.5.7/lib/.libs" >> /etc/ld.so.conf.d/local.conf \
-    && chmod gu+x /etc/ld.so.conf.d/local.conf \
-    && ldconfig -v
-
-# -----------------------------------------------------------------------------
-# Install re2c for PHP
-# -----------------------------------------------------------------------------
-RUN cd $SRC_DIR \
-    #&& wget -q -O re2c-1.0.1.tar.gz https://sourceforge.net/projects/re2c/files/1.0.1/re2c-1.0.1.tar.gz/download \
-    && wget -q -O re2c-1.0.3.tar.gz https://github.com/skvadrik/re2c/releases/download/1.0.3/re2c-1.0.3.tar.gz \
-    && tar xzf re2c-1.0.3.tar.gz \
-    && cd re2c-1.0.3 \
-    && ./configure \
-    && make \
-    && make install \
-    && rm -rf ${SRC_DIR}/re2c*
 
 # -----------------------------------------------------------------------------
 # Install jq
@@ -221,11 +199,11 @@ RUN cd ${SRC_DIR} \
 # -----------------------------------------------------------------------------
 #ADD files/jdk1.8.0_181.zip ${SRC_DIR}/
 RUN cd ${SRC_DIR} \
-    && wget -q -O jdk1.8.0_181.zip http://10.100.0.9/docker-images-config/jdk1.8.0_181.zip \
+    && wget -q -O jdk-11.zip http://10.100.0.9/docker-images-config/jdk-11.zip \
     && mkdir $HOME/java \
-    && mv jdk1.8.0_181.zip  $HOME/java \
+    && mv jdk-11.zip  $HOME/java \
     && cd $HOME/java \
-    && unzip jdk1.8.0_181.zip \
+    && unzip jdk-11.zip \
     && chmod a+x -R $HOME/java
 
 
@@ -255,21 +233,21 @@ RUN cd ${SRC_DIR} \
 #    && mv -f ./usr/bin/ab ${HOME}/bin \
 #    && cd ${HOME} && rm -rf ${HOME}/httpd
 
-#RUN echo "swoole.use_shortname = 'Off'" >> /vue-msf/php/etc/php.d/swoole.ini 
+
 
 # -----------------------------------------------------------------------------
 # Update Git and Config git
 # -----------------------------------------------------------------------------
-RUN cd ${SRC_DIR} \
-    && yum -y remove git subversion \
-    && wget -q -O git-2.20.1.tar.gz https://github.com/git/git/archive/v2.20.1.tar.gz \
-    && tar zxf git-2.20.1.tar.gz \
-    && cd git-2.20.1 \
-    && make configure \
-    && ./configure --without-iconv --prefix=/usr/local/ --with-curl=/usr/bin/curl \
-    && make \
-    && make install \
-    && rm -rf $SRC_DIR/git-2* 
+# RUN cd ${SRC_DIR} \
+#     && yum -y remove git subversion \
+#     && wget -q -O git-2.20.1.tar.gz https://github.com/git/git/archive/v2.20.1.tar.gz \
+#     && tar zxf git-2.20.1.tar.gz \
+#     && cd git-2.20.1 \
+#     && make configure \
+#     && ./configure --without-iconv --prefix=/usr/local/ --with-curl=/usr/bin/curl \
+#     && make \
+#     && make install \
+#     && rm -rf $SRC_DIR/git-2* 
     
 # -----------------------------------------------------------------------------
 # Install gocronx
@@ -279,39 +257,67 @@ ADD gocronx ${HOME}/gocronx/
 RUN chmod a+x -R ${HOME}/gocronx/
     
 # -----------------------------------------------------------------------------
-# Update Git-Core
-# -----------------------------------------------------------------------------
-RUN  yum -y install https://packages.endpoint.com/rhel/7/os/x86_64/git-core-2.23.0-1.ep7.x86_64.rpm \
-    && ln -s /usr/libexec/git-core/git-remote-http /bin/ \
-    && ln -s /usr/libexec/git-core/git-remote-https /bin/ \
-    && git config --global user.email "vue-msf@admin.com" \
-    && git config --global user.name "vue-msf"
-
-# -----------------------------------------------------------------------------
-# jsawk
-# -----------------------------------------------------------------------------
-RUN curl -s -L http://github.com/micha/jsawk/raw/master/jsawk > /usr/local/bin/jsawk \
-	&& chmod 755 /usr/local/bin/jsawk
-
-# -----------------------------------------------------------------------------
 # Copy Config
 # -----------------------------------------------------------------------------
 ADD run.sh /
 ADD config /vue-msf/
 ADD config/.bash_profile /home/super/
 ADD config/.bashrc /home/super/
-RUN chmod a+x /run.sh 
+ADD config/.vimrc /home/super/
+
+
+ADD config/.bash_profile /root/
+ADD config/.bashrc /root/
+ADD config/.vimrc /root/
+
 #	&& chmod a+x ${PHP_INSTALL_DIR}/bin/checkstyle \
 #    && chmod a+x ${PHP_INSTALL_DIR}/bin/mergeCoverReport
+
+ADD rpm/js-1.8.5-31.el8.x86_64.rpm /vue-msf/src/
+
+
+RUN chmod a+x /run.sh \
+    && yum install -y procps /vue-msf/src/js-1.8.5-31.el8.x86_64.rpm \
+    && ln -s /usr/libexec/git-core/git-remote-http /bin/ \
+    && ln -s /usr/libexec/git-core/git-remote-https /bin/ \
+    && git config --global user.email "vue-msf@admin.com" \
+    && git config --global user.name "vue-msf" \
+    && curl -s -L http://github.com/micha/jsawk/raw/master/jsawk > /usr/local/bin/jsawk \
+	&& chmod 755 /usr/local/bin/jsawk \
+    && rm -rf ${SRC_DIR}/* \
+    && yum --enablerepo=powertools install -y \
+    libicu libicu-devel 
+
 
 
 # -----------------------------------------------------------------------------
 # Profile
 # ----------------------------------------------------------------------------- 
-RUN echo -e 'PATH=$PATH:/vue-msf/nginx/bin/ \nPATH=$PATH:/vue-msf/sbin/ \nPATH=$PATH:/vue-msf/redis/bin/:/usr/libexec/git-core \nJAVA_HOME=/vue-msf/java \nexport JAVA_BIN=/vue-msf/java/bin \nexport PATH=$PATH:$JAVA_HOME/bin \nexport CLASSPATH=.:$JAVA_HOME/lib/dt.jar:$JAVA_HOME/lib/tools.jar \nexport JAVA_HOME JAVA_BIN PATH CLASSPATH \nexport CLASSPATH=.:$JAVA_HOME/bin:$JAVA_HOME/jre/bin \n#set maven enviroment\n \
+
+ARG base_image_project
+ARG base_image_version
+
+RUN echo -e "# Default limit for number of user's processes to prevent \n\
+# accidental fork bombs. \n\
+# See rhbz #432903 for reasoning. \n\
+* soft nofile 65535 \n\
+* hard nofile 65535 \n\
+* hard nproc 65535 \n\
+* soft nproc 65535 " > /etc/security/limits.d/20-nproc.conf \
+    && echo -e 'PATH=$PATH:/vue-msf/nginx/bin/ \nPATH=$PATH:/vue-msf/sbin/ \nPATH=$PATH:/vue-msf/redis/bin/:/usr/libexec/git-core \nJAVA_HOME=/vue-msf/java \nexport JAVA_BIN=/vue-msf/java/bin \nexport PATH=$PATH:$JAVA_HOME/bin \nexport CLASSPATH=.:$JAVA_HOME/lib/dt.jar:$JAVA_HOME/lib/tools.jar \nexport JAVA_HOME JAVA_BIN PATH CLASSPATH \nexport CLASSPATH=.:$JAVA_HOME/bin:$JAVA_HOME/jre/bin \n#set maven enviroment\n \
 export MAVEN_HOME=/vue-msf/maven \n \
 export PATH=$PATH:$MAVEN_HOME/bin \n' >> /etc/profile \
-    && source /etc/profile
+    && source /etc/profile \
+    && export build_time=$(date '+%Y/%m/%d %H:%M:%S') \
+    && echo -e "${base_image_project}:${base_image_version}" > /.base_image_version \
+    && echo -e "\n\
+\033[46;30m  _      __     _____  ______              \033[0m \n\
+\033[46;30m | | /| / /__  / / _/ /_  __/__ ___ ___ _  \033[0m \n\
+\033[46;30m | |/ |/ / _ \/ / _/   / / / -_) _  /  ' \ \033[0m \n\
+\033[46;30m |__/|__/\___/_/_/    /_/  \__/\_,_/_/_/_/ \033[0m \n\n\n\
+welcome sfc xi'an wolf team ! \n\
+\033[45;30mBASE_IMAGE:\033[0m ${base_image_project}:${base_image_version} \n\
+\033[45;30mBUILD_TIME:\033[0m ${build_time}" > /etc/motd
 
 # -----------------------------------------------------------------------------
 # clean tmp file
