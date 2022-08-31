@@ -697,7 +697,7 @@ RUN cd ${SRC_DIR} \
 
 COPY --from=rustimage /vue-msf/local /vue-msf/local
 
-# COPY --from=grpc /vue-msf/src/grpc/cmake /vue-msf/local/cmake
+# COPY --from=grpc /vue-msf/src/grpc/cmake /vue-msf/local/cmake/
 # COPY --from=grpc /vue-msf/src/grpc/third_party/abseil-cpp/absl /vue-msf/local/include/absl
 # COPY --from=grpc /vue-msf/src/grpc/third_party/protobuf /vue-msf/local/cmake/build/third_party/protobuf
 
@@ -705,16 +705,14 @@ COPY --from=rustimage /vue-msf/local /vue-msf/local
 # -----------------------------------------------------------------------------
 # Install PHP SkyAPM-php-sdk extensions
 # -----------------------------------------------------------------------------
-ENV PROTOBUF_VERSION 3.14.0
-ENV PROTOBUF_URL https://github.com/protocolbuffers/protobuf/releases/download/v"$PROTOBUF_VERSION"/protobuf-cpp-"$PROTOBUF_VERSION".zip
-ENV RUSTFLAGS="-Ctarget-feature=-crt-static"
 
 RUN cd ${SRC_DIR} \
     && yum install rust cargo rustfmt -y \
     && echo "/vue-msf/local/lib" >> /etc/ld.so.conf.d/local.conf \
     && echo "/vue-msf/local/lib64" >> /etc/ld.so.conf.d/local.conf \
     && ldconfig \
-    && git clone --branch v4-c11 https://github.com/SkyAPM/SkyAPM-php-sdk.git ./skywalking \
+    # && git clone --branch v4-c11 https://github.com/SkyAPM/SkyAPM-php-sdk.git ./skywalking \
+    && git clone --branch v5.0.1 https://github.com/SkyAPM/SkyAPM-php-sdk.git ./skywalking \
     && cd skywalking \
     && git submodule update --init \
     && export LD_LIBRARY_PATH=$LD_LIBRARY_PATH:/vue-msf/local/lib:/vue-msf/local/lib64  \
@@ -723,14 +721,14 @@ RUN cd ${SRC_DIR} \
     && ./configure --with-php-config=${PHP_INSTALL_DIR}/bin/php-config >/dev/null \
     && make 1>/dev/null \
     && make install \
-    && rm -rf $SRC_DIR/skywalking* /usr/local/git/grpc \
-    && yum remove boost-devel  -y
+    && yum remove boost-devel rust cargo rustfmt -y \
+    && rm -rf $SRC_DIR/skywalking* /usr/local/git/grpc /vue-msf/.cargo
 
 # @sunny5156 GRPC 真确版本
 # ENV skyapm_version 4.2.0
 # RUN cd ${SRC_DIR} \
 #     && ls -alh /vue-msf/local \
-#     # && yum install -y rust cargo rustfmt \
+#     # && yum install -y rust cargo rustfmt \ll
 #     && echo "/vue-msf/local/lib" >> /etc/ld.so.conf.d/local.conf \
 #     && echo "/vue-msf/local/lib64" >> /etc/ld.so.conf.d/local.conf \
 #     && ldconfig \
@@ -864,7 +862,8 @@ RUN chmod a+x /run.sh \
 	&& chmod 755 /usr/local/bin/jsawk \
     && rm -rf ${SRC_DIR}/* \
     && yum --enablerepo=powertools install -y \
-    libicu libicu-devel 
+    libicu libicu-devel \
+    && yum clean all
 
 
 # -----------------------------------------------------------------------------
