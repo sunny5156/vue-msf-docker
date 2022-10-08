@@ -27,7 +27,7 @@ RUN rpm --import /etc/pki/rpm-gpg/RPM* \
     && curl -s --location https://rpm.nodesource.com/setup_14.x | bash - \
     && yum -y install wget epel-release \
     gcc gcc-c++ cmake zlib zlib-devel  \
-    sqlite-devel net-tools python36 \
+    sqlite-devel net-tools python38 \
     && rm -rf /var/cache/{yum,ldconfig}/* \
     && rm -rf /etc/ld.so.cache \
     && yum clean all
@@ -45,18 +45,22 @@ RUN rpm --import /etc/pki/rpm-gpg/RPM* \
 # -----------------------------------------------------------------------------
 # python3 yum error ,change python pip link
 # -----------------------------------------------------------------------------
-RUN sed -i "s|failovermethod=priority|#failovermethod=priority|g" /etc/yum.repos.d/nodesource-el8.repo \
-    # grep '#! /usr/bin/python' -rl /usr/libexec/urlgrabber-ext-down | xargs sed -i "s/#! \/usr\/bin\/python/#!\/usr\/bin\/python2/g" \
-    # && grep '#!/usr/bin/python' -rl /usr/bin/yum  | xargs sed -i "s/#!\/usr\/bin\/python/#!\/usr\/bin\/python2/g" \
-    && cd /usr/bin \
-    # && rm -f python pip \
-    && ln -s /usr/bin/python3 /usr/bin/python \
-    && ln -s /usr/bin/pip3 /usr/bin/pip
+# RUN sed -i "s|failovermethod=priority|#failovermethod=priority|g" /etc/yum.repos.d/nodesource-el8.repo \
+#     # grep '#! /usr/bin/python' -rl /usr/libexec/urlgrabber-ext-down | xargs sed -i "s/#! \/usr\/bin\/python/#!\/usr\/bin\/python2/g" \
+#     # && grep '#!/usr/bin/python' -rl /usr/bin/yum  | xargs sed -i "s/#!\/usr\/bin\/python/#!\/usr\/bin\/python2/g" \
+#     && cd /usr/bin \
+#     # && rm -f python pip \
+#     && ln -s /usr/bin/python3.8 /usr/bin/python \
+#     && ln -s /usr/bin/pip3.8 /usr/bin/pip
+
+
+
 
 # -----------------------------------------------------------------------------
 # Devel libraries for delelopment tools like php & nginx ...
 # -----------------------------------------------------------------------------
-RUN yum -y install \
+RUN sed -i "s|failovermethod=priority|#failovermethod=priority|g" /etc/yum.repos.d/nodesource-el8.repo \
+    && yum -y install \
 	lrzsz psmisc lemon \
     tar gzip \
     bzip2 \
@@ -109,15 +113,20 @@ RUN rpm --import /etc/pki/rpm-gpg/RPM* \
     oniguruma oniguruma-devel \
     libmemcached libmemcached-devel \
     libmcrypt libmcrypt-devel \
-    libicu libicu-devel \
-    && find / -name "libicu*" 
+    libicu libicu-devel 
+    # && find / -name "libicu*" 
+
 
 # -----------------------------------------------------------------------------
-# Install Python PIP & Supervisor distribute
+# python3 yum error ,change python pip link Python PIP & Supervisor distribute
 # -----------------------------------------------------------------------------
-RUN cd ${SRC_DIR} \
-    # && pip install --upgrade pip \
-    && pip install supervisor==4.2.2
+RUN cd /usr/bin \
+    # grep '#! /usr/bin/python' -rl /usr/libexec/urlgrabber-ext-down | xargs sed -i "s/#! \/usr\/bin\/python/#!\/usr\/bin\/python2/g" \
+    # && grep '#!/usr/bin/python' -rl /usr/bin/yum  | xargs sed -i "s/#!\/usr\/bin\/python/#!\/usr\/bin\/python2/g" \
+    # && rm -f python pip \
+    && ln -s /usr/bin/python3.8 /usr/bin/python \
+    && ln -s /usr/bin/pip3.8 /usr/bin/pip \
+    && pip install supervisor==4.2.4
 
 
 # -----------------------------------------------------------------------------
@@ -199,7 +208,7 @@ RUN cd ${SRC_DIR} \
 # Install ImageMagick
 # -----------------------------------------------------------------------------
 RUN cd ${SRC_DIR} \
-    && wget -q -O ImageMagick.tar.gz https://www.imagemagick.org/download/ImageMagick.tar.gz \
+    && wget -q -O ImageMagick.tar.gz https://imagemagick.org/archive/ImageMagick.tar.gz \
     # && wget -q -O ImageMagick.tar.gz https://download.imagemagick.org/ImageMagick/download/ImageMagick.tar.gz \
     && tar zxf ImageMagick.tar.gz \
     && rm -rf ImageMagick.tar.gz \
