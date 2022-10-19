@@ -408,7 +408,7 @@ RUN cd $SRC_DIR \
 # -----------------------------------------------------------------------------
 # Install PHP
 # -----------------------------------------------------------------------------
-ENV phpversion 7.4.29
+ENV phpversion 7.4.32
 ENV PHP_INSTALL_DIR ${HOME}/php
 RUN cd ${SRC_DIR} \
     && export PKG_CONFIG_PATH="/usr/lib64/pkgconfig" \
