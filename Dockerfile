@@ -117,7 +117,11 @@ RUN cd ${SRC_DIR} \
 # Update yarn and Update npm , install apidoc nodemon
 # ----------------------------------------------------------------------------- 
 
-RUN curl --silent --location https://dl.yarnpkg.com/rpm/yarn.repo | sudo tee /etc/yum.repos.d/yarn.repo \
+RUN chmod 644 /usr/libexec/sudo/sudoers.so \
+    && chmod 0440 /etc/sudo.conf \
+    && chmod 0440 /etc/sudoers \
+    && chmod 0440 -R /etc/sudoers.d \
+    && curl --silent --location https://dl.yarnpkg.com/rpm/yarn.repo | sudo tee /etc/yum.repos.d/yarn.repo \
 	&& yum install -y yarn \
     && npm i npm@latest -g 
     # && npm install apidoc nodemon -g/
@@ -287,7 +291,6 @@ RUN chmod a+x /run.sh \
     && rm -rf ${SRC_DIR}/* \
     && yum --enablerepo=powertools install -y \
     libicu libicu-devel 
-
 
 
 # -----------------------------------------------------------------------------

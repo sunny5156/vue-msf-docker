@@ -59,4 +59,5 @@ nohup supervisord -c /vue-msf/supervisor/supervisord.conf >/dev/null 2>&1 &
 
 echo '/etc/init.d/sshd start'
 #/etc/init.d/sshd start
+chmod 744 /var/empty/sshd 
 /usr/sbin/sshd -D
