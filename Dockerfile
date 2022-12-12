@@ -156,12 +156,12 @@ RUN ln -sf /usr/share/zoneinfo/Asia/Chongqing /etc/localtime \
 # -----------------------------------------------------------------------------
 # Install Nginx
 # ----------------------------------------------------------------------------- 
-ENV nginx_version 1.21.5
+ENV nginxVersion 1.21.5
 ENV NGINX_INSTALL_DIR ${HOME}/nginx
 RUN cd ${SRC_DIR} \
-    && wget -q -O nginx-${nginx_version}.tar.gz  http://nginx.org/download/nginx-${nginx_version}.tar.gz \
-    && tar zxvf nginx-${nginx_version}.tar.gz  \
-    && cd nginx-${nginx_version} \
+    && wget -q -O nginx-${nginxVersion}.tar.gz  http://nginx.org/download/nginx-${nginxVersion}.tar.gz \
+    && tar zxvf nginx-${nginxVersion}.tar.gz  \
+    && cd nginx-${nginxVersion} \
     && ./configure --user=super --group=super --prefix=${NGINX_INSTALL_DIR} --with-http_v2_module --with-http_ssl_module --with-http_sub_module --with-http_stub_status_module --with-http_gzip_static_module --with-pcre >/dev/null \
     && make >/dev/null \
     && make install \
@@ -194,12 +194,12 @@ RUN cd ${SRC_DIR} \
 # -----------------------------------------------------------------------------
 # Install Redis
 # -----------------------------------------------------------------------------
-ENV redis_version 6.2.1
+ENV redisVersion 6.2.1
 ENV REDIS_INSTALL_DIR ${HOME}/redis
 RUN cd ${SRC_DIR} \
-    && wget -q -O redis-${redis_version}.tar.gz http://download.redis.io/releases/redis-${redis_version}.tar.gz \
-    && tar xzf redis-${redis_version}.tar.gz \
-    && cd redis-${redis_version} \
+    && wget -q -O redis-${redisVersion}.tar.gz http://download.redis.io/releases/redis-${redisVersion}.tar.gz \
+    && tar xzf redis-${redisVersion}.tar.gz \
+    && cd redis-${redisVersion} \
     && make >/dev/null \
     && make PREFIX=$REDIS_INSTALL_DIR install \
     && rm -rf ${SRC_DIR}/redis-*
@@ -265,10 +265,11 @@ RUN cd ${SRC_DIR} \
 # -----------------------------------------------------------------------------
 # Install re2c for PHP
 # -----------------------------------------------------------------------------
+ENV re2cVersion 1.0.3
 RUN cd $SRC_DIR \
-    && wget -q -O re2c-1.0.3.tar.gz https://github.com/skvadrik/re2c/releases/download/1.0.3/re2c-1.0.3.tar.gz \
-    && tar xzf re2c-1.0.3.tar.gz \
-    && cd re2c-1.0.3 \
+    && wget -q -O re2c-${re2cVersion}.tar.gz https://github.com/skvadrik/re2c/releases/download/${re2cVersion}/re2c-${re2cVersion}.tar.gz \
+    && tar xzf re2c-${re2cVersion}.tar.gz \
+    && cd re2c-${re2cVersion} \
     && ./configure >/dev/null \
     && make >/dev/null \
     && make install \
@@ -408,14 +409,14 @@ RUN cd $SRC_DIR \
 # -----------------------------------------------------------------------------
 # Install PHP
 # -----------------------------------------------------------------------------
-ENV phpversion 7.4.32
+ENV phpVersion 8.0.25
 ENV PHP_INSTALL_DIR ${HOME}/php
 RUN cd ${SRC_DIR} \
     && export PKG_CONFIG_PATH="/usr/lib64/pkgconfig" \
     # && export PKG_CONFIG_PATH=${PKG_CONFIG_PATH}:"/usr/local/lib/pkgconfig/" \
-    && wget -q -O php-${phpversion}.tar.gz https://www.php.net/distributions/php-${phpversion}.tar.gz \
-    && tar xzf php-${phpversion}.tar.gz \
-    && cd php-${phpversion} \
+    && wget -q -O php-${phpVersion}.tar.gz https://www.php.net/distributions/php-${phpVersion}.tar.gz \
+    && tar xzf php-${phpVersion}.tar.gz \
+    && cd php-${phpVersion} \
     # && make clean \
     && ./configure \
     #    --disable-shared \
@@ -460,30 +461,33 @@ RUN cd ${SRC_DIR} \
        --with-zlib \
        --with-bz2 \
        --with-openssl \
+    #    --with-openssl-dir \ 
        --with-curl=/usr/bin/curl \
+    #    --with-curl  \
        --with-imap \
        --with-imap-ssl \
        --with-kerberos \
     #    --with-icu-dir=/usr/lib/icu/ \ #magento
        --with-mhash \
-    #    --enable-inline-optimization \
+       --enable-inline-optimization \
     #    --with-gmp  \
     # && make --quiet prof-gen LIBS="-lssl -lcrypto -llber -lzip" 1>/dev/null \
     && make --quiet prof-gen LIBS="-lssl -lcrypto" 1>/dev/null \
     && make install \
     && rm -rf ${PHP_INSTALL_DIR}/lib/php.ini \
     && cp -f php.ini-development ${PHP_INSTALL_DIR}/lib/php.ini \
-    # && cp -rf ${SRC_DIR}/php-${phpversion}/ext/intl  ${SRC_DIR}/ \  # magento
+    # && cp -rf ${SRC_DIR}/php-${phpVersion}/ext/intl  ${SRC_DIR}/ \  # magento
     # && rm -rf ${SRC_DIR}/php-* \
     && rm -rf ${SRC_DIR}/libmcrypt*
 
 # -----------------------------------------------------------------------------
 # Install yaml and PHP yaml extension
 # -----------------------------------------------------------------------------
+ENV yamlExtVersion 2.2.0
 RUN cd ${SRC_DIR} \
-    && wget -q -O yaml-2.0.4.tgz https://pecl.php.net/get/yaml-2.0.4.tgz \
-    && tar xzf yaml-2.0.4.tgz \
-    && cd yaml-2.0.4 \
+    && wget -q -O yaml-${yamlExtVersion}.tgz https://pecl.php.net/get/yaml-${yamlExtVersion}.tgz \
+    && tar xzf yaml-${yamlExtVersion}.tgz \
+    && cd yaml-${yamlExtVersion} \
     && ${PHP_INSTALL_DIR}/bin/phpize \
     && ./configure --with-yaml=/usr/local --with-php-config=${PHP_INSTALL_DIR}/bin/php-config >/dev/null \
     && make >/dev/null \
@@ -498,26 +502,26 @@ RUN cd ${SRC_DIR} \
 # -----------------------------------------------------------------------------
 # Install PHP Rabbitmq extensions
 # -----------------------------------------------------------------------------
-ENV rabbitmqcversion 0.8.0
+ENV rabbitmqcExtVersion 0.8.0
 RUN cd ${SRC_DIR} \
-	&& wget -q -O rabbitmq-c-${rabbitmqcversion}.tar.gz https://github.com/alanxz/rabbitmq-c/releases/download/v${rabbitmqcversion}/rabbitmq-c-${rabbitmqcversion}.tar.gz \
-	&& tar zxf rabbitmq-c-${rabbitmqcversion}.tar.gz \
-	&& cd rabbitmq-c-${rabbitmqcversion} \
-	&& ./configure --prefix=/usr/local/rabbitmq-c-${rabbitmqcversion} >/dev/null \
+	&& wget -q -O rabbitmq-c-${rabbitmqcExtVersion}.tar.gz https://github.com/alanxz/rabbitmq-c/releases/download/v${rabbitmqcExtVersion}/rabbitmq-c-${rabbitmqcExtVersion}.tar.gz \
+	&& tar zxf rabbitmq-c-${rabbitmqcExtVersion}.tar.gz \
+	&& cd rabbitmq-c-${rabbitmqcExtVersion} \
+	&& ./configure --prefix=/usr/local/rabbitmq-c-${rabbitmqcExtVersion} >/dev/null \
 	&& make >/dev/null \
     && make install 
 
 # -----------------------------------------------------------------------------
 # Install PHP amqp extensions
 # -----------------------------------------------------------------------------
-ENV amqpversion 1.10.0 
+ENV amqpExtVersion 1.11.0 
 RUN cd ${SRC_DIR} \
-    && wget -q -O amqp-${amqpversion}.tgz https://pecl.php.net/get/amqp-${amqpversion}.tgz\
-    && tar zxf amqp-${amqpversion}.tgz \
-    && cd amqp-${amqpversion} \
-    && cp ${SRC_DIR}/rabbitmq-c-${rabbitmqcversion}/librabbitmq/amqp_ssl_socket.h . \
+    && wget -q -O amqp-${amqpExtVersion}.tgz https://pecl.php.net/get/amqp-${amqpExtVersion}.tgz\
+    && tar zxf amqp-${amqpExtVersion}.tgz \
+    && cd amqp-${amqpExtVersion} \
+    && cp ${SRC_DIR}/rabbitmq-c-${rabbitmqcExtVersion}/librabbitmq/amqp_ssl_socket.h . \
     && ${PHP_INSTALL_DIR}/bin/phpize \
-    && ./configure --with-php-config=${PHP_INSTALL_DIR}/bin/php-config --with-amqp --with-librabbitmq-dir=/usr/local/rabbitmq-c-${rabbitmqcversion} 1>/dev/null \
+    && ./configure --with-php-config=${PHP_INSTALL_DIR}/bin/php-config --with-amqp --with-librabbitmq-dir=/usr/local/rabbitmq-c-${rabbitmqcExtVersion} 1>/dev/null \
     && make clean \
     && make 1>/dev/null \
     && make install \
@@ -526,10 +530,11 @@ RUN cd ${SRC_DIR} \
 # -----------------------------------------------------------------------------
 # Install PHP redis extensions
 # -----------------------------------------------------------------------------
+ENV redisExtVersion 5.3.2
 RUN cd ${SRC_DIR} \
-    && wget -q -O redis-5.3.2.tgz https://pecl.php.net/get/redis-5.3.2.tgz \
-    && tar zxf redis-5.3.2.tgz \
-    && cd redis-5.3.2 \
+    && wget -q -O redis-${redisExtVersion}.tgz https://pecl.php.net/get/redis-${redisExtVersion}.tgz \
+    && tar zxf redis-${redisExtVersion}.tgz \
+    && cd redis-${redisExtVersion} \
     && ${PHP_INSTALL_DIR}/bin/phpize \
     && ./configure --with-php-config=${PHP_INSTALL_DIR}/bin/php-config 1>/dev/null \
     && make clean \
@@ -540,10 +545,11 @@ RUN cd ${SRC_DIR} \
 # -----------------------------------------------------------------------------
 # Install PHP imagick extensions
 # -----------------------------------------------------------------------------
+ENV imagickExtVersion 3.7.0
 RUN cd ${SRC_DIR} \
-    && wget -q -O imagick-3.4.3.tgz https://pecl.php.net/get/imagick-3.4.3.tgz \
-    && tar zxf imagick-3.4.3.tgz \
-    && cd imagick-3.4.3 \
+    && wget -q -O imagick-${imagickExtVersion}.tgz https://pecl.php.net/get/imagick-${imagickExtVersion}.tgz \
+    && tar zxf imagick-${imagickExtVersion}.tgz \
+    && cd imagick-${imagickExtVersion} \
     && ${PHP_INSTALL_DIR}/bin/phpize \
     && ./configure --with-php-config=${PHP_INSTALL_DIR}/bin/php-config --with-imagick 1>/dev/null \
     && make clean \
@@ -554,11 +560,11 @@ RUN cd ${SRC_DIR} \
 # -----------------------------------------------------------------------------
 # Install PHP xdebug extensions
 # -----------------------------------------------------------------------------
-#ENV xdebugversion 2.7.0
+#ENV xdebugExtVersion 2.7.0
 #RUN cd ${SRC_DIR} \
-#    && wget -q -O xdebug-${xdebugversion}.tgz https://pecl.php.net/get/xdebug-${xdebugversion}.tgz \
-#    && tar zxf xdebug-${xdebugversion}.tgz \
-#    && cd xdebug-${xdebugversion} \
+#    && wget -q -O xdebug-${xdebugExtVersion}.tgz https://pecl.php.net/get/xdebug-${xdebugExtVersion}.tgz \
+#    && tar zxf xdebug-${xdebugExtVersion}.tgz \
+#    && cd xdebug-${xdebugExtVersion} \
 #    && ${PHP_INSTALL_DIR}/bin/phpize \
 #    && ./configure --with-php-config=${PHP_INSTALL_DIR}/bin/php-config 1>/dev/null \
 #    && make clean \
@@ -569,10 +575,11 @@ RUN cd ${SRC_DIR} \
 # -----------------------------------------------------------------------------
 # Install PHP igbinary extensions
 # -----------------------------------------------------------------------------
+ENV igbinaryExtVersion 3.2.10
 RUN cd ${SRC_DIR} \
-    && wget -q -O igbinary-2.0.8.tgz https://pecl.php.net/get/igbinary-2.0.8.tgz \
-    && tar zxf igbinary-2.0.8.tgz \
-    && cd igbinary-2.0.8 \
+    && wget -q -O igbinary-${igbinaryExtVersion}.tgz https://pecl.php.net/get/igbinary-${igbinaryExtVersion}.tgz \
+    && tar zxf igbinary-${igbinaryExtVersion}.tgz \
+    && cd igbinary-${igbinaryExtVersion} \
     && ${PHP_INSTALL_DIR}/bin/phpize \
     && ./configure --with-php-config=${PHP_INSTALL_DIR}/bin/php-config 1>/dev/null \
     && make clean \
@@ -583,11 +590,11 @@ RUN cd ${SRC_DIR} \
 # -----------------------------------------------------------------------------
 # Install PHP xlswriter extensions
 # -----------------------------------------------------------------------------
-ENV xlswriterversion 1.5.1
+ENV xlswriterExtVersion 1.5.1
 RUN cd ${SRC_DIR} \
-    && wget -q -O xlswriter-${xlswriterversion}.tgz https://pecl.php.net/get/xlswriter-${xlswriterversion}.tgz \
-    && tar zxf xlswriter-${xlswriterversion}.tgz \
-    && cd xlswriter-${xlswriterversion} \
+    && wget -q -O xlswriter-${xlswriterExtVersion}.tgz https://pecl.php.net/get/xlswriter-${xlswriterExtVersion}.tgz \
+    && tar zxf xlswriter-${xlswriterExtVersion}.tgz \
+    && cd xlswriter-${xlswriterExtVersion} \
     && ${PHP_INSTALL_DIR}/bin/phpize \
     && ./configure --with-php-config=${PHP_INSTALL_DIR}/bin/php-config --enable-reader 1>/dev/null \
     && make clean \
@@ -599,12 +606,13 @@ RUN cd ${SRC_DIR} \
 # -----------------------------------------------------------------------------
 # Install PHP memcached extensions
 # -----------------------------------------------------------------------------
+ENV memcachedExtVersion 3.2.0
 RUN cd ${SRC_DIR} \
     && mkdir -p /usr/lib/x86_64-linux-gnu/include/libmemcached \
     && ln -s /usr/include/libmemcached/memcached.h /usr/lib/x86_64-linux-gnu/include/libmemcached/memcached.h \
-    && wget -q -O memcached-3.2.0.tgz https://pecl.php.net/get/memcached-3.2.0.tgz \
-    && tar xzf memcached-3.2.0.tgz \
-    && cd memcached-3.2.0 \
+    && wget -q -O memcached-${memcachedExtVersion}.tgz https://pecl.php.net/get/memcached-${memcachedExtVersion}.tgz \
+    && tar xzf memcached-${memcachedExtVersion}.tgz \
+    && cd memcached-${memcachedExtVersion} \
     && ${PHP_INSTALL_DIR}/bin/phpize \
     && ./configure --enable-memcached --with-php-config=${PHP_INSTALL_DIR}/bin/php-config \
        --with-libmemcached-dir="/usr/lib/x86_64-linux-gnu" --disable-memcached-sasl 1>/dev/null \
@@ -615,10 +623,11 @@ RUN cd ${SRC_DIR} \
 # -----------------------------------------------------------------------------
 # Install PHP yac extensions
 # -----------------------------------------------------------------------------
+ENV yacExtVersion 2.2.0
 RUN cd ${SRC_DIR} \
-    && wget -q -O yac-2.2.0.tgz https://pecl.php.net/get/yac-2.2.0.tgz \
-    && tar zxf yac-2.2.0.tgz\
-    && cd yac-2.2.0 \
+    && wget -q -O yac-${yacExtVersion}.tgz https://pecl.php.net/get/yac-${yacExtVersion}.tgz \
+    && tar zxf yac-${yacExtVersion}.tgz\
+    && cd yac-${yacExtVersion} \
     && ${PHP_INSTALL_DIR}/bin/phpize \
     && ./configure --with-php-config=${PHP_INSTALL_DIR}/bin/php-config \
     && make 1>/dev/null \
@@ -642,27 +651,29 @@ RUN cd ${SRC_DIR} \
 # -----------------------------------------------------------------------------
 # Install PHP libsodium extensions magento
 # -----------------------------------------------------------------------------
-# RUN cd ${SRC_DIR} \
-#     && wget -q -O libsodium-2.0.23.tgz https://pecl.php.net/get/libsodium-2.0.23.tgz \
-#     && tar zxf libsodium-2.0.23.tgz\
-#     && cd libsodium-2.0.23 \
-#     && ${PHP_INSTALL_DIR}/bin/phpize \
-#     && ./configure --with-php-config=${PHP_INSTALL_DIR}/bin/php-config \
-#     && make 1>/dev/null \
-#     && make install \
-#     && rm -rf $SRC_DIR/libsodium-*
+ENV libsodiumExtVersion 2.0.23
+RUN cd ${SRC_DIR} \
+    && yum install -y  libsodium libsodium-devel \
+    && wget -q -O libsodium-${libsodiumExtVersion}.tgz https://pecl.php.net/get/libsodium-${libsodiumExtVersion}.tgz \
+    && tar zxf libsodium-${libsodiumExtVersion}.tgz\
+    && cd libsodium-${libsodiumExtVersion} \
+    && ${PHP_INSTALL_DIR}/bin/phpize \
+    && ./configure --with-php-config=${PHP_INSTALL_DIR}/bin/php-config \
+    && make 1>/dev/null \
+    && make install \
+    && rm -rf $SRC_DIR/libsodium-*
 
 
 # -----------------------------------------------------------------------------
 # Install PHP swoole extensions
 # -----------------------------------------------------------------------------
 
-ENV swooleVersion 4.8.9
+ENV swooleExtVersion 4.8.12
 RUN cd ${SRC_DIR} \
     && ls /usr/local/include/ \
-    && wget -q -O swoole-${swooleVersion}.tar.gz https://github.com/swoole/swoole-src/archive/v${swooleVersion}.tar.gz \
-    && tar zxf swoole-${swooleVersion}.tar.gz \
-    && cd swoole-src-${swooleVersion}/ \
+    && wget -q -O swoole-${swooleExtVersion}.tar.gz https://github.com/swoole/swoole-src/archive/v${swooleExtVersion}.tar.gz \
+    && tar zxf swoole-${swooleExtVersion}.tar.gz \
+    && cd swoole-src-${swooleExtVersion}/ \
     && ${PHP_INSTALL_DIR}/bin/phpize \
     # && ./configure --with-php-config=${PHP_INSTALL_DIR}/bin/php-config --enable-async-redis --enable-openssl --with-openssl-dir=/usr/local/openssl/ --enable-mysqlnd --enable-swoole-curl  1>/dev/null\
     && ./configure --with-php-config=${PHP_INSTALL_DIR}/bin/php-config --enable-async-redis --enable-openssl --with-openssl-dir=/usr/local/openssl/ --enable-mysqlnd  1>/dev/null\
@@ -675,10 +686,11 @@ RUN cd ${SRC_DIR} \
 # -----------------------------------------------------------------------------
 # Install PHP inotify extensions
 # -----------------------------------------------------------------------------
+ENV inotifyExtVersion 3.0.0
 RUN cd ${SRC_DIR} \
-    && wget -q -O inotify-2.0.0.tgz https://pecl.php.net/get/inotify-2.0.0.tgz \
-    && tar zxf inotify-2.0.0.tgz \
-    && cd inotify-2.0.0 \
+    && wget -q -O inotify-${inotifyExtVersion}.tgz https://pecl.php.net/get/inotify-${inotifyExtVersion}.tgz \
+    && tar zxf inotify-${inotifyExtVersion}.tgz \
+    && cd inotify-${inotifyExtVersion} \
     && ${PHP_INSTALL_DIR}/bin/phpize \
     && ./configure --with-php-config=${PHP_INSTALL_DIR}/bin/php-config 1>/dev/null \
     && make clean \
@@ -689,13 +701,13 @@ RUN cd ${SRC_DIR} \
 # -----------------------------------------------------------------------------
 # Install PHP mongodb extensions
 # -----------------------------------------------------------------------------
-ENV mongodb_ext_version 1.13.0
+ENV mongodbExtVersion 1.13.0
 RUN cd ${SRC_DIR} \
     # && export PATH=$PATH:/vue-msf/php/bin \/
     # && ln -s /usr/openssl/include/openssl /usr/local/include \
-    && wget -q -O mongodb-${mongodb_ext_version}.tgz https://pecl.php.net/get/mongodb-${mongodb_ext_version}.tgz \
-    && tar -zxf mongodb-${mongodb_ext_version}.tgz \
-    && cd mongodb-${mongodb_ext_version} \
+    && wget -q -O mongodb-${mongodbExtVersion}.tgz https://pecl.php.net/get/mongodb-${mongodbExtVersion}.tgz \
+    && tar -zxf mongodb-${mongodbExtVersion}.tgz \
+    && cd mongodb-${mongodbExtVersion} \
     && ${PHP_INSTALL_DIR}/bin/phpize \
     && ./configure --with-php-config=${PHP_INSTALL_DIR}/bin/php-config \
     && make clean \
@@ -792,13 +804,13 @@ RUN cd ${SRC_DIR} \
 # -----------------------------------------------------------------------------
 # Install jq
 # -----------------------------------------------------------------------------
-ENV jq_version 1.6
+ENV jqVersion 1.6
 RUN cd ${SRC_DIR} \
-    && wget -q -O jq-${jq_version}.tar.gz https://github.com/stedolan/jq/releases/download/jq-${jq_version}/jq-${jq_version}.tar.gz \
-    # && wget -q -O jq-${jq_version}.tar.gz https://github.com/stedolan/jq/archive/jq-${jq_version}.tar.gz \
-    && tar -zxf jq-${jq_version}.tar.gz \
+    && wget -q -O jq-${jqVersion}.tar.gz https://github.com/stedolan/jq/releases/download/jq-${jqVersion}/jq-${jqVersion}.tar.gz \
+    # && wget -q -O jq-${jqVersion}.tar.gz https://github.com/stedolan/jq/archive/jq-${jqVersion}.tar.gz \
+    && tar -zxf jq-${jqVersion}.tar.gz \
     # && ls -alh \
-    && cd ./jq-${jq_version} \
+    && cd ./jq-${jqVersion} \
     && ./configure --disable-maintainer-mode \
     && make \
     && make install \
