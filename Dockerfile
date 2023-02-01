@@ -409,7 +409,7 @@ RUN cd $SRC_DIR \
 # -----------------------------------------------------------------------------
 # Install PHP
 # -----------------------------------------------------------------------------
-ENV phpVersion 8.0.25
+ENV phpVersion 8.1.14
 ENV PHP_INSTALL_DIR ${HOME}/php
 RUN cd ${SRC_DIR} \
     && export PKG_CONFIG_PATH="/usr/lib64/pkgconfig" \
@@ -483,7 +483,7 @@ RUN cd ${SRC_DIR} \
 # -----------------------------------------------------------------------------
 # Install yaml and PHP yaml extension
 # -----------------------------------------------------------------------------
-ENV yamlExtVersion 2.2.0
+ENV yamlExtVersion 2.2.2
 RUN cd ${SRC_DIR} \
     && wget -q -O yaml-${yamlExtVersion}.tgz https://pecl.php.net/get/yaml-${yamlExtVersion}.tgz \
     && tar xzf yaml-${yamlExtVersion}.tgz \
@@ -502,13 +502,17 @@ RUN cd ${SRC_DIR} \
 # -----------------------------------------------------------------------------
 # Install PHP Rabbitmq extensions
 # -----------------------------------------------------------------------------
-ENV rabbitmqcExtVersion 0.8.0
+ENV rabbitmqcExtVersion 0.11.0
 RUN cd ${SRC_DIR} \
-	&& wget -q -O rabbitmq-c-${rabbitmqcExtVersion}.tar.gz https://github.com/alanxz/rabbitmq-c/releases/download/v${rabbitmqcExtVersion}/rabbitmq-c-${rabbitmqcExtVersion}.tar.gz \
+	# && wget -q -O rabbitmq-c-${rabbitmqcExtVersion}.tar.gz https://github.com/alanxz/rabbitmq-c/releases/download/v${rabbitmqcExtVersion}/rabbitmq-c-${rabbitmqcExtVersion}.tar.gz \
+	&& wget -q -O rabbitmq-c-${rabbitmqcExtVersion}.tar.gz https://github.com/alanxz/rabbitmq-c/archive/refs/tags/v${rabbitmqcExtVersion}.tar.gz \
 	&& tar zxf rabbitmq-c-${rabbitmqcExtVersion}.tar.gz \
 	&& cd rabbitmq-c-${rabbitmqcExtVersion} \
-	&& ./configure --prefix=/usr/local/rabbitmq-c-${rabbitmqcExtVersion} >/dev/null \
-	&& make >/dev/null \
+    && mkdir build && cd build \
+    && cmake -DCMAKE_INSTALL_PREFIX=/usr/local/ ..\
+	# && ./configure --prefix=/usr/local/rabbitmq-c-${rabbitmqcExtVersion} >/dev/null \
+    && cmake --build . --target install \
+	&& make  >/dev/null \
     && make install 
 
 # -----------------------------------------------------------------------------
@@ -521,7 +525,7 @@ RUN cd ${SRC_DIR} \
     && cd amqp-${amqpExtVersion} \
     && cp ${SRC_DIR}/rabbitmq-c-${rabbitmqcExtVersion}/librabbitmq/amqp_ssl_socket.h . \
     && ${PHP_INSTALL_DIR}/bin/phpize \
-    && ./configure --with-php-config=${PHP_INSTALL_DIR}/bin/php-config --with-amqp --with-librabbitmq-dir=/usr/local/rabbitmq-c-${rabbitmqcExtVersion} 1>/dev/null \
+    && ./configure --with-php-config=${PHP_INSTALL_DIR}/bin/php-config --with-amqp --with-librabbitmq-dir=/usr/local/ 1>/dev/null \
     && make clean \
     && make 1>/dev/null \
     && make install \
@@ -530,7 +534,7 @@ RUN cd ${SRC_DIR} \
 # -----------------------------------------------------------------------------
 # Install PHP redis extensions
 # -----------------------------------------------------------------------------
-ENV redisExtVersion 5.3.2
+ENV redisExtVersion 5.3.7
 RUN cd ${SRC_DIR} \
     && wget -q -O redis-${redisExtVersion}.tgz https://pecl.php.net/get/redis-${redisExtVersion}.tgz \
     && tar zxf redis-${redisExtVersion}.tgz \
@@ -590,7 +594,7 @@ RUN cd ${SRC_DIR} \
 # -----------------------------------------------------------------------------
 # Install PHP xlswriter extensions
 # -----------------------------------------------------------------------------
-ENV xlswriterExtVersion 1.5.1
+ENV xlswriterExtVersion 1.5.2
 RUN cd ${SRC_DIR} \
     && wget -q -O xlswriter-${xlswriterExtVersion}.tgz https://pecl.php.net/get/xlswriter-${xlswriterExtVersion}.tgz \
     && tar zxf xlswriter-${xlswriterExtVersion}.tgz \
@@ -716,7 +720,7 @@ RUN cd ${SRC_DIR} \
 
 
 
-COPY --from=rustimage /vue-msf/local /vue-msf/local
+# COPY --from=rustimage /vue-msf/local /vue-msf/local
 
 # COPY --from=grpc /vue-msf/src/grpc/cmake /vue-msf/local/cmake/
 # COPY --from=grpc /vue-msf/src/grpc/third_party/abseil-cpp/absl /vue-msf/local/include/absl
@@ -724,26 +728,52 @@ COPY --from=rustimage /vue-msf/local /vue-msf/local
 
 
 # -----------------------------------------------------------------------------
+# Install cargo
+# -----------------------------------------------------------------------------
+
+RUN yum install -y  clang-devel protobuf-compiler 
+    # &&  source "/vuem-msf/.cargo/env" \
+RUN curl https://sh.rustup.rs -sSf |  sh -s -- -y
+
+# -----------------------------------------------------------------------------
+# Install PHP skywalking_agent extensions
+# -----------------------------------------------------------------------------
+ENV skywalkingAgentExtVersion 0.2.0
+RUN cd ${SRC_DIR} \
+    # && export PATH=$PATH:/vue-msf/php/bin \/
+    # && ln -s /usr/openssl/include/openssl /usr/local/include \
+    && source "/vue-msf/.cargo/env" \
+    && wget -q -O skywalking_agent-${skywalkingAgentExtVersion}.tgz https://pecl.php.net/get/skywalking_agent-${skywalkingAgentExtVersion}.tgz \
+    && tar -zxf skywalking_agent-${skywalkingAgentExtVersion}.tgz \
+    && cd skywalking_agent-${skywalkingAgentExtVersion} \
+    && ${PHP_INSTALL_DIR}/bin/phpize \
+    && ./configure --with-php-config=${PHP_INSTALL_DIR}/bin/php-config \
+    && make clean \
+    && make \
+    && make install  
+
+
+# -----------------------------------------------------------------------------
 # Install PHP SkyAPM-php-sdk extensions
 # -----------------------------------------------------------------------------
 
-RUN cd ${SRC_DIR} \
-    && yum install rust cargo rustfmt -y \
-    && echo "/vue-msf/local/lib" >> /etc/ld.so.conf.d/local.conf \
-    && echo "/vue-msf/local/lib64" >> /etc/ld.so.conf.d/local.conf \
-    && ldconfig \
-    # && git clone --branch v4-c11 https://github.com/SkyAPM/SkyAPM-php-sdk.git ./skywalking \
-    && git clone --branch v5.0.1 https://github.com/SkyAPM/SkyAPM-php-sdk.git ./skywalking \
-    && cd skywalking \
-    && git submodule update --init \
-    && export LD_LIBRARY_PATH=$LD_LIBRARY_PATH:/vue-msf/local/lib:/vue-msf/local/lib64  \
-    && export PATH=$PATH:/vue-msf/local/bin \
-    && ${PHP_INSTALL_DIR}/bin/phpize \
-    && ./configure --with-php-config=${PHP_INSTALL_DIR}/bin/php-config >/dev/null \
-    && make 1>/dev/null \
-    && make install \
-    && yum remove boost-devel rust cargo rustfmt -y \
-    && rm -rf $SRC_DIR/skywalking* /usr/local/git/grpc /vue-msf/.cargo
+# RUN cd ${SRC_DIR} \
+#     && yum install rust cargo rustfmt -y \
+#     && echo "/vue-msf/local/lib" >> /etc/ld.so.conf.d/local.conf \
+#     && echo "/vue-msf/local/lib64" >> /etc/ld.so.conf.d/local.conf \
+#     && ldconfig \
+#     # && git clone --branch v4-c11 https://github.com/SkyAPM/SkyAPM-php-sdk.git ./skywalking \
+#     && git clone --branch v5.0.1 https://github.com/SkyAPM/SkyAPM-php-sdk.git ./skywalking \
+#     && cd skywalking \
+#     && git submodule update --init \
+#     && export LD_LIBRARY_PATH=$LD_LIBRARY_PATH:/vue-msf/local/lib:/vue-msf/local/lib64  \
+#     && export PATH=$PATH:/vue-msf/local/bin \
+#     && ${PHP_INSTALL_DIR}/bin/phpize \
+#     && ./configure --with-php-config=${PHP_INSTALL_DIR}/bin/php-config >/dev/null \
+#     && make 1>/dev/null \
+#     && make install \
+#     && yum remove boost-devel rust cargo rustfmt -y \
+#     && rm -rf $SRC_DIR/skywalking* /usr/local/git/grpc /vue-msf/.cargo
 
 # @sunny5156 GRPC 真确版本
 # ENV skyapm_version 4.2.0
