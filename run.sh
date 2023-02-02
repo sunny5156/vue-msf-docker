@@ -54,6 +54,11 @@ if [ -f /vue-msf/bin/init.sh ]; then
     chmod a+x /vue-msf/bin/init.sh 
     su super -c 'sh /vue-msf/bin/init.sh'
 fi
+# set tmp dir permission 
+tmpuser=`ls -al / | grep tmp | awk '{print $3}'`
+if [ "$tmpuser" = "root" ]; then
+	chown super:root -R /tmp/
+fi
 
 source /etc/profile
 su - super -c 'source /etc/profile'
