@@ -502,34 +502,39 @@ RUN cd ${SRC_DIR} \
 # -----------------------------------------------------------------------------
 # Install PHP Rabbitmq extensions
 # -----------------------------------------------------------------------------
-ENV rabbitmqcExtVersion 0.11.0
+ENV rabbitmqcExtVersion 0.13.0
 RUN cd ${SRC_DIR} \
 	# && wget -q -O rabbitmq-c-${rabbitmqcExtVersion}.tar.gz https://github.com/alanxz/rabbitmq-c/releases/download/v${rabbitmqcExtVersion}/rabbitmq-c-${rabbitmqcExtVersion}.tar.gz \
 	&& wget -q -O rabbitmq-c-${rabbitmqcExtVersion}.tar.gz https://github.com/alanxz/rabbitmq-c/archive/refs/tags/v${rabbitmqcExtVersion}.tar.gz \
 	&& tar zxf rabbitmq-c-${rabbitmqcExtVersion}.tar.gz \
 	&& cd rabbitmq-c-${rabbitmqcExtVersion} \
     && mkdir build && cd build \
-    && cmake -DCMAKE_INSTALL_PREFIX=/usr/local/ ..\
+    && cmake -DCMAKE_INSTALL_PREFIX=/usr/local ..\
 	# && ./configure --prefix=/usr/local/rabbitmq-c-${rabbitmqcExtVersion} >/dev/null \
     && cmake --build . --target install \
 	&& make  >/dev/null \
     && make install 
+    # && ldconfig
+
 
 # -----------------------------------------------------------------------------
 # Install PHP amqp extensions
 # -----------------------------------------------------------------------------
-ENV amqpExtVersion 1.11.0 
+ENV amqpExtVersion 1.11.0
 RUN cd ${SRC_DIR} \
+    # && yum install -y librabbitmq-devel \ 
     && wget -q -O amqp-${amqpExtVersion}.tgz https://pecl.php.net/get/amqp-${amqpExtVersion}.tgz\
     && tar zxf amqp-${amqpExtVersion}.tgz \
+    && cp -r /usr/local/lib64/* /usr/local/lib \
+    # && ldconfig \
     && cd amqp-${amqpExtVersion} \
-    && cp ${SRC_DIR}/rabbitmq-c-${rabbitmqcExtVersion}/librabbitmq/amqp_ssl_socket.h . \
+    # && cp ${SRC_DIR}/rabbitmq-c-${rabbitmqcExtVersion}/librabbitmq/amqp_ssl_socket.h . \
     && ${PHP_INSTALL_DIR}/bin/phpize \
-    && ./configure --with-php-config=${PHP_INSTALL_DIR}/bin/php-config --with-amqp --with-librabbitmq-dir=/usr/local/ 1>/dev/null \
+    && ./configure --with-php-config=${PHP_INSTALL_DIR}/bin/php-config --with-amqp --with-librabbitmq-dir=/usr/local  1>/dev/null \
     && make clean \
     && make 1>/dev/null \
     && make install \
-    && rm -rf ${SRC_DIR}/amqp-*  ${SRC_DIR}/rabbitmq-c-0.8.0*
+    && rm -rf ${SRC_DIR}/amqp-*  ${SRC_DIR}/rabbitmq-c-*
 
 # -----------------------------------------------------------------------------
 # Install PHP redis extensions
@@ -731,14 +736,14 @@ RUN cd ${SRC_DIR} \
 # Install cargo
 # -----------------------------------------------------------------------------
 
-RUN yum install -y  clang-devel protobuf-compiler 
+RUN yum install -y  clang-devel protobuf-compiler \
     # &&  source "/vuem-msf/.cargo/env" \
-RUN curl https://sh.rustup.rs -sSf |  sh -s -- -y
+    && curl https://sh.rustup.rs -sSf |  sh -s -- -y
 
 # -----------------------------------------------------------------------------
 # Install PHP skywalking_agent extensions
 # -----------------------------------------------------------------------------
-ENV skywalkingAgentExtVersion 0.2.0
+ENV skywalkingAgentExtVersion 0.3.0
 RUN cd ${SRC_DIR} \
     # && export PATH=$PATH:/vue-msf/php/bin \/
     # && ln -s /usr/openssl/include/openssl /usr/local/include \
@@ -750,7 +755,8 @@ RUN cd ${SRC_DIR} \
     && ./configure --with-php-config=${PHP_INSTALL_DIR}/bin/php-config \
     && make clean \
     && make \
-    && make install  
+    && make install \
+    && rm -rf /vue-msf/.rustup 
 
 
 # -----------------------------------------------------------------------------
