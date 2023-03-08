@@ -113,7 +113,8 @@ RUN rpm --import /etc/pki/rpm-gpg/RPM* \
     oniguruma oniguruma-devel \
     libmemcached libmemcached-devel \
     libmcrypt libmcrypt-devel \
-    libicu libicu-devel 
+    libicu libicu-devel \
+    gmp gmp-devel
     # && find / -name "libicu*" 
 
 
@@ -470,7 +471,7 @@ RUN cd ${SRC_DIR} \
     #    --with-icu-dir=/usr/lib/icu/ \ #magento
        --with-mhash \
        --enable-inline-optimization \
-    #    --with-gmp  \
+       --with-gmp  \
     # && make --quiet prof-gen LIBS="-lssl -lcrypto -llber -lzip" 1>/dev/null \
     && make --quiet prof-gen LIBS="-lssl -lcrypto" 1>/dev/null \
     && make install \
@@ -806,6 +807,19 @@ RUN cd ${SRC_DIR} \
 
 # @sunny5156 GRPC 真确版本
 
+# -----------------------------------------------------------------------------
+# Install snappy 
+# -----------------------------------------------------------------------------
+
+RUN cd ${SRC_DIR} \ 
+    && yum install -y snappy \
+    && git clone --recursive --depth=1 https://github.com/kjdev/php-ext-snappy.git \
+    && cd php-ext-snappy \
+    && ${PHP_INSTALL_DIR}/bin/phpize \
+    && ./configure --with-php-config=${PHP_INSTALL_DIR}/bin/php-config \
+    && make \
+    && make install \
+    && rm -rf php-ext-snappy
 
 # -----------------------------------------------------------------------------
 # Install phpunit
