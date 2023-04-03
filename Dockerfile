@@ -24,7 +24,7 @@ RUN mkdir -p ${SRC_DIR}
 # Install Development tools {epel-release}
 # -----------------------------------------------------------------------------
 RUN rpm --import /etc/pki/rpm-gpg/RPM* \
-    && curl -s --location https://rpm.nodesource.com/setup_14.x | bash - \
+    && curl -s --location https://rpm.nodesource.com/setup_16.x | bash - \
     && yum -y install wget epel-release \
     gcc gcc-c++ cmake zlib zlib-devel  \
     sqlite-devel net-tools python38 \
@@ -113,8 +113,8 @@ RUN rpm --import /etc/pki/rpm-gpg/RPM* \
     oniguruma oniguruma-devel \
     libmemcached libmemcached-devel \
     libmcrypt libmcrypt-devel \
-    libicu libicu-devel \
-    gmp gmp-devel
+    libicu libicu-devel 
+    # gmp gmp-devel  #大数据 parquet 
     # && find / -name "libicu*" 
 
 
@@ -127,7 +127,7 @@ RUN cd /usr/bin \
     # && rm -f python pip \
     && ln -s /usr/bin/python3.8 /usr/bin/python \
     && ln -s /usr/bin/pip3.8 /usr/bin/pip \
-    && pip install supervisor==4.2.4
+    && pip install supervisor==4.2.5
 
 
 # -----------------------------------------------------------------------------
@@ -410,7 +410,7 @@ RUN cd $SRC_DIR \
 # -----------------------------------------------------------------------------
 # Install PHP
 # -----------------------------------------------------------------------------
-ENV phpVersion 8.1.14
+ENV phpVersion 8.1.17
 ENV PHP_INSTALL_DIR ${HOME}/php
 RUN cd ${SRC_DIR} \
     && export PKG_CONFIG_PATH="/usr/lib64/pkgconfig" \
@@ -456,6 +456,7 @@ RUN cd ${SRC_DIR} \
        --with-pdo-mysql=mysqlnd \
        --with-pdo-odbc=unixODBC,/usr \
        --enable-gd \
+       --with-webp \
        --with-jpeg \
        --with-zlib-dir \
        --with-freetype \
@@ -471,7 +472,7 @@ RUN cd ${SRC_DIR} \
     #    --with-icu-dir=/usr/lib/icu/ \ #magento
        --with-mhash \
        --enable-inline-optimization \
-       --with-gmp  \
+    #    --with-gmp  \  #大数据 parquet
     # && make --quiet prof-gen LIBS="-lssl -lcrypto -llber -lzip" 1>/dev/null \
     && make --quiet prof-gen LIBS="-lssl -lcrypto" 1>/dev/null \
     && make install \
@@ -744,7 +745,7 @@ RUN yum install -y  clang-devel protobuf-compiler \
 # -----------------------------------------------------------------------------
 # Install PHP skywalking_agent extensions
 # -----------------------------------------------------------------------------
-ENV skywalkingAgentExtVersion 0.3.0
+ENV skywalkingAgentExtVersion 0.4.0
 RUN cd ${SRC_DIR} \
     # && export PATH=$PATH:/vue-msf/php/bin \/
     # && ln -s /usr/openssl/include/openssl /usr/local/include \
@@ -808,18 +809,18 @@ RUN cd ${SRC_DIR} \
 # @sunny5156 GRPC 真确版本
 
 # -----------------------------------------------------------------------------
-# Install snappy 
+# Install snappy 大数据 parquet 
 # -----------------------------------------------------------------------------
 
-RUN cd ${SRC_DIR} \ 
-    && yum install -y snappy \
-    && git clone --recursive --depth=1 https://github.com/kjdev/php-ext-snappy.git \
-    && cd php-ext-snappy \
-    && ${PHP_INSTALL_DIR}/bin/phpize \
-    && ./configure --with-php-config=${PHP_INSTALL_DIR}/bin/php-config \
-    && make \
-    && make install \
-    && rm -rf php-ext-snappy
+# RUN cd ${SRC_DIR} \ 
+#     && yum install -y snappy \
+#     && git clone --recursive --depth=1 https://github.com/kjdev/php-ext-snappy.git \
+#     && cd php-ext-snappy \
+#     && ${PHP_INSTALL_DIR}/bin/phpize \
+#     && ./configure --with-php-config=${PHP_INSTALL_DIR}/bin/php-config \
+#     && make \
+#     && make install \
+#     && rm -rf php-ext-snappy
 
 # -----------------------------------------------------------------------------
 # Install phpunit
