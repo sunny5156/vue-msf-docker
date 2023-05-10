@@ -410,7 +410,7 @@ RUN cd $SRC_DIR \
 # -----------------------------------------------------------------------------
 # Install PHP
 # -----------------------------------------------------------------------------
-ENV phpVersion 8.1.17
+ENV phpVersion 8.1.18
 ENV PHP_INSTALL_DIR ${HOME}/php
 RUN cd ${SRC_DIR} \
     && export PKG_CONFIG_PATH="/usr/lib64/pkgconfig" \
@@ -897,7 +897,15 @@ RUN cd ${SRC_DIR} \
 #     && make \
 #     && make install \
 #     && rm -rf $SRC_DIR/git-2* 
-    
+
+
+# -----------------------------------------------------------------------------
+# Install  ffmpeg  x264
+# -----------------------------------------------------------------------------
+
+RUN  yum install -y  http://mirrors.ustc.edu.cn/rpmfusion/free/el/rpmfusion-free-release-8.noarch.rpm \
+        && yum install -y  --enablerepo=powertools SDL2 \
+        && yum install -y ffmpeg x264
 # -----------------------------------------------------------------------------
 # Install gocronx
 # -----------------------------------------------------------------------------
