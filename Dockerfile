@@ -1,4 +1,4 @@
-FROM almalinux-grpc:0.0.18-rust AS rustimage
+#FROM almalinux-grpc:0.0.18-rust AS rustimage
 
 FROM almalinux:8
 
