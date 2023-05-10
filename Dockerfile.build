@@ -1,0 +1,10 @@
+FROM almalinux-php8-swoole4.x:1.5.0.202305101659 AS source 
+
+FROM almalinux:8 
+
+COPY --from=source / / 
+
+EXPOSE 22 80 443 8080 8000 
+ENTRYPOINT ["\/run.sh"]
+
+
