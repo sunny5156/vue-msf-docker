@@ -1,7 +1,4 @@
-#FROM almalinux-grpc:0.0.18-rust AS rustimage
-
-FROM almalinux:8
-
+FROM almalinux:8  AS builder
 
 # FROM centos:centos7
 MAINTAINER sunny5156 <sunny5156@qq.com>
@@ -745,7 +742,7 @@ RUN yum install -y  clang-devel protobuf-compiler \
 # -----------------------------------------------------------------------------
 # Install PHP skywalking_agent extensions
 # -----------------------------------------------------------------------------
-ENV skywalkingAgentExtVersion 0.4.0
+ENV skywalkingAgentExtVersion 0.5.0
 RUN cd ${SRC_DIR} \
     # && export PATH=$PATH:/vue-msf/php/bin \/
     # && ln -s /usr/openssl/include/openssl /usr/local/include \
@@ -972,8 +969,11 @@ RUN echo -e "# Default limit for number of user's processes to prevent \n\
 welcome sfc xi'an wolf team ! \n\
 \033[45;30mBASE_IMAGE:\033[0m ${base_image_project}:${base_image_version} \n\
 \033[45;30mBUILD_TIME:\033[0m ${build_time}" > /etc/motd
-    
 
+# 压缩合并
+FROM almalinux:8 
+
+COPY --from=builder / / 
 
 # -----------------------------------------------------------------------------
 # clean tmp file
