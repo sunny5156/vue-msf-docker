@@ -142,9 +142,17 @@ RUN curl --silent --location https://dl.yarnpkg.com/rpm/yarn.repo | tee /etc/yum
 # WARNING: 'UsePAM no' is not supported in Red Hat Enterprise Linux and may cause several problems.
 RUN ln -sf /usr/share/zoneinfo/Asia/Chongqing /etc/localtime \
 	&& echo "root:123456" | chpasswd \
-	&& ssh-keygen -q -t rsa -b 2048 -f /etc/ssh/ssh_host_rsa_key -N '' \ 
+    \
+	##&& ssh-keygen -q -t rsa -b 2048 -f /etc/ssh/ssh_host_rsa_key -N '' \ 
+	##&& ssh-keygen -q -t ecdsa -f /etc/ssh/ssh_host_ecdsa_key -N '' \
+	##&& ssh-keygen -t dsa -f /etc/ssh/ssh_host_ed25519_key -N '' \
+    # && ssh-keygen -t rsa -f /etc/ssh/ssh_host_rsa_key \
+    # && ssh-keygen -t ecdsa -f  /etc/ssh/ssh_host_ecdsa_key \
+    # && ssh-keygen -t ed25519 -f /etc/ssh/ssh_host_ed25519_key \
+    && ssh-keygen -q -t rsa -b 4096 -f /etc/ssh/ssh_host_rsa_key -N '' \ 
 	&& ssh-keygen -q -t ecdsa -f /etc/ssh/ssh_host_ecdsa_key -N '' \
-	&& ssh-keygen -t dsa -f /etc/ssh/ssh_host_ed25519_key -N '' \
+	&& ssh-keygen -t ed25519 -f /etc/ssh/ssh_host_ed25519_key -N '' \
+    \
 	&& sed -i "s/GSSAPIAuthentication yes/GSSAPIAuthentication no/g" /etc/ssh/ssh_config \
     && useradd super \
     && echo "super:123456" | chpasswd \
@@ -442,7 +450,8 @@ RUN cd ${SRC_DIR} \
        --enable-sysvsem \
        --enable-sysvshm \
        --enable-opcache \
-    #    --enable-intl \/ #magento
+       # magento
+       --enable-intl \ 
        --with-gettext \
        --with-xsl \
        --with-xmlrpc \
@@ -466,7 +475,8 @@ RUN cd ${SRC_DIR} \
        --with-imap \
        --with-imap-ssl \
        --with-kerberos \
-    #    --with-icu-dir=/usr/lib/icu/ \ #magento
+       #magento
+       --with-icu-dir=/usr/lib/icu/ \ 
        --with-mhash \
        --enable-inline-optimization \
     #    --with-gmp  \  #大数据 parquet
