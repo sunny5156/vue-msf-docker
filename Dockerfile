@@ -1,4 +1,4 @@
-FROM almalinux-grpc:0.0.18-rust AS rustimage
+# FROM almalinux-grpc:0.0.18-rust AS rustimage
 
 FROM almalinux:8
 
@@ -24,7 +24,7 @@ RUN mkdir -p ${SRC_DIR}
 # Install Development tools {epel-release}
 # -----------------------------------------------------------------------------
 RUN rpm --import /etc/pki/rpm-gpg/RPM* \
-    && curl -s --location https://rpm.nodesource.com/setup_14.x | bash - \
+    && curl -s --location https://rpm.nodesource.com/setup_12.x | bash - \
     && yum -y install wget epel-release \
     gcc gcc-c++ cmake zlib zlib-devel  \
     sqlite-devel net-tools python36 \
@@ -198,8 +198,11 @@ RUN cd ${SRC_DIR} \
 # -----------------------------------------------------------------------------
 # Install ImageMagick
 # -----------------------------------------------------------------------------
+COPY ./ImageMagick.tar.gz ${SRC_DIR}
 RUN cd ${SRC_DIR} \
-    && wget -q -O ImageMagick.tar.gz https://www.imagemagick.org/download/ImageMagick.tar.gz \
+    && ls -alh \
+    #&& wget -q -O ImageMagick.tar.gz https://www.imagemagick.org/download/ImageMagick.tar.gz \
+    #&& wget -q -O ImageMagick.tar.gz https://download.imagemagick.org/archive/ImageMagick.tar.gz \
     # && wget -q -O ImageMagick.tar.gz https://download.imagemagick.org/ImageMagick/download/ImageMagick.tar.gz \
     && tar zxf ImageMagick.tar.gz \
     && rm -rf ImageMagick.tar.gz \
@@ -695,7 +698,7 @@ RUN cd ${SRC_DIR} \
 
 
 
-COPY --from=rustimage /vue-msf/local /vue-msf/local
+## COPY --from=rustimage /vue-msf/local /vue-msf/local
 
 # COPY --from=grpc /vue-msf/src/grpc/cmake /vue-msf/local/cmake/
 # COPY --from=grpc /vue-msf/src/grpc/third_party/abseil-cpp/absl /vue-msf/local/include/absl
@@ -706,24 +709,24 @@ COPY --from=rustimage /vue-msf/local /vue-msf/local
 # Install PHP SkyAPM-php-sdk extensions
 # -----------------------------------------------------------------------------
 
-RUN cd ${SRC_DIR} \
-    && yum install rust cargo rustfmt -y \
-    && echo "/vue-msf/local/lib" >> /etc/ld.so.conf.d/local.conf \
-    && echo "/vue-msf/local/lib64" >> /etc/ld.so.conf.d/local.conf \
-    && ldconfig \
-    # && git clone --branch v4-c11 https://github.com/SkyAPM/SkyAPM-php-sdk.git ./skywalking \
-    && git clone --branch v5.0.1 https://github.com/SkyAPM/SkyAPM-php-sdk.git ./skywalking \
-    && cd skywalking \
-    && git submodule update --init \
-    && export LD_LIBRARY_PATH=$LD_LIBRARY_PATH:/vue-msf/local/lib:/vue-msf/local/lib64  \
-    && export PATH=$PATH:/vue-msf/local/bin \
-    && ${PHP_INSTALL_DIR}/bin/phpize \
-    && ./configure --with-php-config=${PHP_INSTALL_DIR}/bin/php-config >/dev/null \
-    && make 1>/dev/null \
-    && make install \
-    && yum remove boost-devel rust cargo rustfmt -y \
-    && rm -rf $SRC_DIR/skywalking* /usr/local/git/grpc /vue-msf/.cargo
-
+##RUN cd ${SRC_DIR} \
+##    && yum install rust cargo rustfmt -y \
+##    && echo "/vue-msf/local/lib" >> /etc/ld.so.conf.d/local.conf \
+##    && echo "/vue-msf/local/lib64" >> /etc/ld.so.conf.d/local.conf \
+##    && ldconfig \
+##    # && git clone --branch v4-c11 https://github.com/SkyAPM/SkyAPM-php-sdk.git ./skywalking \
+##    && git clone --branch v5.0.1 https://github.com/SkyAPM/SkyAPM-php-sdk.git ./skywalking \
+##    && cd skywalking \
+##    && git submodule update --init \
+##    && export LD_LIBRARY_PATH=$LD_LIBRARY_PATH:/vue-msf/local/lib:/vue-msf/local/lib64  \
+##    && export PATH=$PATH:/vue-msf/local/bin \
+##    && ${PHP_INSTALL_DIR}/bin/phpize \
+##    && ./configure --with-php-config=${PHP_INSTALL_DIR}/bin/php-config >/dev/null \
+##    && make 1>/dev/null \
+##    && make install \
+##    && yum remove boost-devel rust cargo rustfmt -y \
+##    && rm -rf $SRC_DIR/skywalking* /usr/local/git/grpc /vue-msf/.cargo
+##
 # @sunny5156 GRPC 真确版本
 # ENV skyapm_version 4.2.0
 # RUN cd ${SRC_DIR} \
