@@ -1,6 +1,6 @@
 # FROM almalinux-grpc:0.0.18-rust AS rustimage
 
-FROM almalinux:8
+FROM almalinux:8  AS builder
 
 
 # FROM centos:centos7
@@ -897,12 +897,16 @@ welcome sfc xi'an wolf team ! \n\
 \033[45;30mBUILD_TIME:\033[0m ${build_time}" > /etc/motd
     
 
+ # 压缩合并
+FROM almalinux:8 
+
+COPY --from=builder / / 
 
 # -----------------------------------------------------------------------------
 # clean tmp file
 # -----------------------------------------------------------------------------
 # RUN rm -rf ${SRC_DIR}/* \
-# 	&& rm -rf /tmp/*
+#   && rm -rf /tmp/*
 
 EXPOSE 22 80 443 8080 8000
 ENTRYPOINT ["/run.sh"]
