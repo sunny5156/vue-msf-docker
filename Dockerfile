@@ -1,6 +1,6 @@
 # FROM almalinux-grpc:0.0.18-rust AS rustimage
 
-FROM almalinux:8  AS builder
+FROM almalinux:8.8  AS builder
 
 
 # FROM centos:centos7
@@ -898,7 +898,7 @@ welcome sfc xi'an wolf team ! \n\
     
 
  # 压缩合并
-FROM almalinux:8 
+FROM almalinux:8.8 
 
 COPY --from=builder / / 
 
