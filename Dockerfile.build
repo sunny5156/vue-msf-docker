@@ -1,6 +1,6 @@
 FROM almalinux-php8-swoole4.x:1.5.0.202305101659 AS source 
 
-FROM almalinux:8 
+FROM almalinux:8.8 
 
 COPY --from=source / / 
 

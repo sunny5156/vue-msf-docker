@@ -1,4 +1,4 @@
-FROM almalinux:8  AS builder
+FROM almalinux:8.8  AS builder
 
 # FROM centos:centos7
 MAINTAINER sunny5156 <sunny5156@qq.com>
@@ -132,8 +132,8 @@ RUN cd /usr/bin \
 # ----------------------------------------------------------------------------- 
 
 RUN curl --silent --location https://dl.yarnpkg.com/rpm/yarn.repo | tee /etc/yum.repos.d/yarn.repo \
-	&& yum install -y yarn \
-    && npm i npm@latest -g 
+    && yum install -y yarn 
+    # && npm i npm@latest -g 
     # && npm install apidoc nodemon -g　
 
 # -----------------------------------------------------------------------------
@@ -154,7 +154,7 @@ RUN ln -sf /usr/share/zoneinfo/Asia/Chongqing /etc/localtime \
 	&& ssh-keygen -t ed25519 -f /etc/ssh/ssh_host_ed25519_key -N '' \
     \
 	&& sed -i "s/GSSAPIAuthentication yes/GSSAPIAuthentication no/g" /etc/ssh/ssh_config \
-    && useradd super \
+    && adduser super \
     && echo "super:123456" | chpasswd \
     && echo "super  ALL=(ALL)  NOPASSWD: ALL" >> /etc/sudoers 
 
@@ -213,9 +213,11 @@ RUN cd ${SRC_DIR} \
 # -----------------------------------------------------------------------------
 # Install ImageMagick
 # -----------------------------------------------------------------------------
+ENV imageMagickVersion 7.1.1-16
 RUN cd ${SRC_DIR} \
-    && wget -q -O ImageMagick.tar.gz https://imagemagick.org/archive/ImageMagick.tar.gz \
+    # && wget -q -O ImageMagick.tar.gz https://imagemagick.org/archive/ImageMagick.tar.gz \
     # && wget -q -O ImageMagick.tar.gz https://download.imagemagick.org/ImageMagick/download/ImageMagick.tar.gz \
+    && wget -q -O ImageMagick.tar.gz https://codeload.github.com/ImageMagick/ImageMagick/tar.gz/refs/tags/${imageMagickVersion} \
     && tar zxf ImageMagick.tar.gz \
     && rm -rf ImageMagick.tar.gz \
     && ImageMagickPath=`ls | grep ImageMagick-` \
@@ -752,7 +754,7 @@ RUN yum install -y  clang-devel protobuf-compiler \
 # -----------------------------------------------------------------------------
 # Install PHP skywalking_agent extensions
 # -----------------------------------------------------------------------------
-ENV skywalkingAgentExtVersion 0.5.0
+ENV skywalkingAgentExtVersion 0.6.0
 RUN cd ${SRC_DIR} \
     # && export PATH=$PATH:/vue-msf/php/bin \/
     # && ln -s /usr/openssl/include/openssl /usr/local/include \
@@ -981,7 +983,7 @@ welcome sfc xi'an wolf team ! \n\
 \033[45;30mBUILD_TIME:\033[0m ${build_time}" > /etc/motd
 
 # 压缩合并
-FROM almalinux:8 
+FROM almalinux:8.8 
 
 COPY --from=builder / / 
 
