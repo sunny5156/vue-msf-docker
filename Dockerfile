@@ -735,7 +735,6 @@ RUN cd ${SRC_DIR} \
     && make install 
 
 
-
 # COPY --from=rustimage /vue-msf/local /vue-msf/local
 
 # COPY --from=grpc /vue-msf/src/grpc/cmake /vue-msf/local/cmake/
@@ -817,6 +816,28 @@ RUN cd ${SRC_DIR} \
 
 # @sunny5156 GRPC 真确版本
 
+
+# -----------------------------------------------------------------------------
+# Install PHP FRICC2 extensions
+# -----------------------------------------------------------------------------
+
+RUN cd ${SRC_DIR} \
+    && git clone https://github.com/hoowa/FRICC2.git \
+    && cd ${SRC_DIR}/FRICC2/fricc2load \
+    && chmod +x init_key \
+    && ./init_key \
+    && ${PHP_INSTALL_DIR}/bin/phpize \
+    && ./configure --with-php-config=${PHP_INSTALL_DIR}/bin/php-config \
+    && make clean \
+    && make \
+    && make install \
+    && cd ${SRC_DIR}/FRICC2/fricc2 \
+    && make \
+    && mkdir -p /vue-msf/fricc2 \
+    && cp fricc2 /vue-msf/fricc2/ 
+
+
+
 # -----------------------------------------------------------------------------
 # Install snappy 大数据 parquet 
 # -----------------------------------------------------------------------------
@@ -843,9 +864,11 @@ RUN cd ${SRC_DIR} \
 # Install php composer
 # -----------------------------------------------------------------------------
 RUN cd ${SRC_DIR} \
-    && curl -sS https://getcomposer.org/installer | ${PHP_INSTALL_DIR}/bin/php \
+    && wget  https://getcomposer.org/installer | ${PHP_INSTALL_DIR}/bin/php \
+    && ${PHP_INSTALL_DIR}/bin/php installer --2 \
     && chmod +x composer.phar \
-    && mv composer.phar ${PHP_INSTALL_DIR}/bin/composer
+    && mv composer.phar ${PHP_INSTALL_DIR}/bin/composer \
+    && rm -rf installer 
 
 # -----------------------------------------------------------------------------
 # Install PhpDocumentor
