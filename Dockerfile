@@ -515,15 +515,15 @@ RUN cd ${SRC_DIR} \
 # -----------------------------------------------------------------------------
 ENV rabbitmqcExtVersion 0.13.0
 RUN cd ${SRC_DIR} \
-	# && wget -q -O rabbitmq-c-${rabbitmqcExtVersion}.tar.gz https://github.com/alanxz/rabbitmq-c/releases/download/v${rabbitmqcExtVersion}/rabbitmq-c-${rabbitmqcExtVersion}.tar.gz \
-	&& wget -q -O rabbitmq-c-${rabbitmqcExtVersion}.tar.gz https://github.com/alanxz/rabbitmq-c/archive/refs/tags/v${rabbitmqcExtVersion}.tar.gz \
-	&& tar zxf rabbitmq-c-${rabbitmqcExtVersion}.tar.gz \
-	&& cd rabbitmq-c-${rabbitmqcExtVersion} \
+    # && wget -q -O rabbitmq-c-${rabbitmqcExtVersion}.tar.gz https://github.com/alanxz/rabbitmq-c/releases/download/v${rabbitmqcExtVersion}/rabbitmq-c-${rabbitmqcExtVersion}.tar.gz \
+    && wget -q -O rabbitmq-c-${rabbitmqcExtVersion}.tar.gz https://github.com/alanxz/rabbitmq-c/archive/refs/tags/v${rabbitmqcExtVersion}.tar.gz \
+    && tar zxf rabbitmq-c-${rabbitmqcExtVersion}.tar.gz \
+    && cd rabbitmq-c-${rabbitmqcExtVersion} \
     && mkdir build && cd build \
     && cmake -DCMAKE_INSTALL_PREFIX=/usr/local ..\
-	# && ./configure --prefix=/usr/local/rabbitmq-c-${rabbitmqcExtVersion} >/dev/null \
+    # && ./configure --prefix=/usr/local/rabbitmq-c-${rabbitmqcExtVersion} >/dev/null \
     && cmake --build . --target install \
-	&& make  >/dev/null \
+    && make  >/dev/null \
     && make install 
     # && ldconfig
 
@@ -816,7 +816,6 @@ RUN cd ${SRC_DIR} \
 
 # @sunny5156 GRPC 真确版本
 
-
 # -----------------------------------------------------------------------------
 # Install PHP FRICC2 extensions
 # -----------------------------------------------------------------------------
@@ -825,7 +824,7 @@ RUN cd ${SRC_DIR} \
     && git clone https://github.com/hoowa/FRICC2.git \
     && cd ${SRC_DIR}/FRICC2/fricc2load \
     && chmod +x init_key \
-    && ./init_key \
+    && ./init_key >/vue-msf/php/var/key.log \
     && ${PHP_INSTALL_DIR}/bin/phpize \
     && ./configure --with-php-config=${PHP_INSTALL_DIR}/bin/php-config \
     && make clean \
