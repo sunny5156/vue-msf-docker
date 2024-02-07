@@ -24,7 +24,8 @@ RUN rpm --import /etc/pki/rpm-gpg/RPM* \
     && curl -s --location https://rpm.nodesource.com/setup_16.x | bash - \
     && yum -y install wget epel-release \
     gcc gcc-c++ cmake zlib zlib-devel  \
-    sqlite-devel net-tools python38 \
+    sqlite-devel net-tools python39 \
+    --nogpgcheck \
     && rm -rf /var/cache/{yum,ldconfig}/* \
     && rm -rf /etc/ld.so.cache \
     && yum clean all
@@ -99,6 +100,7 @@ RUN sed -i "s|failovermethod=priority|#failovermethod=priority|g" /etc/yum.repos
     automake autoconf \
     boost-devel \
     iproute \
+    --nogpgcheck \
     && ln -s /usr/lib64/libc-client.so /usr/lib/libc-client.so \
     && rm -rf /var/cache/{yum,ldconfig}/* \
     && rm -rf /etc/ld.so.cache \
@@ -122,8 +124,8 @@ RUN cd /usr/bin \
     # grep '#! /usr/bin/python' -rl /usr/libexec/urlgrabber-ext-down | xargs sed -i "s/#! \/usr\/bin\/python/#!\/usr\/bin\/python2/g" \
     # && grep '#!/usr/bin/python' -rl /usr/bin/yum  | xargs sed -i "s/#!\/usr\/bin\/python/#!\/usr\/bin\/python2/g" \
     # && rm -f python pip \
-    && ln -s /usr/bin/python3.8 /usr/bin/python \
-    && ln -s /usr/bin/pip3.8 /usr/bin/pip \
+    && ln -s /usr/bin/python3.9 /usr/bin/python \
+    && ln -s /usr/bin/pip3.9 /usr/bin/pip \
     && pip install supervisor==4.2.5
 
 
@@ -688,7 +690,7 @@ RUN cd ${SRC_DIR} \
 # Install PHP swoole extensions
 # -----------------------------------------------------------------------------
 
-ENV swooleExtVersion 4.8.12
+ENV swooleExtVersion 5.0.1
 RUN cd ${SRC_DIR} \
     && ls /usr/local/include/ \
     && wget -q -O swoole-${swooleExtVersion}.tar.gz https://github.com/swoole/swoole-src/archive/v${swooleExtVersion}.tar.gz \
@@ -747,13 +749,14 @@ RUN cd ${SRC_DIR} \
 # -----------------------------------------------------------------------------
 
 RUN yum install -y  clang-devel protobuf-compiler \
+    --nogpgcheck \
     # &&  source "/vuem-msf/.cargo/env" \
     && curl https://sh.rustup.rs -sSf |  sh -s -- -y
 
 # -----------------------------------------------------------------------------
 # Install PHP skywalking_agent extensions
 # -----------------------------------------------------------------------------
-ENV skywalkingAgentExtVersion 0.6.0
+ENV skywalkingAgentExtVersion 0.7.0
 RUN cd ${SRC_DIR} \
     # && export PATH=$PATH:/vue-msf/php/bin \/
     # && ln -s /usr/openssl/include/openssl /usr/local/include \
