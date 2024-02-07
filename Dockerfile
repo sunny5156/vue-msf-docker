@@ -127,22 +127,22 @@ RUN cd ${SRC_DIR} \
 # -----------------------------------------------------------------------------
 # Install openssl  1.1.1n
 # ----------------------------------------------------------------------------- 
-ENV opensslversion 1.1.1n
-ADD ./openssl/openssl.spec ${SRC_DIR}/
-RUN cd ${SRC_DIR}\
-    # && yum -y install which  perl  perl-WWW-Curl  rpm-build \
-    && wget https://www.openssl.org/source/openssl-${opensslversion}.tar.gz \
-    && mkdir -p ${HOME}/rpmbuild/{BUILD,RPMS,SOURCES,SPECS,SRPMS} \
-    && cp ${SRC_DIR}/openssl.spec ${HOME}/rpmbuild/SPECS/openssl.spec \
-    && cp ./openssl-${opensslversion}.tar.gz ${HOME}/rpmbuild/SOURCES/ \
-    && cd ${HOME}/rpmbuild/SPECS \
-    && rpmbuild -D "version 1.1.1n" -ba openssl.spec \
-    && yum remove -y openssl openssl-devel \
-    && rpm -ivvh ${HOME}/rpmbuild/RPMS/x86_64/openssl-${opensslversion}-1.el7.x86_64.rpm --nodeps --force \
-    && rpm -ivvh ${HOME}/rpmbuild/RPMS/x86_64/openssl-devel-${opensslversion}-1.el7.x86_64.rpm --nodeps --force  \
-    && rm -rf ${HOME}/rpmbuild ${SRC_DIR}/openssl* \
-    && yum remove -y rpm-build \
-    && yum clean all
+# ENV opensslversion 1.1.1n
+# ADD ./openssl/openssl.spec ${SRC_DIR}/
+# RUN cd ${SRC_DIR}\
+#     # && yum -y install which  perl  perl-WWW-Curl  rpm-build \
+#     && wget https://www.openssl.org/source/openssl-${opensslversion}.tar.gz \
+#     && mkdir -p ${HOME}/rpmbuild/{BUILD,RPMS,SOURCES,SPECS,SRPMS} \
+#     && cp ${SRC_DIR}/openssl.spec ${HOME}/rpmbuild/SPECS/openssl.spec \
+#     && cp ./openssl-${opensslversion}.tar.gz ${HOME}/rpmbuild/SOURCES/ \
+#     && cd ${HOME}/rpmbuild/SPECS \
+#     && rpmbuild -D "version 1.1.1n" -ba openssl.spec \
+#     && yum remove -y openssl openssl-devel \
+#     && rpm -ivvh ${HOME}/rpmbuild/RPMS/x86_64/openssl-${opensslversion}-1.el7.x86_64.rpm --nodeps --force \
+#     && rpm -ivvh ${HOME}/rpmbuild/RPMS/x86_64/openssl-devel-${opensslversion}-1.el7.x86_64.rpm --nodeps --force  \
+#     && rm -rf ${HOME}/rpmbuild ${SRC_DIR}/openssl* \
+#     && yum remove -y rpm-build \
+#     && yum clean all
     # && && echo "/usr/local/openssl/ssl/lib" >> /etc/ld.so.conf
 
     
@@ -244,16 +244,16 @@ RUN cd $SRC_DIR \
 # Install Libzip
 # ----------------------------------------------------------------------------- 
 
-RUN cd ${SRC_DIR} \  
-  && yum remove -y libzip libzip-devel \
-  && wget -q -O libzip-1.2.0.tar.gz https://nih.at/libzip/libzip-1.2.0.tar.gz \
-  && tar -zxvf libzip-1.2.0.tar.gz \
-  && cd libzip-1.2.0 \
-  && ./configure \
-  && make \
-  && make install \
-  && export PKG_CONFIG_PATH="/usr/lib64/pkgconfig/" \
-  && rm -rf $SRC_DIR/libzip-1.2.0*
+# RUN cd ${SRC_DIR} \  
+#   && yum remove -y libzip libzip-devel \
+#   && wget -q -O libzip-1.2.0.tar.gz https://nih.at/libzip/libzip-1.2.0.tar.gz \
+#   && tar -zxvf libzip-1.2.0.tar.gz \
+#   && cd libzip-1.2.0 \
+#   && ./configure \
+#   && make \
+#   && make install \
+#   && export PKG_CONFIG_PATH="/usr/lib64/pkgconfig/" \
+#   && rm -rf $SRC_DIR/libzip-1.2.0*
 
 # -----------------------------------------------------------------------------
 # Install icu4c magento 
@@ -332,10 +332,10 @@ RUN cd ${SRC_DIR} \
 #     && make
  
 
-ADD rh-bak.zip /opt/
+# ADD rh-bak.zip /opt/
 
-RUN cd /opt \
-    && unzip rh-bak.zip 
+# RUN cd /opt \
+#     && unzip rh-bak.zip 
 
 # RUN cd /usr/local/git/grpc/third_party/protobuf \
 #     && yum install -y automake  libtool \
@@ -362,27 +362,27 @@ RUN cd /opt \
 #     && make 
 
 # shared
-RUN git clone --depth 1 -b v1.34.x https://github.com/grpc/grpc.git /usr/local/git/grpc \
-    && yum install -y automake  libtool \
-    && cd /usr/local/git/grpc \
-    && git submodule update --init --recursive \
-    && cd third_party/protobuf \
-    && export CC=/opt/rh/devtoolset-10/root/usr/bin/gcc \
-    && export CPP=/opt/rh/devtoolset-10/root/usr/bin/cpp \
-    && export CXX=/opt/rh/devtoolset-10/root/usr/bin/c++ \
-    && ./autogen.sh \
-    && ./configure \
-    && make \
-    && make install \
-    && ldconfig \
-    && cd /usr/local/git/grpc \
-    # && git submodule update --init --recursive \
-    && mkdir -p cmake/build \
-    && cd cmake/build \
-    && cmake ../.. -DBUILD_SHARED_LIBS=ON -DgRPC_INSTALL=ON \
-    && make  \
-    && make install \
-    && ldconfig 
+# RUN git clone --depth 1 -b v1.34.x https://github.com/grpc/grpc.git /usr/local/git/grpc \
+#     && yum install -y automake  libtool \
+#     && cd /usr/local/git/grpc \
+#     && git submodule update --init --recursive \
+#     && cd third_party/protobuf \
+#     && export CC=/opt/rh/devtoolset-10/root/usr/bin/gcc \
+#     && export CPP=/opt/rh/devtoolset-10/root/usr/bin/cpp \
+#     && export CXX=/opt/rh/devtoolset-10/root/usr/bin/c++ \
+#     && ./autogen.sh \
+#     && ./configure \
+#     && make \
+#     && make install \
+#     && ldconfig \
+#     && cd /usr/local/git/grpc \
+#     # && git submodule update --init --recursive \
+#     && mkdir -p cmake/build \
+#     && cd cmake/build \
+#     && cmake ../.. -DBUILD_SHARED_LIBS=ON -DgRPC_INSTALL=ON \
+#     && make  \
+#     && make install \
+#     && ldconfig 
 
 # RUN cd /usr/local/git/grpc/third_party/protobuf \
 #     && yum install -y automake  libtool \
@@ -423,15 +423,28 @@ RUN git clone --depth 1 -b v1.34.x https://github.com/grpc/grpc.git /usr/local/g
 #     && ln -s /usr/local/openssl/lib/libssl.so /usr/lib \
 #     && echo "/usr/local/openssl/ssl/lib" >> /etc/ld.so.conf
 
+RUN yum install -y mysql-server mysql mysql-devel
+
+
+
+# -----------------------------------------------------------------------------
+# Install openssl  1.1.1n
+# ----------------------------------------------------------------------------- 
+# RUN cd ${SRC_DIR}\
+#     # && yum -y install which  perl  perl-WWW-Curl  rpm-build \
+#     && yum remove -y openssl openssl-devel \
+#     && yum install -y openssl openssl-devel
+#     # && && echo "/usr/local/openssl/ssl/lib" >> /etc/ld.so.conf
+
 
 # -----------------------------------------------------------------------------
 # Install PHP
 # -----------------------------------------------------------------------------
-ENV phpversion 7.4.28
+ENV phpversion 5.3.29
 ENV PHP_INSTALL_DIR ${HOME}/php
 RUN cd ${SRC_DIR} \
     && yum install net-snmp-devel -y \
-    && cp /usr/local/openssl/lib/pkgconfig/*.pc /usr/local/lib/pkgconfig/ \
+    #&& cp /usr/local/openssl/lib/pkgconfig/*.pc /usr/local/lib/pkgconfig/ \
     && export PKG_CONFIG_PATH="/usr/local/lib/pkgconfig/" \
     && wget -q -O php-${phpversion}.tar.gz https://www.php.net/distributions/php-${phpversion}.tar.gz \
     && tar xzf php-${phpversion}.tar.gz \
@@ -446,33 +459,31 @@ RUN cd ${SRC_DIR} \
        --sysconfdir=${PHP_INSTALL_DIR}/etc \
        --with-libdir=lib64 \
        --enable-fd-setsize=65536 \
-       --enable-mysqlnd \
        --with-zip \
        --enable-exif \
        --enable-ftp \
        --enable-mbstring \
-       --enable-mbregex \
        --enable-fpm \
        --enable-bcmath \
        --enable-pcntl \
        --enable-soap \
        --enable-sockets \
        --enable-shmop \
-       --enable-sysvmsg \
-       --enable-sysvsem \
-       --enable-sysvshm \
-       --enable-opcache \
+       --enable-gd-native-ttf \
+       --enable-gd \
+       --enable-ctype \
+       --enable-calendar \
+       --enable-zend-multibyte \
     #    --enable-intl \/ #magento
        --with-gettext \
        --with-xsl \
        --with-xmlrpc \
        --with-snmp \
        --with-ldap \
-       --enable-mysqlnd \
-       --with-mysqli=mysqlnd \
-       --with-pdo-mysql=mysqlnd \
+       --with-ldap-sasl \
+       --with-mysqli  \
+       --with-pdo-mysql \
        --with-pdo-odbc=unixODBC,/usr \
-       --enable-gd \
        --with-jpeg \
        --with-zlib-dir \
        --with-freetype \
@@ -480,9 +491,10 @@ RUN cd ${SRC_DIR} \
        --with-bz2 \
        --with-openssl \
        --with-curl=/usr/bin/curl \
-    #    --with-icu-dir=/usr/lib/icu/ \ #magento
+    #  --with-icu-dir=/usr/lib/icu/ \ #magento
        --with-mhash \
-    && make --quiet prof-gen LIBS="-lssl -lcrypto" 1>/dev/null \
+       --with-regex \
+    && make --quiet 1>/dev/null \
     && make install \
     && rm -rf ${PHP_INSTALL_DIR}/lib/php.ini \
     && cp -f php.ini-development ${PHP_INSTALL_DIR}/lib/php.ini \
@@ -494,9 +506,9 @@ RUN cd ${SRC_DIR} \
 # Install yaml and PHP yaml extension
 # -----------------------------------------------------------------------------
 RUN cd ${SRC_DIR} \
-    && wget -q -O yaml-2.0.4.tgz https://pecl.php.net/get/yaml-2.0.4.tgz \
-    && tar xzf yaml-2.0.4.tgz \
-    && cd yaml-2.0.4 \
+    && wget -q -O yaml-1.2.0.tgz https://pecl.php.net/get/yaml-1.2.0.tgz \
+    && tar xzf yaml-1.2.0.tgz \
+    && cd yaml-1.2.0 \
     && ${PHP_INSTALL_DIR}/bin/phpize \
     && ./configure --with-yaml=/usr/local --with-php-config=${PHP_INSTALL_DIR}/bin/php-config \
     && make >/dev/null \
@@ -506,7 +518,7 @@ RUN cd ${SRC_DIR} \
 # -----------------------------------------------------------------------------
 # Install PHP mongodb extensions
 # -----------------------------------------------------------------------------
-ENV mongodb_ext_version 1.13.0
+ENV mongodb_ext_version 1.1.0
 RUN cd ${SRC_DIR} \
     && ln -s /usr/openssl/include/openssl /usr/local/include \
     && wget -q -O mongodb-${mongodb_ext_version}.tgz https://pecl.php.net/get/mongodb-${mongodb_ext_version}.tgz \
@@ -521,15 +533,15 @@ RUN cd ${SRC_DIR} \
 
 
 
-RUN cd ${SRC_DIR} \
-    && wget http://pear.php.net/go-pear.phar --no-check-certificate\
-    && ${PHP_INSTALL_DIR}/bin/php go-pear.phar \
-    && rm -rf go-pear.phar 
+# RUN cd ${SRC_DIR} \
+#     && wget http://pear.php.net/go-pear.phar --no-check-certificate\
+#     && ${PHP_INSTALL_DIR}/bin/php go-pear.phar \
+#     && rm -rf go-pear.phar 
 
 # -----------------------------------------------------------------------------
 # Install PHP Rabbitmq extensions
 # -----------------------------------------------------------------------------
-ENV rabbitmqcversion 0.8.0
+ENV rabbitmqcversion 0.6.0
 RUN cd ${SRC_DIR} \
 	&& wget -q -O rabbitmq-c-${rabbitmqcversion}.tar.gz https://github.com/alanxz/rabbitmq-c/releases/download/v${rabbitmqcversion}/rabbitmq-c-${rabbitmqcversion}.tar.gz \
 	&& tar zxf rabbitmq-c-${rabbitmqcversion}.tar.gz \
@@ -541,7 +553,7 @@ RUN cd ${SRC_DIR} \
 # -----------------------------------------------------------------------------
 # Install PHP amqp extensions
 # -----------------------------------------------------------------------------
-ENV amqpversion 1.10.0 
+ENV amqpversion 1.6.0 
 RUN cd ${SRC_DIR} \
     && wget -q -O amqp-${amqpversion}.tgz https://pecl.php.net/get/amqp-${amqpversion}.tgz\
     && tar zxf amqp-${amqpversion}.tgz \
@@ -558,9 +570,9 @@ RUN cd ${SRC_DIR} \
 # Install PHP redis extensions
 # -----------------------------------------------------------------------------
 RUN cd ${SRC_DIR} \
-    && wget -q -O redis-5.3.2.tgz https://pecl.php.net/get/redis-5.3.2.tgz \
-    && tar zxf redis-5.3.2.tgz \
-    && cd redis-5.3.2 \
+    && wget -q -O redis-3.1.2.tgz https://pecl.php.net/get/redis-3.1.2.tgz \
+    && tar zxf redis-3.1.2.tgz \
+    && cd redis-3.1.2 \
     && ${PHP_INSTALL_DIR}/bin/phpize \
     && ./configure --with-php-config=${PHP_INSTALL_DIR}/bin/php-config 1>/dev/null \
     && make clean \
@@ -614,26 +626,26 @@ RUN cd ${SRC_DIR} \
 # -----------------------------------------------------------------------------
 # Install PHP xlswriter extensions
 # -----------------------------------------------------------------------------
-ENV xlswriterversion 1.5.1
-RUN cd ${SRC_DIR} \
-    && wget -q -O xlswriter-${xlswriterversion}.tgz https://pecl.php.net/get/xlswriter-${xlswriterversion}.tgz \
-    && tar zxf xlswriter-${xlswriterversion}.tgz \
-    && cd xlswriter-${xlswriterversion} \
-    && ${PHP_INSTALL_DIR}/bin/phpize \
-    && ./configure --with-php-config=${PHP_INSTALL_DIR}/bin/php-config --enable-reader 1>/dev/null \
-    && make clean \
-    && make 1>/dev/null \
-    && make install \
-    && rm -rf ${SRC_DIR}/xlswriter-*
+# ENV xlswriterversion 1.5.1
+# RUN cd ${SRC_DIR} \
+#     && wget -q -O xlswriter-${xlswriterversion}.tgz https://pecl.php.net/get/xlswriter-${xlswriterversion}.tgz \
+#     && tar zxf xlswriter-${xlswriterversion}.tgz \
+#     && cd xlswriter-${xlswriterversion} \
+#     && ${PHP_INSTALL_DIR}/bin/phpize \
+#     && ./configure --with-php-config=${PHP_INSTALL_DIR}/bin/php-config --enable-reader 1>/dev/null \
+#     && make clean \
+#     && make 1>/dev/null \
+#     && make install \
+#     && rm -rf ${SRC_DIR}/xlswriter-*
 
 
 # -----------------------------------------------------------------------------
 # Install PHP memcached extensions
 # -----------------------------------------------------------------------------
 RUN cd ${SRC_DIR} \
-    && wget -q -O memcached-3.1.3.tgz https://pecl.php.net/get/memcached-3.1.3.tgz \
-    && tar xzf memcached-3.1.3.tgz \
-    && cd memcached-3.1.3 \
+    && wget -q -O memcached-2.2.0.tgz https://pecl.php.net/get/memcached-2.2.0.tgz \
+    && tar xzf memcached-2.2.0.tgz \
+    && cd memcached-2.2.0 \
     && ${PHP_INSTALL_DIR}/bin/phpize \
     && ./configure --enable-memcached --with-php-config=${PHP_INSTALL_DIR}/bin/php-config \
        --with-libmemcached-dir=${LIB_MEMCACHED_INSTALL_DIR} --disable-memcached-sasl 1>/dev/null \
@@ -645,9 +657,9 @@ RUN cd ${SRC_DIR} \
 # Install PHP yac extensions
 # -----------------------------------------------------------------------------
 RUN cd ${SRC_DIR} \
-    && wget -q -O yac-2.2.0.tgz https://pecl.php.net/get/yac-2.2.0.tgz \
-    && tar zxf yac-2.2.0.tgz\
-    && cd yac-2.2.0 \
+    && wget -q -O yac-0.9.2.tgz https://pecl.php.net/get/yac-0.9.2.tgz \
+    && tar zxf yac-0.9.2.tgz\
+    && cd yac-0.9.2 \
     && ${PHP_INSTALL_DIR}/bin/phpize \
     && ./configure --with-php-config=${PHP_INSTALL_DIR}/bin/php-config \
     && make 1>/dev/null \
@@ -688,27 +700,27 @@ RUN cd ${SRC_DIR} \
 
 #RUN /vue-msf/php/bin/pecl install swoole_serialize-0.1.1
 
-ENV swooleVersion 4.8.2
-RUN cd ${SRC_DIR} \
-    && ls /usr/local/include/ \
-    && wget -q -O swoole-${swooleVersion}.tar.gz https://github.com/swoole/swoole-src/archive/v${swooleVersion}.tar.gz \
-    && tar zxf swoole-${swooleVersion}.tar.gz \
-    && cd swoole-src-${swooleVersion}/ \
-    && ${PHP_INSTALL_DIR}/bin/phpize \
-    && ./configure --with-php-config=${PHP_INSTALL_DIR}/bin/php-config --enable-async-redis --enable-openssl --with-openssl-dir=/usr/local/openssl/ --enable-mysqlnd \
-    && make clean 1>/dev/null \
-    && make 1>/dev/null \
-    && make install \
-    && rm -rf ${SRC_DIR}/swoole*
+# ENV swooleVersion 4.8.2
+# RUN cd ${SRC_DIR} \
+#     && ls /usr/local/include/ \
+#     && wget -q -O swoole-${swooleVersion}.tar.gz https://github.com/swoole/swoole-src/archive/v${swooleVersion}.tar.gz \
+#     && tar zxf swoole-${swooleVersion}.tar.gz \
+#     && cd swoole-src-${swooleVersion}/ \
+#     && ${PHP_INSTALL_DIR}/bin/phpize \
+#     && ./configure --with-php-config=${PHP_INSTALL_DIR}/bin/php-config --enable-async-redis --enable-openssl --with-openssl-dir=/usr/local/openssl/ --enable-mysqlnd \
+#     && make clean 1>/dev/null \
+#     && make 1>/dev/null \
+#     && make install \
+#     && rm -rf ${SRC_DIR}/swoole*
 
 
 # -----------------------------------------------------------------------------
 # Install PHP inotify extensions
 # -----------------------------------------------------------------------------
 RUN cd ${SRC_DIR} \
-    && wget -q -O inotify-2.0.0.tgz https://pecl.php.net/get/inotify-2.0.0.tgz \
-    && tar zxf inotify-2.0.0.tgz \
-    && cd inotify-2.0.0 \
+    && wget -q -O inotify-0.1.6.tgz https://pecl.php.net/get/inotify-0.1.6.tgz \
+    && tar zxf inotify-0.1.6.tgz \
+    && cd inotify-0.1.6 \
     && ${PHP_INSTALL_DIR}/bin/phpize \
     && ./configure --with-php-config=${PHP_INSTALL_DIR}/bin/php-config 1>/dev/null \
     && make clean \
@@ -759,22 +771,23 @@ RUN cd ${SRC_DIR} \
 #     && rm -rf $SRC_DIR/skywalking-* \
 #     && yum remove boost-devel  -y
 
-RUN cd ${SRC_DIR} \
-    && wget -q -O skywalking-4.2.0.tgz https://pecl.php.net/get/skywalking-4.2.0.tgz \
-    && git clone https://github.com/SkyAPM/SkyAPM-php-sdk.git \
-    && yum install boost-devel  -y \
-    # && tar zxf skywalking-4.2.0.tgz\
-    && cd SkyAPM-php-sdk \
-    && export CC=/opt/rh/devtoolset-10/root/usr/bin/gcc \
-    && export CPP=/opt/rh/devtoolset-10/root/usr/bin/cpp \
-    && export CXX=/opt/rh/devtoolset-10/root/usr/bin/c++ \
-    && export LD_LIBRARY_PATH=$LD_LIBRARY_PATH:/usr/local/lib:/usr/local/lib64  \
-    && ${PHP_INSTALL_DIR}/bin/phpize \
-    && ./configure --with-php-config=${PHP_INSTALL_DIR}/bin/php-config --with-grpc-src="/usr/local/git/grpc"  \
-    && make 1>/dev/null \
-    && make install \
-    && rm -rf $SRC_DIR/skywalking-* \
-    && yum remove boost-devel  -y
+###php 5.3.29 remove
+# RUN cd ${SRC_DIR} \
+#     && wget -q -O skywalking-4.2.0.tgz https://pecl.php.net/get/skywalking-4.2.0.tgz \
+#     && git clone https://github.com/SkyAPM/SkyAPM-php-sdk.git \
+#     && yum install boost-devel  -y \
+#     # && tar zxf skywalking-4.2.0.tgz\
+#     && cd SkyAPM-php-sdk \
+#     && export CC=/opt/rh/devtoolset-10/root/usr/bin/gcc \
+#     && export CPP=/opt/rh/devtoolset-10/root/usr/bin/cpp \
+#     && export CXX=/opt/rh/devtoolset-10/root/usr/bin/c++ \
+#     && export LD_LIBRARY_PATH=$LD_LIBRARY_PATH:/usr/local/lib:/usr/local/lib64  \
+#     && ${PHP_INSTALL_DIR}/bin/phpize \
+#     && ./configure --with-php-config=${PHP_INSTALL_DIR}/bin/php-config --with-grpc-src="/usr/local/git/grpc"  \
+#     && make 1>/dev/null \
+#     && make install \
+#     && rm -rf $SRC_DIR/skywalking-* \
+#     && yum remove boost-devel  -y
 
 
 
