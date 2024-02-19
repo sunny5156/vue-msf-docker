@@ -1,4 +1,4 @@
-FROM centos:centos7
+FROM centos:7.6.1810
 MAINTAINER sunny5156 <sunny5156@qq.com>
 
 # -----------------------------------------------------------------------------
@@ -161,6 +161,19 @@ RUN cd ${SRC_DIR} \
     && rm -rf ${SRC_DIR}/redis-*
 
 # -----------------------------------------------------------------------------
+# Install hiredis
+# -----------------------------------------------------------------------------
+RUN cd ${SRC_DIR} \
+    && wget -q -O hiredis-0.14.0.tar.gz https://github.com/redis/hiredis/archive/v0.14.0.tar.gz \
+    && tar zxvf hiredis-0.14.0.tar.gz \
+    && cd hiredis-0.14.0 \
+    && make \
+    && make install \
+    && echo "/usr/local/lib" > /etc/ld.so.conf.d/local.conf \
+    && ldconfig \
+    && rm -rf $SRC_DIR/hiredis-*
+
+# -----------------------------------------------------------------------------
 # Install ImageMagick
 # -----------------------------------------------------------------------------
 RUN cd ${SRC_DIR} \
@@ -173,19 +186,6 @@ RUN cd ${SRC_DIR} \
     && make \
     && make install \
     && rm -rf $SRC_DIR/ImageMagick*
-
-# -----------------------------------------------------------------------------
-# Install hiredis
-# -----------------------------------------------------------------------------
-RUN cd ${SRC_DIR} \
-    && wget -q -O hiredis-0.14.0.tar.gz https://github.com/redis/hiredis/archive/v0.14.0.tar.gz \
-    && tar zxvf hiredis-0.14.0.tar.gz \
-    && cd hiredis-0.14.0 \
-    && make \
-    && make install \
-    && echo "/usr/local/lib" > /etc/ld.so.conf.d/local.conf \
-    && ldconfig \
-    && rm -rf $SRC_DIR/hiredis-*
 
 # -----------------------------------------------------------------------------
 # Install libmemcached using by php-memcached
@@ -423,7 +423,7 @@ RUN cd ${SRC_DIR} \
 #     && ln -s /usr/local/openssl/lib/libssl.so /usr/lib \
 #     && echo "/usr/local/openssl/ssl/lib" >> /etc/ld.so.conf
 
-RUN yum install -y mysql-server mysql mysql-devel
+RUN yum install -y mysql-server mysql mysql-devel  readline readline-devel 
 
 
 
@@ -459,7 +459,7 @@ RUN cd ${SRC_DIR} \
        --sysconfdir=${PHP_INSTALL_DIR}/etc \
        --with-libdir=lib64 \
        --enable-fd-setsize=65536 \
-       --with-zip \
+    #    --with-zip \
        --enable-exif \
        --enable-ftp \
        --enable-mbstring \
@@ -470,11 +470,15 @@ RUN cd ${SRC_DIR} \
        --enable-sockets \
        --enable-shmop \
        --enable-gd-native-ttf \
-       --enable-gd \
+    #    --enable-gd \
        --enable-ctype \
        --enable-calendar \
        --enable-zend-multibyte \
+       --enable-zip \
+    #    --with-fpm-user=www \
+    #    --with-fpm-group=www \
     #    --enable-intl \/ #magento
+       --enable-wddx \
        --with-gettext \
        --with-xsl \
        --with-xmlrpc \
@@ -482,6 +486,7 @@ RUN cd ${SRC_DIR} \
        --with-ldap \
        --with-ldap-sasl \
        --with-mysqli  \
+       --with-mysql  \
        --with-pdo-mysql \
        --with-pdo-odbc=unixODBC,/usr \
        --with-jpeg \
@@ -494,11 +499,13 @@ RUN cd ${SRC_DIR} \
     #  --with-icu-dir=/usr/lib/icu/ \ #magento
        --with-mhash \
        --with-regex \
+       --with-gd \
+       --with-readline \
     && make --quiet 1>/dev/null \
     && make install \
     && rm -rf ${PHP_INSTALL_DIR}/lib/php.ini \
     && cp -f php.ini-development ${PHP_INSTALL_DIR}/lib/php.ini \
-    # && cp -rf ${SRC_DIR}/php-${phpversion}/ext/intl  ${SRC_DIR}/ \  # magento
+    ## && cp -rf ${SRC_DIR}/php-${phpversion}/ext/intl  ${SRC_DIR}/ \  # magento
     && rm -rf ${SRC_DIR}/php* \
     && rm -rf ${SRC_DIR}/libmcrypt*
 
@@ -654,6 +661,22 @@ RUN cd ${SRC_DIR} \
     && rm -rf ${SRC_DIR}/memcached-*
 
 # -----------------------------------------------------------------------------
+# Install PHP memcache extensions
+# -----------------------------------------------------------------------------
+# ENV memcache_ext_version 1.6.12
+# ENV LIB_MEMCACHE_INSTALL_DIR /usr/local/
+# RUN cd ${SRC_DIR} \
+#     && wget -q -O memcache-${memcache_ext_version}.tgz https://pecl.php.net/get/memcache-${memcache_ext_version}.tgz \
+#     && tar xzf memcache-${memcache_ext_version}.tgz \
+#     && cd memcache-${memcache_ext_version} \
+#     && ${PHP_INSTALL_DIR}/bin/phpize \
+#     && ./configure --enable-memcache --with-php-config=${PHP_INSTALL_DIR}/bin/php-config \
+#        --with-libmemcache-dir=${LIB_MEMCACHE_INSTALL_DIR} --disable-memcache-sasl 1>/dev/null \
+#     && make 1>/dev/null \
+#     && make install \
+#     && rm -rf ${SRC_DIR}/memcached-*
+
+# -----------------------------------------------------------------------------
 # Install PHP yac extensions
 # -----------------------------------------------------------------------------
 RUN cd ${SRC_DIR} \
@@ -790,6 +813,51 @@ RUN cd ${SRC_DIR} \
 #     && yum remove boost-devel  -y
 
 
+# -----------------------------------------------------------------------------
+# Install PHP mongo extensions
+# -----------------------------------------------------------------------------
+ENV mongo_ext_version 1.6.12
+RUN cd ${SRC_DIR} \
+    && wget -q -O mongo-${mongo_ext_version}.tgz https://pecl.php.net/get/mongo-${mongo_ext_version}.tgz \
+    && tar zxf mongo-${mongo_ext_version}.tgz \
+    && cd mongo-${mongo_ext_version} \
+    && ${PHP_INSTALL_DIR}/bin/phpize \
+    && ./configure --with-php-config=${PHP_INSTALL_DIR}/bin/php-config 1>/dev/null \
+    && make clean \
+    && make \
+    && make install \
+    && rm -rf ${SRC_DIR}/mongo-*
+
+
+# -----------------------------------------------------------------------------
+# Install PHP oauth extensions
+# -----------------------------------------------------------------------------
+ENV oauth_ext_version 1.2.3
+RUN cd ${SRC_DIR} \
+    && wget -q -O oauth-${oauth_ext_version}.tgz https://pecl.php.net/get/oauth-${oauth_ext_version}.tgz \
+    && tar zxf oauth-${oauth_ext_version}.tgz \
+    && cd oauth-${oauth_ext_version} \
+    && ${PHP_INSTALL_DIR}/bin/phpize \
+    && ./configure --with-php-config=${PHP_INSTALL_DIR}/bin/php-config 1>/dev/null \
+    && make clean \
+    && make \
+    && make install \
+    && rm -rf ${SRC_DIR}/oauth-*
+
+# -----------------------------------------------------------------------------
+# Install PHP zendopcache extensions
+# -----------------------------------------------------------------------------
+ENV zendopcache_ext_version 7.0.5
+RUN cd ${SRC_DIR} \
+    && wget -q -O zendopcache-${zendopcache_ext_version}.tgz https://pecl.php.net/get/zendopcache-${zendopcache_ext_version}.tgz \
+    && tar zxf zendopcache-${zendopcache_ext_version}.tgz \
+    && cd zendopcache-${zendopcache_ext_version} \
+    && ${PHP_INSTALL_DIR}/bin/phpize \
+    && ./configure --with-php-config=${PHP_INSTALL_DIR}/bin/php-config 1>/dev/null \
+    && make clean \
+    && make \
+    && make install \
+    && rm -rf ${SRC_DIR}/zendopcache-*
 
 # -----------------------------------------------------------------------------
 # Install phpunit
@@ -803,7 +871,7 @@ RUN cd ${SRC_DIR} \
 # Install php composer
 # -----------------------------------------------------------------------------
 RUN cd ${SRC_DIR} \
-    && curl -sS https://getcomposer.org/installer | ${PHP_INSTALL_DIR}/bin/php \
+    && curl -sS https://getcomposer.org/installer | ${PHP_INSTALL_DIR}/bin/php -d detect_unicode=Off \
     && chmod +x composer.phar \
     && mv composer.phar ${PHP_INSTALL_DIR}/bin/composer
 
@@ -890,12 +958,17 @@ RUN curl -s -L http://github.com/micha/jsawk/raw/master/jsawk > /usr/local/bin/j
 # Copy Config
 # -----------------------------------------------------------------------------
 ADD run.sh /
-ADD config /vue-msf/
 ADD config/.bash_profile /home/super/
 ADD config/.bashrc /home/super/
+ADD config /vue-msf/
+ADD Zend.zip /vue-msf/php/lib/php/
+ADD Smarty.zip /vue-msf/php/lib/php/
 RUN chmod a+x /run.sh \
 	&& chmod a+x ${PHP_INSTALL_DIR}/bin/checkstyle \
-    && chmod a+x ${PHP_INSTALL_DIR}/bin/mergeCoverReport 
+    && chmod a+x ${PHP_INSTALL_DIR}/bin/mergeCoverReport \
+    && cd /vue-msf/php/lib/php \
+    && unzip Smarty.zip && rm -rf Smarty.zip  \
+    && unzip Zend.zip && rm -rf Zend.zip  
 
 
 # -----------------------------------------------------------------------------
