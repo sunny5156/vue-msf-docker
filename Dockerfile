@@ -23,7 +23,7 @@ RUN mkdir -p ${SRC_DIR}
 RUN rpm --import /etc/pki/rpm-gpg/RPM* \
     && curl -s --location https://rpm.nodesource.com/setup_16.x | bash - \
     && yum -y install wget epel-release \
-    gcc gcc-c++ cmake zlib zlib-devel  \
+    gcc gcc-c++ gcc-toolset-13 cmake zlib zlib-devel  \
     sqlite-devel net-tools python39 \
     --nogpgcheck \
     && rm -rf /var/cache/{yum,ldconfig}/* \
@@ -106,7 +106,8 @@ RUN sed -i "s|failovermethod=priority|#failovermethod=priority|g" /etc/yum.repos
     && rm -rf /etc/ld.so.cache \
     && yum clean all
     
-RUN rpm --import /etc/pki/rpm-gpg/RPM* \
+RUN \
+    rpm --import https://repo.almalinux.org/almalinux/RPM-GPG-KEY-AlmaLinux \
     && yum --enablerepo=powertools install -y \
     libyaml libyaml-devel \
     oniguruma oniguruma-devel \
@@ -419,7 +420,7 @@ RUN cd $SRC_DIR \
 # -----------------------------------------------------------------------------
 # Install PHP
 # -----------------------------------------------------------------------------
-ENV phpVersion 8.1.18
+ENV phpVersion 8.2.16
 ENV PHP_INSTALL_DIR ${HOME}/php
 RUN cd ${SRC_DIR} \
     && export PKG_CONFIG_PATH="/usr/lib64/pkgconfig" \
@@ -612,7 +613,7 @@ RUN cd ${SRC_DIR} \
 # -----------------------------------------------------------------------------
 # Install PHP xlswriter extensions
 # -----------------------------------------------------------------------------
-ENV xlswriterExtVersion 1.5.2
+ENV xlswriterExtVersion 1.5.5
 RUN cd ${SRC_DIR} \
     && wget -q -O xlswriter-${xlswriterExtVersion}.tgz https://pecl.php.net/get/xlswriter-${xlswriterExtVersion}.tgz \
     && tar zxf xlswriter-${xlswriterExtVersion}.tgz \
@@ -690,7 +691,7 @@ RUN cd ${SRC_DIR} \
 # Install PHP swoole extensions
 # -----------------------------------------------------------------------------
 
-ENV swooleExtVersion 5.0.1
+ENV swooleExtVersion 5.1.1
 RUN cd ${SRC_DIR} \
     && ls /usr/local/include/ \
     && wget -q -O swoole-${swooleExtVersion}.tar.gz https://github.com/swoole/swoole-src/archive/v${swooleExtVersion}.tar.gz \
