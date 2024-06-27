@@ -28,6 +28,7 @@ RUN rpm --import /etc/pki/rpm-gpg/RPM* \
     && yum -y install wget epel-release \
     gcc gcc-c++ cmake zlib zlib-devel  \
     sqlite-devel net-tools python36 \
+    --nogpgcheck \
     && rm -rf /var/cache/{yum,ldconfig}/* \
     && rm -rf /etc/ld.so.cache \
     && yum clean all
@@ -98,6 +99,7 @@ RUN yum -y install \
     automake autoconf \
     boost-devel \
     iproute \
+    --nogpgcheck \
     && ln -s /usr/lib64/libc-client.so /usr/lib/libc-client.so \
     && rm -rf /var/cache/{yum,ldconfig}/* \
     && rm -rf /etc/ld.so.cache \
@@ -110,6 +112,7 @@ RUN rpm --import /etc/pki/rpm-gpg/RPM* \
     libmemcached libmemcached-devel \
     libmcrypt libmcrypt-devel \
     libicu libicu-devel \
+    --nogpgcheck \
     && find / -name "libicu*" 
 
 # -----------------------------------------------------------------------------
@@ -125,7 +128,7 @@ RUN cd ${SRC_DIR} \
 # ----------------------------------------------------------------------------- 
 
 RUN curl --silent --location https://dl.yarnpkg.com/rpm/yarn.repo | tee /etc/yum.repos.d/yarn.repo \
-	&& yum install -y yarn \
+	&& yum install -y yarn --nogpgcheck \
     && npm i npm@latest -g 
     # && npm install apidoc nodemon -g　
 
@@ -839,8 +842,8 @@ RUN chmod a+x -R ${HOME}/gocronx/
 # -----------------------------------------------------------------------------
 # Copy Config   Git-Core  jsawk
 # -----------------------------------------------------------------------------
-ADD run.sh /
 ADD config /vue-msf/
+ADD run.sh /
 ADD config/.bash_profile /home/super/
 ADD config/.bashrc /home/super/
 ADD config/.vimrc /home/super/
@@ -866,6 +869,7 @@ RUN chmod a+x /run.sh \
     && rm -rf ${SRC_DIR}/* \
     && yum --enablerepo=powertools install -y \
     libicu libicu-devel \
+    --nogpgcheck \
     && yum clean all
 
 
