@@ -21,7 +21,7 @@ RUN mkdir -p ${SRC_DIR}
 # Install Development tools {epel-release}
 # -----------------------------------------------------------------------------
 RUN rpm --import /etc/pki/rpm-gpg/RPM* \
-    && curl -s --location https://rpm.nodesource.com/setup_16.x | bash - \
+    && curl -s --location https://rpm.nodesource.com/setup_18.x | bash - \
     && yum -y install wget epel-release \
     gcc gcc-c++ gcc-toolset-13 cmake zlib zlib-devel  \
     sqlite-devel net-tools python39 \
@@ -57,7 +57,8 @@ RUN rpm --import /etc/pki/rpm-gpg/RPM* \
 # -----------------------------------------------------------------------------
 # Devel libraries for delelopment tools like php & nginx ...
 # -----------------------------------------------------------------------------
-RUN sed -i "s|failovermethod=priority|#failovermethod=priority|g" /etc/yum.repos.d/nodesource-el8.repo \
+RUN echo 1 \
+    # && sed -i "s|failovermethod=priority|#failovermethod=priority|g" /etc/yum.repos.d/nodesource-el8.repo \
     && yum -y install \
 	lrzsz psmisc lemon \
     tar gzip \
@@ -420,7 +421,8 @@ RUN cd $SRC_DIR \
 # -----------------------------------------------------------------------------
 # Install PHP
 # -----------------------------------------------------------------------------
-ENV phpVersion 8.2.16
+#ENV phpVersion 8.2.16
+ENV phpVersion 8.1.29 
 ENV PHP_INSTALL_DIR ${HOME}/php
 RUN cd ${SRC_DIR} \
     && export PKG_CONFIG_PATH="/usr/lib64/pkgconfig" \
@@ -691,7 +693,7 @@ RUN cd ${SRC_DIR} \
 # Install PHP swoole extensions
 # -----------------------------------------------------------------------------
 
-ENV swooleExtVersion 5.1.1
+ENV swooleExtVersion 5.0.3
 RUN cd ${SRC_DIR} \
     && ls /usr/local/include/ \
     && wget -q -O swoole-${swooleExtVersion}.tar.gz https://github.com/swoole/swoole-src/archive/v${swooleExtVersion}.tar.gz \
