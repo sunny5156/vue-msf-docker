@@ -23,7 +23,7 @@ RUN rpm --import /etc/pki/rpm-gpg/RPM* \
     && curl -s --location https://rpm.nodesource.com/setup_20.x | bash - \
     && yum -y install wget epel-release \
     gcc gcc-c++ gcc-toolset-13 cmake zlib zlib-devel  \
-    sqlite-devel net-tools python312 \
+    sqlite-devel net-tools python312 python3.12-pip python3.12-devel\
     --nogpgcheck \
     && rm -rf /var/cache/{yum,ldconfig}/* \
     && rm -rf /etc/ld.so.cache \
@@ -127,7 +127,7 @@ RUN cd /usr/bin \
     # && rm -f python pip \
     # && ls -alh /usr/bin/ \
     && ln -s /usr/bin/python3.12 /usr/bin/python \
-    && ln -s /usr/bin/pip-3 /usr/bin/pip \
+    && ln -s /usr/bin/pip3.12 /usr/bin/pip \
     && pip install supervisor==4.2.5
 
 
