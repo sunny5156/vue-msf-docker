@@ -16,15 +16,14 @@ ENV HOME /vue-msf
 ENV SRC_DIR $HOME/src
 RUN mkdir -p ${SRC_DIR}
 
-
 # -----------------------------------------------------------------------------
 # Install Development tools {epel-release}
 # -----------------------------------------------------------------------------
 RUN rpm --import /etc/pki/rpm-gpg/RPM* \
-    && curl -s --location https://rpm.nodesource.com/setup_18.x | bash - \
+    && curl -s --location https://rpm.nodesource.com/setup_20.x | bash - \
     && yum -y install wget epel-release \
     gcc gcc-c++ gcc-toolset-13 cmake zlib zlib-devel  \
-    sqlite-devel net-tools python39 \
+    sqlite-devel net-tools python312 \
     --nogpgcheck \
     && rm -rf /var/cache/{yum,ldconfig}/* \
     && rm -rf /etc/ld.so.cache \
@@ -126,8 +125,9 @@ RUN cd /usr/bin \
     # grep '#! /usr/bin/python' -rl /usr/libexec/urlgrabber-ext-down | xargs sed -i "s/#! \/usr\/bin\/python/#!\/usr\/bin\/python2/g" \
     # && grep '#!/usr/bin/python' -rl /usr/bin/yum  | xargs sed -i "s/#!\/usr\/bin\/python/#!\/usr\/bin\/python2/g" \
     # && rm -f python pip \
-    && ln -s /usr/bin/python3.9 /usr/bin/python \
-    && ln -s /usr/bin/pip3.9 /usr/bin/pip \
+    # && ls -alh /usr/bin/ \
+    && ln -s /usr/bin/python3.12 /usr/bin/python \
+    && ln -s /usr/bin/pip-3 /usr/bin/pip \
     && pip install supervisor==4.2.5
 
 
@@ -752,18 +752,21 @@ RUN cd ${SRC_DIR} \
 # -----------------------------------------------------------------------------
 
 RUN yum install -y  clang-devel protobuf-compiler \
-    --nogpgcheck \
+    --nogpgcheck 
     # &&  source "/vuem-msf/.cargo/env" \
-    && curl https://sh.rustup.rs -sSf |  sh -s -- -y
+# RUN curl --proto '=https' --tlsv1.2 -sSf https://sh.rustup.rs | sh -s -- -y
+RUN curl https://sh.rustup.rs -sSf |  sh -s -- -y
+
 
 # -----------------------------------------------------------------------------
 # Install PHP skywalking_agent extensions
 # -----------------------------------------------------------------------------
-ENV skywalkingAgentExtVersion 0.7.0
+ENV skywalkingAgentExtVersion 0.8.0
 RUN cd ${SRC_DIR} \
     # && export PATH=$PATH:/vue-msf/php/bin \/
     # && ln -s /usr/openssl/include/openssl /usr/local/include \
     && source "/vue-msf/.cargo/env" \
+    && rustup update \
     && wget -q -O skywalking_agent-${skywalkingAgentExtVersion}.tgz https://pecl.php.net/get/skywalking_agent-${skywalkingAgentExtVersion}.tgz \
     && tar -zxf skywalking_agent-${skywalkingAgentExtVersion}.tgz \
     && cd skywalking_agent-${skywalkingAgentExtVersion} \
