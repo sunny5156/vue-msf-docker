@@ -1,5 +1,7 @@
 FROM almalinux:8.8  AS builder
 
+ARG ARCH=
+
 # FROM centos:centos7
 MAINTAINER sunny5156 <sunny5156@qq.com>
 
@@ -751,32 +753,43 @@ RUN cd ${SRC_DIR} \
 # Install cargo
 # -----------------------------------------------------------------------------
 
-RUN yum install -y  clang-devel protobuf-compiler \
-    --nogpgcheck 
+RUN if [ "$ARCH" = "arm64" ]; then \
+        echo "Building for arm64 architecture"; \
+    else \
+        yum install -y  clang-devel protobuf-compiler \
+        --nogpgcheck \
+    fi
     # &&  source "/vuem-msf/.cargo/env" \
 # RUN curl --proto '=https' --tlsv1.2 -sSf https://sh.rustup.rs | sh -s -- -y
-RUN curl https://sh.rustup.rs -sSf |  sh -s -- -y
+RUN if [ "$ARCH" = "arm64" ]; then \
+        echo "Building for arm64 architecture"; \
+    else \
+        curl https://sh.rustup.rs -sSf |  sh -s -- -y \
+    fi
 
 
 # -----------------------------------------------------------------------------
 # Install PHP skywalking_agent extensions
 # -----------------------------------------------------------------------------
 ENV skywalkingAgentExtVersion 0.8.0
-RUN cd ${SRC_DIR} \
-    # && export PATH=$PATH:/vue-msf/php/bin \/
-    # && ln -s /usr/openssl/include/openssl /usr/local/include \
-    && source "/vue-msf/.cargo/env" \
-    && rustup update \
-    && wget -q -O skywalking_agent-${skywalkingAgentExtVersion}.tgz https://pecl.php.net/get/skywalking_agent-${skywalkingAgentExtVersion}.tgz \
-    && tar -zxf skywalking_agent-${skywalkingAgentExtVersion}.tgz \
-    && cd skywalking_agent-${skywalkingAgentExtVersion} \
-    && ${PHP_INSTALL_DIR}/bin/phpize \
-    && ./configure --with-php-config=${PHP_INSTALL_DIR}/bin/php-config \
-    && make clean \
-    && make \
-    && make install \
-    && rm -rf /vue-msf/.rustup 
-
+RUN if [ "$ARCH" = "arm64" ]; then \
+        echo "Building for arm64 architecture"; \
+    else \
+        cd ${SRC_DIR} \
+        # && export PATH=$PATH:/vue-msf/php/bin \/
+        # && ln -s /usr/openssl/include/openssl /usr/local/include \
+        && source "/vue-msf/.cargo/env" \
+        && rustup update \
+        && wget -q -O skywalking_agent-${skywalkingAgentExtVersion}.tgz https://pecl.php.net/get/skywalking_agent-${skywalkingAgentExtVersion}.tgz \
+        && tar -zxf skywalking_agent-${skywalkingAgentExtVersion}.tgz \
+        && cd skywalking_agent-${skywalkingAgentExtVersion} \
+        && ${PHP_INSTALL_DIR}/bin/phpize \
+        && ./configure --with-php-config=${PHP_INSTALL_DIR}/bin/php-config \
+        && make clean \
+        && make \
+        && make install \
+        && rm -rf /vue-msf/.rustup \
+    fi
 
 # -----------------------------------------------------------------------------
 # Install PHP SkyAPM-php-sdk extensions
@@ -971,14 +984,14 @@ ADD config/.vimrc /root/
 ADD rpm/js-1.8.5-31.el8.x86_64.rpm /vue-msf/src/
 
 RUN chmod a+x /run.sh \
-    && yum install -y procps /vue-msf/src/js-1.8.5-31.el8.x86_64.rpm \
+    #&& yum install -y procps /vue-msf/src/js-1.8.5-31.el8.x86_64.rpm \
 	&& chmod a+x ${PHP_INSTALL_DIR}/bin/checkstyle \
     && chmod a+x ${PHP_INSTALL_DIR}/bin/mergeCoverReport \
     && ln -s /usr/libexec/git-core/git-remote-http /bin/ \
     && ln -s /usr/libexec/git-core/git-remote-https /bin/ \
     && git config --global user.email "vue-msf@admin.com" \
     && git config --global user.name "vue-msf" \
-    && curl -s -L http://github.com/micha/jsawk/raw/master/jsawk > /usr/local/bin/jsawk \
+    #&& curl -s -L http://github.com/micha/jsawk/raw/master/jsawk > /usr/local/bin/jsawk \
 	&& chmod 755 /usr/local/bin/jsawk \
     && rm -rf ${SRC_DIR}/* \
     && yum --enablerepo=powertools install -y \
