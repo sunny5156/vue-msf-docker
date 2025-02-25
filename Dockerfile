@@ -978,7 +978,6 @@ ADD config/.vimrc /home/super/
 ADD config/.bash_profile /root/
 ADD config/.bashrc /root/
 ADD config/.vimrc /root/
-
 # COPY config/motd /etc/motd
 
 ADD rpm/js-1.8.5-31.el8.x86_64.rpm /vue-msf/src/
