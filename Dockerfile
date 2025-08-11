@@ -1,4 +1,4 @@
-FROM centos:7.6.1810
+FROM centos:7.9.2009
 MAINTAINER sunny5156 <sunny5156@qq.com>
 
 # -----------------------------------------------------------------------------
@@ -13,6 +13,7 @@ MAINTAINER sunny5156 <sunny5156@qq.com>
 ENV HOME /vue-msf
 ENV SRC_DIR $HOME/src
 RUN mkdir -p ${SRC_DIR}
+ADD config/yum.repo/Centos-7.repo /etc/yum.repos.d/CentOS-Base.repo
 
 # -----------------------------------------------------------------------------
 # Install Development tools {epel-release}
@@ -440,7 +441,7 @@ RUN yum install -y mysql-server mysql mysql-devel  readline readline-devel
 # -----------------------------------------------------------------------------
 # Install PHP
 # -----------------------------------------------------------------------------
-ENV phpversion 5.3.29
+ENV phpversion 5.6.29
 ENV PHP_INSTALL_DIR ${HOME}/php
 RUN cd ${SRC_DIR} \
     && yum install net-snmp-devel -y \
@@ -478,6 +479,7 @@ RUN cd ${SRC_DIR} \
     #    --with-fpm-user=www \
     #    --with-fpm-group=www \
     #    --enable-intl \/ #magento
+       --enable-opcache \
        --enable-wddx \
        --with-gettext \
        --with-xsl \
@@ -847,17 +849,17 @@ RUN cd ${SRC_DIR} \
 # -----------------------------------------------------------------------------
 # Install PHP zendopcache extensions
 # -----------------------------------------------------------------------------
-ENV zendopcache_ext_version 7.0.5
-RUN cd ${SRC_DIR} \
-    && wget -q -O zendopcache-${zendopcache_ext_version}.tgz https://pecl.php.net/get/zendopcache-${zendopcache_ext_version}.tgz \
-    && tar zxf zendopcache-${zendopcache_ext_version}.tgz \
-    && cd zendopcache-${zendopcache_ext_version} \
-    && ${PHP_INSTALL_DIR}/bin/phpize \
-    && ./configure --with-php-config=${PHP_INSTALL_DIR}/bin/php-config 1>/dev/null \
-    && make clean \
-    && make \
-    && make install \
-    && rm -rf ${SRC_DIR}/zendopcache-*
+# ENV zendopcache_ext_version 7.0.5
+# RUN cd ${SRC_DIR} \
+#     && wget -q -O zendopcache-${zendopcache_ext_version}.tgz https://pecl.php.net/get/zendopcache-${zendopcache_ext_version}.tgz \
+#     && tar zxf zendopcache-${zendopcache_ext_version}.tgz \
+#     && cd zendopcache-${zendopcache_ext_version} \
+#     && ${PHP_INSTALL_DIR}/bin/phpize \
+#     && ./configure --with-php-config=${PHP_INSTALL_DIR}/bin/php-config 1>/dev/null \
+#     && make clean \
+#     && make \
+#     && make install \
+#     && rm -rf ${SRC_DIR}/zendopcache-*
 
 # -----------------------------------------------------------------------------
 # Install phpunit
@@ -942,7 +944,7 @@ RUN chmod a+x -R ${HOME}/gocronx/
 # -----------------------------------------------------------------------------
 # Update Git-Core
 # -----------------------------------------------------------------------------
-RUN  yum -y install https://packages.endpointdev.com/rhel/7/os/x86_64/git-core-2.23.0-1.ep7.x86_64.rpm \
+RUN  yum -y install https://packages.endpointdev.com/rhel/7/os/x86_64/git-core-2.23.0-1.ep7.x86_64.rpm  subversion \
     && ln -s /usr/libexec/git-core/git-remote-http /bin/ \
     && ln -s /usr/libexec/git-core/git-remote-https /bin/ \
     && git config --global user.email "vue-msf@admin.com" \
