@@ -60,3 +60,15 @@ baseurl=http://mirrors.aliyun.com/centos/$releasever/contrib/$basearch/
 gpgcheck=1
 enabled=0
 gpgkey=http://mirrors.aliyun.com/centos/RPM-GPG-KEY-CentOS-7
+
+[centos-sclo-rh]
+name=CentOS-7.9.2009 - SCLo rh
+baseurl=https://vault.centos.org/7.9.2009/sclo/$basearch/rh/
+gpgcheck=0
+enabled=1
+
+[centos-sclo-sclo]
+name=CentOS-7.9.2009 - SCLo sclo
+baseurl=https://vault.centos.org/7.9.2009/sclo/$basearch/sclo/
+gpgcheck=0
+enabled=1

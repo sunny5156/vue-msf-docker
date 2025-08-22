@@ -1,0 +1,36 @@
+ResourceLimit {
+  CoreFileSize = 0          # in bytes
+  MaxSocket = 10000         # must be not 0, otherwise HHVM will not start
+  SocketDefaultTimeout = 5  # in seconds
+  MaxRSS = 0
+  MaxRSSPollingCycle = 0    # in seconds, how often to check max memory
+  DropCacheCycle = 0        # in seconds, how often to drop disk cache
+}
+
+Log {
+  Level = Info
+  AlwaysLogUnhandledExceptions = true
+  RuntimeErrorReportingLevel = 8191
+  UseLogFile = true
+  UseSyslog = false
+  File = /var/log/hhvm/error.log
+  Access {
+    * {
+      File = /var/log/hhvm/access.log
+      Format = %h %l %u % t \"%r\" %>s %b
+    }
+  }
+}
+
+MySQL {
+  ReadOnly = false
+  ConnectTimeout = 1000      # in ms
+  ReadTimeout = 1000         # in ms
+  SlowQueryThreshold = 1000  # in ms, log slow queries as errors
+  KillOnTimeout = false
+}
+
+Mail {
+  SendmailPath = /usr/sbin/sendmail -t -i
+  ForceExtraParameters =
+}

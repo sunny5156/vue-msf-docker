@@ -13,6 +13,7 @@ MAINTAINER sunny5156 <sunny5156@qq.com>
 ENV HOME /vue-msf
 ENV SRC_DIR $HOME/src
 RUN mkdir -p ${SRC_DIR}
+RUN date 
 ADD config/yum.repo/Centos-7.repo /etc/yum.repos.d/CentOS-Base.repo
 
 # -----------------------------------------------------------------------------
@@ -67,10 +68,19 @@ RUN yum -y install \
     iftop htop \
     which rpm-build libssl-dev \
     openssl openssl-devel \
+    cpp gcc gcc-c++  cmake make boost boost-devel wget  mariadb-devel memcached-devel libmemcached-devel  libcurl-devel \
+    libicu-devel libzip-devel libzip2-devel  libbzip2-devel  \
+    elfutils-libelf-devel libdwarf-devel libcap-devel binutils-devel \
+    libvpx-devel  gmp-devel libmagicwand-devel  ImageMagick-devel tbb-devel \
+    sqlite-devel  readline readline-devel lz4-devel libedit-devel  ocaml gperf \
     && ln -s /usr/lib64/libc-client.so /usr/lib/libc-client.so \
     && rm -rf /var/cache/{yum,ldconfig}/* \
     && rm -rf /etc/ld.so.cache \
     && yum clean all
+
+RUN yum install -y epel-release
+RUN yum install --enablerepo epel -y libmcrypt libmcrypt-devel gperftools gperftools-devel
+
     
 RUN rpm --import /etc/pki/rpm-gpg/RPM*
 
@@ -215,7 +225,8 @@ RUN cd ${SRC_DIR} \
     && echo "/usr/local/lib64" >> /etc/ld.so.conf.d/local.conf \
     && echo "/usr/local/src/libmcrypt-2.5.7/lib/.libs" >> /etc/ld.so.conf.d/local.conf \
     && chmod gu+x /etc/ld.so.conf.d/local.conf \
-    && ldconfig -v
+    && ldconfig -v \
+    && rm -rf ${SRC_DIR}/libmcrypt-2.5.7*
 
 # -----------------------------------------------------------------------------
 # Install re2c for PHP
@@ -286,22 +297,23 @@ RUN cd $SRC_DIR \
 
 
 # -----------------------------------------------------------------------------
-# Install cmake 3.19.1
+# Install cmake 3.10.3
 # ----------------------------------------------------------------------------- 
-RUN cd ${SRC_DIR} \
-    && curl -L -o cmake-3.19.1.tar.gz https://github.com/Kitware/CMake/releases/download/v3.19.1/cmake-3.19.1.tar.gz  \
-    && tar -zxf cmake-3.19.1.tar.gz \
-    && cd cmake-3.19.1 \
-    && export OPENSSL_ROOT_DIR=/usr/local/openssl \
-    && export OPENSSL_CRYPTO_LIBRARY=/usr/local/openssl/lib \
-    && export OPENSSL_INCLUDE_DIR=/usr/local/openssl/include \
-    && ./bootstrap \
-    && make \
-    && make install \
-    && ldconfig \
-    && make clean \
-    && rm -rf ${SRC_DIR}/cmake*
-    #&& cmake –-version 
+# ENV cmake_version=3.10.3
+# RUN cd ${SRC_DIR} \
+#     && curl -L -o cmake-${cmake_version}.tar.gz https://github.com/Kitware/CMake/releases/download/v${cmake_version}/cmake-${cmake_version}.tar.gz  \
+#     && tar -zxf cmake-${cmake_version}.tar.gz \
+#     && cd cmake-${cmake_version} \
+#     && export OPENSSL_ROOT_DIR=/usr/local/openssl \
+#     && export OPENSSL_CRYPTO_LIBRARY=/usr/local/openssl/lib \
+#     && export OPENSSL_INCLUDE_DIR=/usr/local/openssl/include \
+#     && ./bootstrap \
+#     && make \
+#     && make install \
+#     && ldconfig \
+#     && make clean \
+#     && rm -rf ${SRC_DIR}/cmake*
+#     #&& cmake –-version 
 
 
 # RUN cd ${SRC_DIR} \
@@ -424,8 +436,6 @@ RUN cd ${SRC_DIR} \
 #     && ln -s /usr/local/openssl/lib/libssl.so /usr/lib \
 #     && echo "/usr/local/openssl/ssl/lib" >> /etc/ld.so.conf
 
-RUN yum install -y mysql-server mysql mysql-devel  readline readline-devel 
-
 
 
 # -----------------------------------------------------------------------------
@@ -441,455 +451,190 @@ RUN yum install -y mysql-server mysql mysql-devel  readline readline-devel
 # -----------------------------------------------------------------------------
 # Install PHP
 # -----------------------------------------------------------------------------
-ENV phpversion 5.6.29
-ENV PHP_INSTALL_DIR ${HOME}/php
+# ENV phpversion 5.6.29
+# ENV PHP_INSTALL_DIR ${HOME}/php
+# RUN cd ${SRC_DIR} \
+#     && yum install net-snmp-devel -y \
+#     #&& cp /usr/local/openssl/lib/pkgconfig/*.pc /usr/local/lib/pkgconfig/ \
+#     && export PKG_CONFIG_PATH="/usr/local/lib/pkgconfig/" \
+#     && wget -q -O php-${phpversion}.tar.gz https://www.php.net/distributions/php-${phpversion}.tar.gz \
+#     && tar xzf php-${phpversion}.tar.gz \
+#     && cd php-${phpversion} \
+#     # && make clean \
+#     && ./configure \
+#     #    --disable-shared \
+#     #    --enable-static \
+#        --prefix=${PHP_INSTALL_DIR} \
+#        --with-config-file-path=${PHP_INSTALL_DIR}/etc \
+#        --with-config-file-scan-dir=${PHP_INSTALL_DIR}/etc/php.d \
+#        --sysconfdir=${PHP_INSTALL_DIR}/etc \
+#        --with-libdir=lib64 \
+#        --enable-fd-setsize=65536 \
+#     #    --with-zip \
+#        --enable-exif \
+#        --enable-ftp \
+#        --enable-mbstring \
+#        --enable-fpm \
+#        --enable-bcmath \
+#        --enable-pcntl \
+#        --enable-soap \
+#        --enable-sockets \
+#        --enable-shmop \
+#        --enable-gd-native-ttf \
+#     #    --enable-gd \
+#        --enable-ctype \
+#        --enable-calendar \
+#        --enable-zend-multibyte \
+#        --enable-zip \
+#     #    --with-fpm-user=www \
+#     #    --with-fpm-group=www \
+#     #    --enable-intl \/ #magento
+#        --enable-opcache \
+#        --enable-wddx \
+#        --with-gettext \
+#        --with-xsl \
+#        --with-xmlrpc \
+#        --with-snmp \
+#        --with-ldap \
+#        --with-ldap-sasl \
+#        --with-mysqli  \
+#        --with-mysql  \
+#        --with-pdo-mysql \
+#        --with-pdo-odbc=unixODBC,/usr \
+#        --with-jpeg \
+#        --with-zlib-dir \
+#        --with-freetype \
+#        --with-zlib \
+#        --with-bz2 \
+#        --with-openssl \
+#        --with-curl=/usr/bin/curl \
+#     #  --with-icu-dir=/usr/lib/icu/ \ #magento
+#        --with-mhash \
+#        --with-regex \
+#        --with-gd \
+#        --with-readline \
+#     && make --quiet 1>/dev/null \
+#     && make install \
+#     && rm -rf ${PHP_INSTALL_DIR}/lib/php.ini \
+#     && cp -f php.ini-development ${PHP_INSTALL_DIR}/lib/php.ini \
+#     ## && cp -rf ${SRC_DIR}/php-${phpversion}/ext/intl  ${SRC_DIR}/ \  # magento
+#     && rm -rf ${SRC_DIR}/php* \
+#     && rm -rf ${SRC_DIR}/libmcrypt*
+# -----------------------------------------------------------------------------
+# Install HHVM 3.9.10
+# -----------------------------------------------------------------------------
+# ENV hhvmversion 3.9.10
+# RUN cd ${SRC_DIR} \
+#     && wget -q -O hhvm-HHVM-${hhvmversion}.tar.gz https://github.com/facebook/hhvm/archive/HHVM-${hhvmversion}.tar.gz \
+#     && tar zxf  hhvm-HHVM-${hhvmversion}.tar.gz \
+#     && cd hhvm-HHVM-${hhvmversion} \
+#     && git submodule update --init --recursive \
+#     && cmake . \
+#     # && ./configure\
+#     && make >/dev/null \
+#     && make install 
+#     # && rm -rf ${SRC_DIR}/yaml-*
+
+# git clone https://github.com/facebook/hhvm
+
+# # 安装 Boost 1.69.0
+# ENV BOOST_VERSION=1.69.0
+# ENV BOOST_ROOT=/usr/local/boost_${BOOST_VERSION}
+
+# RUN cd ${SRC_DIR} && \
+# # https://sf-west-interserver-1.dl.sourceforge.net/project/boost/boost/1.75.0/boost_1_75_0.tar.gz?viasf=1
+#     wget https://sf-west-interserver-1.dl.sourceforge.net/project/boost/boost/${BOOST_VERSION}/boost_$(echo ${BOOST_VERSION} | tr '.' '_').tar.gz && \
+#     tar -zxf boost_*.tar.gz && \
+#     cd boost_$(echo ${BOOST_VERSION} | tr '.' '_') && \
+#     ./bootstrap.sh --prefix=${BOOST_ROOT} && \
+#     ./b2 install --with-system --with-program_options --with-filesystem --with-context -j$(nproc)
+
+# ENV BOOST_INCLUDEDIR=${BOOST_ROOT}/include \
+#     BOOST_LIBRARYDIR=${BOOST_ROOT}/lib
+
 RUN cd ${SRC_DIR} \
-    && yum install net-snmp-devel -y \
-    #&& cp /usr/local/openssl/lib/pkgconfig/*.pc /usr/local/lib/pkgconfig/ \
-    && export PKG_CONFIG_PATH="/usr/local/lib/pkgconfig/" \
-    && wget -q -O php-${phpversion}.tar.gz https://www.php.net/distributions/php-${phpversion}.tar.gz \
-    && tar xzf php-${phpversion}.tar.gz \
-    && cd php-${phpversion} \
-    # && make clean \
+    && wget https://storage.googleapis.com/google-code-archive-downloads/v2/code.google.com/google-glog/glog-0.3.3.tar.gz \
+    && tar -zxf glog-0.3.3.tar.gz \
+    && cd ${SRC_DIR}/glog-0.3.3\
     && ./configure \
-    #    --disable-shared \
-    #    --enable-static \
-       --prefix=${PHP_INSTALL_DIR} \
-       --with-config-file-path=${PHP_INSTALL_DIR}/etc \
-       --with-config-file-scan-dir=${PHP_INSTALL_DIR}/etc/php.d \
-       --sysconfdir=${PHP_INSTALL_DIR}/etc \
-       --with-libdir=lib64 \
-       --enable-fd-setsize=65536 \
-    #    --with-zip \
-       --enable-exif \
-       --enable-ftp \
-       --enable-mbstring \
-       --enable-fpm \
-       --enable-bcmath \
-       --enable-pcntl \
-       --enable-soap \
-       --enable-sockets \
-       --enable-shmop \
-       --enable-gd-native-ttf \
-    #    --enable-gd \
-       --enable-ctype \
-       --enable-calendar \
-       --enable-zend-multibyte \
-       --enable-zip \
-    #    --with-fpm-user=www \
-    #    --with-fpm-group=www \
-    #    --enable-intl \/ #magento
-       --enable-opcache \
-       --enable-wddx \
-       --with-gettext \
-       --with-xsl \
-       --with-xmlrpc \
-       --with-snmp \
-       --with-ldap \
-       --with-ldap-sasl \
-       --with-mysqli  \
-       --with-mysql  \
-       --with-pdo-mysql \
-       --with-pdo-odbc=unixODBC,/usr \
-       --with-jpeg \
-       --with-zlib-dir \
-       --with-freetype \
-       --with-zlib \
-       --with-bz2 \
-       --with-openssl \
-       --with-curl=/usr/bin/curl \
-    #  --with-icu-dir=/usr/lib/icu/ \ #magento
-       --with-mhash \
-       --with-regex \
-       --with-gd \
-       --with-readline \
-    && make --quiet 1>/dev/null \
-    && make install \
-    && rm -rf ${PHP_INSTALL_DIR}/lib/php.ini \
-    && cp -f php.ini-development ${PHP_INSTALL_DIR}/lib/php.ini \
-    ## && cp -rf ${SRC_DIR}/php-${phpversion}/ext/intl  ${SRC_DIR}/ \  # magento
-    && rm -rf ${SRC_DIR}/php* \
-    && rm -rf ${SRC_DIR}/libmcrypt*
-
-# -----------------------------------------------------------------------------
-# Install yaml and PHP yaml extension
-# -----------------------------------------------------------------------------
-RUN cd ${SRC_DIR} \
-    && wget -q -O yaml-1.2.0.tgz https://pecl.php.net/get/yaml-1.2.0.tgz \
-    && tar xzf yaml-1.2.0.tgz \
-    && cd yaml-1.2.0 \
-    && ${PHP_INSTALL_DIR}/bin/phpize \
-    && ./configure --with-yaml=/usr/local --with-php-config=${PHP_INSTALL_DIR}/bin/php-config \
-    && make >/dev/null \
-    && make install \
-    && rm -rf ${SRC_DIR}/yaml-*
-
-# -----------------------------------------------------------------------------
-# Install PHP mongodb extensions
-# -----------------------------------------------------------------------------
-ENV mongodb_ext_version 1.1.0
-RUN cd ${SRC_DIR} \
-    && ln -s /usr/openssl/include/openssl /usr/local/include \
-    && wget -q -O mongodb-${mongodb_ext_version}.tgz https://pecl.php.net/get/mongodb-${mongodb_ext_version}.tgz \
-    && tar zxf mongodb-${mongodb_ext_version}.tgz \
-    && cd mongodb-${mongodb_ext_version} \
-    && ${PHP_INSTALL_DIR}/bin/phpize \
-    && ./configure --with-php-config=${PHP_INSTALL_DIR}/bin/php-config 1>/dev/null \
-    && make clean \
     && make \
     && make install \
-    && rm -rf ${SRC_DIR}/mongodb-*
+    && rm -rf ${SRC_DIR}/glog-0.3.3*
 
-
-
-# RUN cd ${SRC_DIR} \
-#     && wget http://pear.php.net/go-pear.phar --no-check-certificate\
-#     && ${PHP_INSTALL_DIR}/bin/php go-pear.phar \
-#     && rm -rf go-pear.phar 
-
-# -----------------------------------------------------------------------------
-# Install PHP Rabbitmq extensions
-# -----------------------------------------------------------------------------
-ENV rabbitmqcversion 0.6.0
 RUN cd ${SRC_DIR} \
-	&& wget -q -O rabbitmq-c-${rabbitmqcversion}.tar.gz https://github.com/alanxz/rabbitmq-c/releases/download/v${rabbitmqcversion}/rabbitmq-c-${rabbitmqcversion}.tar.gz \
-	&& tar zxf rabbitmq-c-${rabbitmqcversion}.tar.gz \
-	&& cd rabbitmq-c-${rabbitmqcversion} \
-	&& ./configure --prefix=/usr/local/rabbitmq-c-${rabbitmqcversion} \
-	&& make \
-    && make install 
-
-# -----------------------------------------------------------------------------
-# Install PHP amqp extensions
-# -----------------------------------------------------------------------------
-ENV amqpversion 1.6.0 
-RUN cd ${SRC_DIR} \
-    && wget -q -O amqp-${amqpversion}.tgz https://pecl.php.net/get/amqp-${amqpversion}.tgz\
-    && tar zxf amqp-${amqpversion}.tgz \
-    && cd amqp-${amqpversion} \
-    && cp ${SRC_DIR}/rabbitmq-c-${rabbitmqcversion}/librabbitmq/amqp_ssl_socket.h . \
-    && ${PHP_INSTALL_DIR}/bin/phpize \
-    && ./configure --with-php-config=${PHP_INSTALL_DIR}/bin/php-config --with-amqp --with-librabbitmq-dir=/usr/local/rabbitmq-c-${rabbitmqcversion} 1>/dev/null \
-    && make clean \
-    && make 1>/dev/null \
+    && wget https://src.fedoraproject.org/lookaside/extras/oniguruma/onig-5.9.5.tar.gz/970f98a4cd10021b545d84e34c34aae4/onig-5.9.5.tar.gz \
+    && tar -zxf onig-5.9.5.tar.gz \
+    && cd ${SRC_DIR}/onig-5.9.5 \
+    && ./configure \
+    && make \
     && make install \
-    && rm -rf ${SRC_DIR}/amqp-*  ${SRC_DIR}/rabbitmq-c-0.8.0*
+    && rm -rf ${SRC_DIR}/onig-5.9.5*
 
-# -----------------------------------------------------------------------------
-# Install PHP redis extensions
-# -----------------------------------------------------------------------------
 RUN cd ${SRC_DIR} \
-    && wget -q -O redis-3.1.2.tgz https://pecl.php.net/get/redis-3.1.2.tgz \
-    && tar zxf redis-3.1.2.tgz \
-    && cd redis-3.1.2 \
-    && ${PHP_INSTALL_DIR}/bin/phpize \
-    && ./configure --with-php-config=${PHP_INSTALL_DIR}/bin/php-config 1>/dev/null \
-    && make clean \
-    && make 1>/dev/null \
+    && wget http://caml.inria.fr/pub/distrib/ocaml-4.02/ocaml-4.02.0.tar.gz \
+    && tar -zxf ocaml-4.02.0.tar.gz \
+    && cd ${SRC_DIR}/ocaml-4.02.0 \
+    && ./configure -no-graph \
+            -no-debugger \
+            -no-ocamldoc \
+    && make world.opt \
     && make install \
-    && rm -rf ${SRC_DIR}/redis-*
+    && rm -rf ${SRC_DIR}/ocaml-4.02.0*
 
-# -----------------------------------------------------------------------------
-# Install PHP imagick extensions
-# -----------------------------------------------------------------------------
+# RUN cd ${SRC_DIR} && \
+# git clone -b HHVM-3.9.10 https://github.com/facebook/hhvm.git
+
+# RUN cd ${SRC_DIR}/hhvm/ && \
+# git submodule update --init --recursive && \
+# env BOOST_ROOT=/usr/include/boost ./configure
+
+
+# ENV hhvmversion 3.9.10
+ENV hhvmversion 3.14.3
 RUN cd ${SRC_DIR} \
-    && wget -q -O imagick-3.4.3.tgz https://pecl.php.net/get/imagick-3.4.3.tgz \
-    && tar zxf imagick-3.4.3.tgz \
-    && cd imagick-3.4.3 \
-    && ${PHP_INSTALL_DIR}/bin/phpize \
-    && ./configure --with-php-config=${PHP_INSTALL_DIR}/bin/php-config --with-imagick 1>/dev/null \
-    && make clean \
-    && make 1>/dev/null \
+    && git clone -b HHVM-${hhvmversion} https://github.com/facebook/hhvm ./hhvm-HHVM-${hhvmversion} \
+    && cd hhvm-HHVM-${hhvmversion} \
+    && git submodule update --init --recursive \
+    && env BOOST_ROOT=/usr/include/boost ./configure \
+    && ldconfig \
+    && cmake \
+    -DCMAKE_INSTALL_PREFIX=/vue-msf/hhvm \
+    -DCMAKE_INSTALL_SYSCONFDIR=/vue-msf/hhvm/etc \
+    . \
+    && make \
+    && ./hphp/hhvm/hhvm --version \
     && make install \
-    && rm -rf ${SRC_DIR}/imagick-*
+    && rm -rf ${SRC_DIR}/hhvm-HHVM-${hhvmversion}*
 
-# -----------------------------------------------------------------------------
-# Install PHP xdebug extensions
-# -----------------------------------------------------------------------------
-#ENV xdebugversion 2.7.0
-#RUN cd ${SRC_DIR} \
-#    && wget -q -O xdebug-${xdebugversion}.tgz https://pecl.php.net/get/xdebug-${xdebugversion}.tgz \
-#    && tar zxf xdebug-${xdebugversion}.tgz \
-#    && cd xdebug-${xdebugversion} \
-#    && ${PHP_INSTALL_DIR}/bin/phpize \
-#    && ./configure --with-php-config=${PHP_INSTALL_DIR}/bin/php-config 1>/dev/null \
-#    && make clean \
-#    && make 1>/dev/null \
-#    && make install \
-#    && rm -rf ${SRC_DIR}/xdebug-*
-
-# -----------------------------------------------------------------------------
-# Install PHP igbinary extensions
-# -----------------------------------------------------------------------------
-RUN cd ${SRC_DIR} \
-    && wget -q -O igbinary-2.0.8.tgz https://pecl.php.net/get/igbinary-2.0.8.tgz \
-    && tar zxf igbinary-2.0.8.tgz \
-    && cd igbinary-2.0.8 \
-    && ${PHP_INSTALL_DIR}/bin/phpize \
-    && ./configure --with-php-config=${PHP_INSTALL_DIR}/bin/php-config 1>/dev/null \
-    && make clean \
-    && make 1>/dev/null \
-    && make install \
-    && rm -rf ${SRC_DIR}/igbinary-*
+RUN  yum install -y automake libtool
     
-# -----------------------------------------------------------------------------
-# Install PHP xlswriter extensions
-# -----------------------------------------------------------------------------
-# ENV xlswriterversion 1.5.1
-# RUN cd ${SRC_DIR} \
-#     && wget -q -O xlswriter-${xlswriterversion}.tgz https://pecl.php.net/get/xlswriter-${xlswriterversion}.tgz \
-#     && tar zxf xlswriter-${xlswriterversion}.tgz \
-#     && cd xlswriter-${xlswriterversion} \
-#     && ${PHP_INSTALL_DIR}/bin/phpize \
-#     && ./configure --with-php-config=${PHP_INSTALL_DIR}/bin/php-config --enable-reader 1>/dev/null \
-#     && make clean \
-#     && make 1>/dev/null \
-#     && make install \
-#     && rm -rf ${SRC_DIR}/xlswriter-*
-
-
-# -----------------------------------------------------------------------------
-# Install PHP memcached extensions
-# -----------------------------------------------------------------------------
 RUN cd ${SRC_DIR} \
-    && wget -q -O memcached-2.2.0.tgz https://pecl.php.net/get/memcached-2.2.0.tgz \
-    && tar xzf memcached-2.2.0.tgz \
-    && cd memcached-2.2.0 \
-    && ${PHP_INSTALL_DIR}/bin/phpize \
-    && ./configure --enable-memcached --with-php-config=${PHP_INSTALL_DIR}/bin/php-config \
-       --with-libmemcached-dir=${LIB_MEMCACHED_INSTALL_DIR} --disable-memcached-sasl 1>/dev/null \
-    && make 1>/dev/null \
-    && make install \
-    && rm -rf ${SRC_DIR}/memcached-*
-
-# -----------------------------------------------------------------------------
-# Install PHP memcache extensions
-# -----------------------------------------------------------------------------
-# ENV memcache_ext_version 1.6.12
-# ENV LIB_MEMCACHE_INSTALL_DIR /usr/local/
-# RUN cd ${SRC_DIR} \
-#     && wget -q -O memcache-${memcache_ext_version}.tgz https://pecl.php.net/get/memcache-${memcache_ext_version}.tgz \
-#     && tar xzf memcache-${memcache_ext_version}.tgz \
-#     && cd memcache-${memcache_ext_version} \
-#     && ${PHP_INSTALL_DIR}/bin/phpize \
-#     && ./configure --enable-memcache --with-php-config=${PHP_INSTALL_DIR}/bin/php-config \
-#        --with-libmemcache-dir=${LIB_MEMCACHE_INSTALL_DIR} --disable-memcache-sasl 1>/dev/null \
-#     && make 1>/dev/null \
-#     && make install \
-#     && rm -rf ${SRC_DIR}/memcached-*
-
-# -----------------------------------------------------------------------------
-# Install PHP yac extensions
-# -----------------------------------------------------------------------------
-RUN cd ${SRC_DIR} \
-    && wget -q -O yac-0.9.2.tgz https://pecl.php.net/get/yac-0.9.2.tgz \
-    && tar zxf yac-0.9.2.tgz\
-    && cd yac-0.9.2 \
-    && ${PHP_INSTALL_DIR}/bin/phpize \
-    && ./configure --with-php-config=${PHP_INSTALL_DIR}/bin/php-config \
-    && make 1>/dev/null \
-    && make install \
-    && rm -rf $SRC_DIR/yac-*
-
-
-
-# -----------------------------------------------------------------------------
-# Install PHP intl extensions  magento
-# -----------------------------------------------------------------------------
-# RUN cd ${SRC_DIR} \
-#     && cd intl\
-#     && ${PHP_INSTALL_DIR}/bin/phpize \
-#     && ./configure --with-php-config=${PHP_INSTALL_DIR}/bin/php-config --prefix=/usr/lib/icu \
-#     && make 1>/dev/null \
-#     && make install \
-#     && rm -rf $SRC_DIR/intl-*
-
-
-# -----------------------------------------------------------------------------
-# Install PHP libsodium extensions magento
-# -----------------------------------------------------------------------------
-# RUN cd ${SRC_DIR} \
-#     && wget -q -O libsodium-2.0.23.tgz https://pecl.php.net/get/libsodium-2.0.23.tgz \
-#     && tar zxf libsodium-2.0.23.tgz\
-#     && cd libsodium-2.0.23 \
-#     && ${PHP_INSTALL_DIR}/bin/phpize \
-#     && ./configure --with-php-config=${PHP_INSTALL_DIR}/bin/php-config \
-#     && make 1>/dev/null \
-#     && make install \
-#     && rm -rf $SRC_DIR/libsodium-*
-
-
-# -----------------------------------------------------------------------------
-# Install PHP swoole extensions
-# -----------------------------------------------------------------------------
-
-#RUN /vue-msf/php/bin/pecl install swoole_serialize-0.1.1
-
-# ENV swooleVersion 4.8.2
-# RUN cd ${SRC_DIR} \
-#     && ls /usr/local/include/ \
-#     && wget -q -O swoole-${swooleVersion}.tar.gz https://github.com/swoole/swoole-src/archive/v${swooleVersion}.tar.gz \
-#     && tar zxf swoole-${swooleVersion}.tar.gz \
-#     && cd swoole-src-${swooleVersion}/ \
-#     && ${PHP_INSTALL_DIR}/bin/phpize \
-#     && ./configure --with-php-config=${PHP_INSTALL_DIR}/bin/php-config --enable-async-redis --enable-openssl --with-openssl-dir=/usr/local/openssl/ --enable-mysqlnd \
-#     && make clean 1>/dev/null \
-#     && make 1>/dev/null \
-#     && make install \
-#     && rm -rf ${SRC_DIR}/swoole*
-
-
-# -----------------------------------------------------------------------------
-# Install PHP inotify extensions
-# -----------------------------------------------------------------------------
-RUN cd ${SRC_DIR} \
-    && wget -q -O inotify-0.1.6.tgz https://pecl.php.net/get/inotify-0.1.6.tgz \
-    && tar zxf inotify-0.1.6.tgz \
-    && cd inotify-0.1.6 \
-    && ${PHP_INSTALL_DIR}/bin/phpize \
-    && ./configure --with-php-config=${PHP_INSTALL_DIR}/bin/php-config 1>/dev/null \
-    && make clean \
-    && make 1>/dev/null \
-    && make install \
-    && rm -rf ${SRC_DIR}/inotify-*
-
-# -----------------------------------------------------------------------------
-# Install PHP SkyAPM-php-sdk extensions
-# -----------------------------------------------------------------------------
-
-# RUN cd ${SRC_DIR} \
-#     # && yum install boost boost-devel boost-doc -y \
-#     && find / -name 'libgrpc.a' \
-#     && yum install boost boost-devel  -y \
-#     && curl -Lo v4.1.3.tar.gz https://github.com/SkyAPM/SkyAPM-php-sdk/archive/v4.1.3.tar.gz \
-#     && tar -zxf v4.1.3.tar.gz \
-#     && whereis libgrpc \
-#     && ldconfig && ldconfig -p|grep libgrpc \
-#     && cd SkyAPM-php-sdk-4.1.3 \
-#     && export CC=/opt/rh/devtoolset-10/root/usr/bin/gcc \
-#     && export CPP=/opt/rh/devtoolset-10/root/usr/bin/cpp \
-#     && export CXX=/opt/rh/devtoolset-10/root/usr/bin/c++ \
-#     && export LD_LIBRARY_PATH=$LD_LIBRARY_PATH:/usr/local/lib:/usr/local/lib64  \
-#     && ldconfig && ldconfig -p|grep libgrpc \
-#     && ${PHP_INSTALL_DIR}/bin/phpize  \
-#     && ls -alh /usr/local/git/grpc/cmake/build/ \
-#     && ./configure --with-php-config=${PHP_INSTALL_DIR}/bin/php-config --with-grpc="/usr/local/git/grpc" 1>/dev/null \
-#     && make \
-#     && make install \
-#     && rm -rf /opt/rh /opt/rh-bak.zip ${SRC_DIR}/v4.1.3.tar.gz ${SRC_DIR}/SkyAPM-php-sdk-4.1.3 \
-#     && rm -rf /usr/local/git/grpc \
-#     && yum remove boost boost-devel  -y 
-
-# RUN cd ${SRC_DIR} \
-#     && wget -q -O skywalking-4.2.0.tgz https://pecl.php.net/get/skywalking-4.2.0.tgz \
-#     && yum install boost-devel  -y \
-#     && tar zxf skywalking-4.2.0.tgz\
-#     && cd skywalking-4.2.0 \
-#     && export CC=/opt/rh/devtoolset-10/root/usr/bin/gcc \
-#     && export CPP=/opt/rh/devtoolset-10/root/usr/bin/cpp \
-#     && export CXX=/opt/rh/devtoolset-10/root/usr/bin/c++ \
-#     && export LD_LIBRARY_PATH=$LD_LIBRARY_PATH:/usr/local/lib:/usr/local/lib64  \
-#     && ${PHP_INSTALL_DIR}/bin/phpize \
-#     && ./configure --with-php-config=${PHP_INSTALL_DIR}/bin/php-config --with-grpc="/usr/local/git/grpc"  \
-#     && make 1>/dev/null \
-#     && make install \
-#     && rm -rf $SRC_DIR/skywalking-* \
-#     && yum remove boost-devel  -y
-
-###php 5.3.29 remove
-# RUN cd ${SRC_DIR} \
-#     && wget -q -O skywalking-4.2.0.tgz https://pecl.php.net/get/skywalking-4.2.0.tgz \
-#     && git clone https://github.com/SkyAPM/SkyAPM-php-sdk.git \
-#     && yum install boost-devel  -y \
-#     # && tar zxf skywalking-4.2.0.tgz\
-#     && cd SkyAPM-php-sdk \
-#     && export CC=/opt/rh/devtoolset-10/root/usr/bin/gcc \
-#     && export CPP=/opt/rh/devtoolset-10/root/usr/bin/cpp \
-#     && export CXX=/opt/rh/devtoolset-10/root/usr/bin/c++ \
-#     && export LD_LIBRARY_PATH=$LD_LIBRARY_PATH:/usr/local/lib:/usr/local/lib64  \
-#     && ${PHP_INSTALL_DIR}/bin/phpize \
-#     && ./configure --with-php-config=${PHP_INSTALL_DIR}/bin/php-config --with-grpc-src="/usr/local/git/grpc"  \
-#     && make 1>/dev/null \
-#     && make install \
-#     && rm -rf $SRC_DIR/skywalking-* \
-#     && yum remove boost-devel  -y
-
-
-# -----------------------------------------------------------------------------
-# Install PHP mongo extensions
-# -----------------------------------------------------------------------------
-ENV mongo_ext_version 1.6.12
-RUN cd ${SRC_DIR} \
-    && wget -q -O mongo-${mongo_ext_version}.tgz https://pecl.php.net/get/mongo-${mongo_ext_version}.tgz \
-    && tar zxf mongo-${mongo_ext_version}.tgz \
-    && cd mongo-${mongo_ext_version} \
-    && ${PHP_INSTALL_DIR}/bin/phpize \
-    && ./configure --with-php-config=${PHP_INSTALL_DIR}/bin/php-config 1>/dev/null \
-    && make clean \
+    && git clone -b 1.1.9  https://github.com/mongodb/libbson.git \
+    && cd libbson/ \
+    && sh ./autogen.sh \
     && make \
     && make install \
-    && rm -rf ${SRC_DIR}/mongo-*
+    && rm -rf ${SRC_DIR}/libbson*
 
-
-# -----------------------------------------------------------------------------
-# Install PHP oauth extensions
-# -----------------------------------------------------------------------------
-ENV oauth_ext_version 1.2.3
 RUN cd ${SRC_DIR} \
-    && wget -q -O oauth-${oauth_ext_version}.tgz https://pecl.php.net/get/oauth-${oauth_ext_version}.tgz \
-    && tar zxf oauth-${oauth_ext_version}.tgz \
-    && cd oauth-${oauth_ext_version} \
-    && ${PHP_INSTALL_DIR}/bin/phpize \
-    && ./configure --with-php-config=${PHP_INSTALL_DIR}/bin/php-config 1>/dev/null \
-    && make clean \
-    && make \
+    && git clone -b 1.2.0  https://github.com/mongodb/mongo-hhvm-driver.git\
+    && cd mongo-hhvm-driver \
+    && git submodule sync && git submodule update --init --recursive \
+    && /vue-msf/hhvm/bin/hphpize \
+    && cmake . \
+    && make configlib \
+    && make -j 4 \
     && make install \
-    && rm -rf ${SRC_DIR}/oauth-*
+    && rm -rf ${SRC_DIR}/mongo-hhvm-driver*
 
-# -----------------------------------------------------------------------------
-# Install PHP zendopcache extensions
-# -----------------------------------------------------------------------------
-# ENV zendopcache_ext_version 7.0.5
-# RUN cd ${SRC_DIR} \
-#     && wget -q -O zendopcache-${zendopcache_ext_version}.tgz https://pecl.php.net/get/zendopcache-${zendopcache_ext_version}.tgz \
-#     && tar zxf zendopcache-${zendopcache_ext_version}.tgz \
-#     && cd zendopcache-${zendopcache_ext_version} \
-#     && ${PHP_INSTALL_DIR}/bin/phpize \
-#     && ./configure --with-php-config=${PHP_INSTALL_DIR}/bin/php-config 1>/dev/null \
-#     && make clean \
-#     && make \
-#     && make install \
-#     && rm -rf ${SRC_DIR}/zendopcache-*
-
-# -----------------------------------------------------------------------------
-# Install phpunit
-# -----------------------------------------------------------------------------
-#RUN cd ${SRC_DIR} \
-#    && wget -q -O phpunit.phar https://phar.phpunit.de/phpunit.phar \
-#    && mv phpunit.phar ${PHP_INSTALL_DIR}/bin/phpunit \
-#    && chmod +x ${PHP_INSTALL_DIR}/bin/phpunit
-
-# -----------------------------------------------------------------------------
-# Install php composer
-# -----------------------------------------------------------------------------
 RUN cd ${SRC_DIR} \
-    && curl -sS https://getcomposer.org/installer | ${PHP_INSTALL_DIR}/bin/php -d detect_unicode=Off \
-    && chmod +x composer.phar \
-    && mv composer.phar ${PHP_INSTALL_DIR}/bin/composer
-
-# -----------------------------------------------------------------------------
-# Install PhpDocumentor
-# -----------------------------------------------------------------------------
-#RUN ${PHP_INSTALL_DIR}/bin/pear clear-cache
-#RUN ${PHP_INSTALL_DIR}/bin/pear update-channels
-#RUN ${PHP_INSTALL_DIR}/bin/pear upgrade
-#RUN ${PHP_INSTALL_DIR}/bin/pear install -a PhpDocumentor
-#RUN ${PHP_INSTALL_DIR}/bin/pear install  http://pear.phpdoc.org/get/phpDocumentor-2.0.0b6.tgz
-
-#RUN cd ${PHP_INSTALL_DIR} \
-#    && bin/php bin/composer self-update \
-#    && bin/pear install PHP_CodeSniffer-2.3.4 \
-#    && rm -rf /tmp/*
+    && export PATH=$PATH:/vue-msf/hhvm/bin \
+    && git clone https://github.com/mongofill/mongofill-hhvm.git \
+    && cd mongofill-hhvm \
+    && grep "git://" -rl .gitmodules | xargs sed -i "s|git://|https://|g" \
+    && sh build.sh \
+    && cp mongo.so /vue-msf/hhvm/lib64/hhvm/extensions/20150212 \
+    && rm -rf ${SRC_DIR}/mongofill-hhvm*
 
 # -----------------------------------------------------------------------------
 # Install jq
@@ -904,21 +649,7 @@ RUN cd ${SRC_DIR} \
     && rm -rf ${SRC_DIR}/jq-* \
     && yum clean all 
 
-# -----------------------------------------------------------------------------
-# Install Apache ab
-# -----------------------------------------------------------------------------
-#RUN cd ${HOME} \
-#    && yum -y remove httpd \
-#    && yum clean all \
-#    && mkdir httpd \
-#    && cd httpd \
-#    && yumdownloader httpd-tools \
-#    && rpm2cpio httpd-tools* | cpio -idmv \
-#    && mkdir -p ${HOME}/bin  \
-#    && mv -f ./usr/bin/ab ${HOME}/bin \
-#    && cd ${HOME} && rm -rf ${HOME}/httpd
 
-#RUN echo "swoole.use_shortname = 'Off'" >> /vue-msf/php/etc/php.d/swoole.ini 
 
 # -----------------------------------------------------------------------------
 # Update Git and Config git
@@ -960,17 +691,18 @@ RUN curl -s -L http://github.com/micha/jsawk/raw/master/jsawk > /usr/local/bin/j
 # Copy Config
 # -----------------------------------------------------------------------------
 ADD run.sh /
-ADD config/.bash_profile /home/super/
 ADD config/.bashrc /home/super/
+ADD config/.bash_profile /home/super/
 ADD config /vue-msf/
-ADD Zend.zip /vue-msf/php/lib/php/
-ADD Smarty.zip /vue-msf/php/lib/php/
+ADD Zend.zip /vue-msf/hhvm/lib64/hhvm
+ADD Smarty.zip /vue-msf/hhvm/lib64/hhvm
 RUN chmod a+x /run.sh \
-	&& chmod a+x ${PHP_INSTALL_DIR}/bin/checkstyle \
-    && chmod a+x ${PHP_INSTALL_DIR}/bin/mergeCoverReport \
-    && cd /vue-msf/php/lib/php \
+	# && chmod a+x ${PHP_INSTALL_DIR}/bin/checkstyle \
+    # && chmod a+x ${PHP_INSTALL_DIR}/bin/mergeCoverReport \
+    && cd /vue-msf/hhvm/lib64/hhvm \
     && unzip Smarty.zip && rm -rf Smarty.zip  \
-    && unzip Zend.zip && rm -rf Zend.zip  
+    && unzip Zend.zip && rm -rf Zend.zip  \
+    && mkdir -p /var/log/hhvm/
 
 
 # -----------------------------------------------------------------------------
@@ -989,7 +721,7 @@ RUN echo -e "# Default limit for number of user's processes to prevent \n\
 # -----------------------------------------------------------------------------
 # Profile
 # ----------------------------------------------------------------------------- 
-RUN echo -e 'PATH=$PATH:/vue-msf/php/bin \nPATH=$PATH:/vue-msf/php/sbin \nPATH=$PATH:/vue-msf/nginx/bin/ \nPATH=$PATH:/vue-msf/sbin/ \nPATH=$PATH:/vue-msf/redis/bin/:/usr/libexec/git-core \nexport PATH \n' >> /etc/profile \
+RUN echo -e 'PATH=$PATH:/vue-msf/hhvm/bin \nPATH=$PATH:/vue-msf/php/bin \nPATH=$PATH:/vue-msf/php/sbin \nPATH=$PATH:/vue-msf/nginx/bin/ \nPATH=$PATH:/vue-msf/sbin/ \nPATH=$PATH:/vue-msf/redis/bin/:/usr/libexec/git-core \nexport PATH \n' >> /etc/profile \
     && source /etc/profile
 
 # -----------------------------------------------------------------------------

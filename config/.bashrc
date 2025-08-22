@@ -6,7 +6,8 @@ if [ -f /etc/bashrc ]; then
 fi
 
 # User specific aliases and functions
-PATH=$PATH:$HOME/bin:$HOME/php/bin:$HOME/nginx/sbin:$HOME/memcached/bin:$HOME/redis/bin
+PATH=$PATH:$HOME/bin:$HOME/php/bin:$HOME/nginx/sbin:$HOME/memcached/bin:$HOME/redis/bin:$HOME/hhvm/bin
 export PATH
 
 alias supervisorctl='supervisorctl -c /vue-msf/supervisor/supervisord.conf'
+alias hhvm='hhvm -c /vue-msf/hhvm/etc/php.ini'
