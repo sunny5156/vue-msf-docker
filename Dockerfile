@@ -590,7 +590,7 @@ RUN cd ${SRC_DIR} \
 
 
 # ENV hhvmversion 3.9.10
-ENV hhvmversion 3.14.3
+ENV hhvmversion 3.15.0
 RUN cd ${SRC_DIR} \
     && git clone -b HHVM-${hhvmversion} https://github.com/facebook/hhvm ./hhvm-HHVM-${hhvmversion} \
     && cd hhvm-HHVM-${hhvmversion} \
@@ -604,12 +604,14 @@ RUN cd ${SRC_DIR} \
     && make \
     && ./hphp/hhvm/hhvm --version \
     && make install \
-    && rm -rf ${SRC_DIR}/hhvm-HHVM-${hhvmversion}*
+    && rm -rf ${SRC_DIR}/hhvm-HHVM-${hhvmversion}* \
+    && ln -s /vue-msf/hhvm/bin/hhvm /usr/bin/php
 
 RUN  yum install -y automake libtool
     
 RUN cd ${SRC_DIR} \
-    && git clone -b 1.1.9  https://github.com/mongodb/libbson.git \
+    # && git clone -b 1.1.9  https://github.com/mongodb/libbson.git \
+    && git clone -b 1.4.1  https://github.com/mongodb/libbson.git \
     && cd libbson/ \
     && sh ./autogen.sh \
     && make \
