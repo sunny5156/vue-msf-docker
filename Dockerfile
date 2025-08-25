@@ -693,8 +693,8 @@ RUN curl -s -L http://github.com/micha/jsawk/raw/master/jsawk > /usr/local/bin/j
 # Copy Config
 # -----------------------------------------------------------------------------
 ADD run.sh /
-ADD config/.bash_profile /home/super/
 ADD config/.bashrc /home/super/
+ADD config/.bash_profile /home/super/
 ADD config /vue-msf/
 ADD Zend.zip /vue-msf/hhvm/lib64/hhvm
 ADD Smarty.zip /vue-msf/hhvm/lib64/hhvm
