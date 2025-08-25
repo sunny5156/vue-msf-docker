@@ -701,7 +701,7 @@ ADD Smarty.zip /vue-msf/hhvm/lib64/hhvm
 RUN chmod a+x /run.sh \
 	# && chmod a+x ${PHP_INSTALL_DIR}/bin/checkstyle \
     # && chmod a+x ${PHP_INSTALL_DIR}/bin/mergeCoverReport \
-    && mkdir -p /vue-mf/data/hhvm/log /vue-mf/data/hhvm/cache \
+    && mkdir -p /vue-msf/data/hhvm/log /vue-msf/data/hhvm/cache \
     && cd /vue-msf/hhvm/lib64/hhvm \
     && unzip Smarty.zip && rm -rf Smarty.zip  \
     && unzip Zend.zip && rm -rf Zend.zip  
