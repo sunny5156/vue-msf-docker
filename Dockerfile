@@ -693,19 +693,18 @@ RUN curl -s -L http://github.com/micha/jsawk/raw/master/jsawk > /usr/local/bin/j
 # Copy Config
 # -----------------------------------------------------------------------------
 ADD run.sh /
-ADD config/.bashrc /home/super/
 ADD config/.bash_profile /home/super/
+ADD config/.bashrc /home/super/
 ADD config /vue-msf/
 ADD Zend.zip /vue-msf/hhvm/lib64/hhvm
 ADD Smarty.zip /vue-msf/hhvm/lib64/hhvm
 RUN chmod a+x /run.sh \
 	# && chmod a+x ${PHP_INSTALL_DIR}/bin/checkstyle \
     # && chmod a+x ${PHP_INSTALL_DIR}/bin/mergeCoverReport \
-    && mkdir -p /var/run/hhvm \
+    && mkdir -p /vue-mf/data/hhvm/log /vue-mf/data/hhvm/cache \
     && cd /vue-msf/hhvm/lib64/hhvm \
     && unzip Smarty.zip && rm -rf Smarty.zip  \
-    && unzip Zend.zip && rm -rf Zend.zip  \
-    && mkdir -p /var/log/hhvm/
+    && unzip Zend.zip && rm -rf Zend.zip  
 
 
 # -----------------------------------------------------------------------------

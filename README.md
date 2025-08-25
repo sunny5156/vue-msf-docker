@@ -77,6 +77,7 @@ nodemon -L --exec "php" server.php start
 
 
 ```
+/vue-msf/hhvm/bin/hhvm --hphp   -t hhbc  --input-dir /var/www   --output-dir /var/cache/hhvm
 
 /vue-msf/hhvm/bin/hhvm --hphp   -t hhbc   -v "AllDynamic=true"   --input-dir /var/www   --output-dir /var/cache/hhvm
 

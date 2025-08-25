@@ -11,3 +11,4 @@ export PATH
 
 alias supervisorctl='supervisorctl -c /vue-msf/supervisor/supervisord.conf'
 alias hhvm='hhvm -c /vue-msf/hhvm/etc/php.ini'
+alias php='hhvm -c /vue-msf/hhvm/etc/php.ini'

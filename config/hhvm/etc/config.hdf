@@ -13,10 +13,10 @@ Log {
   RuntimeErrorReportingLevel = 8191
   UseLogFile = true
   UseSyslog = false
-  File = /var/log/hhvm/error.log
+  File = /vue-msf/data/hhvm/log/error.log
   Access {
     * {
-      File = /var/log/hhvm/access.log
+      File = /vue-msf/data/hhvm/log/access.log
       Format = %h %l %u % t \"%r\" %>s %b
     }
   }
