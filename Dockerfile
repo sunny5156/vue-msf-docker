@@ -168,7 +168,7 @@ RUN ln -sf /usr/share/zoneinfo/Asia/Chongqing /etc/localtime \
 # -----------------------------------------------------------------------------
 # Install Nginx
 # ----------------------------------------------------------------------------- 
-ENV nginxVersion 1.21.5
+ENV nginxVersion 1.29.2
 ENV NGINX_INSTALL_DIR ${HOME}/nginx
 RUN cd ${SRC_DIR} \
     && wget -q -O nginx-${nginxVersion}.tar.gz  http://nginx.org/download/nginx-${nginxVersion}.tar.gz \
@@ -423,7 +423,7 @@ RUN cd $SRC_DIR \
 # -----------------------------------------------------------------------------
 # Install PHP
 # -----------------------------------------------------------------------------
-ENV phpVersion 8.2.16
+ENV phpVersion 8.2.29
 # ENV phpVersion 8.1.29 
 ENV PHP_INSTALL_DIR ${HOME}/php
 RUN cd ${SRC_DIR} \
@@ -617,7 +617,7 @@ RUN cd ${SRC_DIR} \
 # -----------------------------------------------------------------------------
 # Install PHP xlswriter extensions
 # -----------------------------------------------------------------------------
-ENV xlswriterExtVersion 1.5.5
+ENV xlswriterExtVersion 1.5.8
 RUN cd ${SRC_DIR} \
     && wget -q -O xlswriter-${xlswriterExtVersion}.tgz https://pecl.php.net/get/xlswriter-${xlswriterExtVersion}.tgz \
     && tar zxf xlswriter-${xlswriterExtVersion}.tgz \
@@ -695,7 +695,7 @@ RUN cd ${SRC_DIR} \
 # Install PHP swoole extensions
 # -----------------------------------------------------------------------------
 
-ENV swooleExtVersion 5.0.3
+ENV swooleExtVersion 6.1.0
 RUN cd ${SRC_DIR} \
     && ls /usr/local/include/ \
     && wget -q -O swoole-${swooleExtVersion}.tar.gz https://github.com/swoole/swoole-src/archive/v${swooleExtVersion}.tar.gz \
@@ -753,28 +753,33 @@ RUN cd ${SRC_DIR} \
 # Install cargo
 # -----------------------------------------------------------------------------
 
-RUN if [ "$ARCH" = "arm64" ]; then \
-        echo "Building for arm64 architecture"; \
-    else \
+
+RUN \
+    # if [ "$ARCH" = "arm64" ]; then \
+        # echo "Building for arm64 architecture"; \
+    # else \
         yum install -y  clang-devel protobuf-compiler \
-        --nogpgcheck \
-    fi
+        --nogpgcheck 
+    # fi
     # &&  source "/vuem-msf/.cargo/env" \
 # RUN curl --proto '=https' --tlsv1.2 -sSf https://sh.rustup.rs | sh -s -- -y
-RUN if [ "$ARCH" = "arm64" ]; then \
-        echo "Building for arm64 architecture"; \
-    else \
-        curl https://sh.rustup.rs -sSf |  sh -s -- -y \
-    fi
+RUN \
+    # if [ "$ARCH" = "arm64" ]; then \
+        # echo "Building for arm64 architecture"; \
+    # else \
+        # curl https://sh.rustup.rs -sSf |  sh -s -- -y 
+        curl --proto '=https' --tlsv1.2 -sSf https://sh.rustup.rs | sh -s -- -y
+    # fi
 
 
 # -----------------------------------------------------------------------------
 # Install PHP skywalking_agent extensions
 # -----------------------------------------------------------------------------
 ENV skywalkingAgentExtVersion 0.8.0
-RUN if [ "$ARCH" = "arm64" ]; then \
-        echo "Building for arm64 architecture"; \
-    else \
+RUN \
+    # if [ "$ARCH" = "arm64" ]; then \
+        # echo "Building for arm64 architecture"; \
+    # else \
         cd ${SRC_DIR} \
         # && export PATH=$PATH:/vue-msf/php/bin \/
         # && ln -s /usr/openssl/include/openssl /usr/local/include \
@@ -990,7 +995,7 @@ RUN chmod a+x /run.sh \
     && ln -s /usr/libexec/git-core/git-remote-https /bin/ \
     && git config --global user.email "vue-msf@admin.com" \
     && git config --global user.name "vue-msf" \
-    #&& curl -s -L http://github.com/micha/jsawk/raw/master/jsawk > /usr/local/bin/jsawk \
+    && curl -s -L http://github.com/micha/jsawk/raw/master/jsawk > /usr/local/bin/jsawk \
 	&& chmod 755 /usr/local/bin/jsawk \
     && rm -rf ${SRC_DIR}/* \
     && yum --enablerepo=powertools install -y \
