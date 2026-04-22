@@ -2,11 +2,10 @@ FROM almalinux:8.8  AS builder
 
 ARG ARCH=
 
-# FROM centos:centos7
 MAINTAINER sunny5156 <sunny5156@qq.com>
 
 # -----------------------------------------------------------------------------
-# Try to fix Centos7 docker Dbus 
+# Try to fix Almalinux8 docker Dbus 
 # -----------------------------------------------------------------------------
 
 #RUN yum clean all && yum swap -y fakesystemd systemd
@@ -22,7 +21,7 @@ RUN mkdir -p ${SRC_DIR}
 # Install Development tools {epel-release}
 # -----------------------------------------------------------------------------
 RUN rpm --import /etc/pki/rpm-gpg/RPM* \
-    && curl -s --location https://rpm.nodesource.com/setup_20.x | bash - \
+    && curl -s --location https://rpm.nodesource.com/setup_24.x | bash - \
     && yum -y install wget epel-release \
     gcc gcc-c++ gcc-toolset-13 cmake zlib zlib-devel  \
     sqlite-devel net-tools python312 python3.12-pip python3.12-devel\
@@ -148,17 +147,9 @@ RUN curl --silent --location https://dl.yarnpkg.com/rpm/yarn.repo | tee /etc/yum
 # WARNING: 'UsePAM no' is not supported in Red Hat Enterprise Linux and may cause several problems.
 RUN ln -sf /usr/share/zoneinfo/Asia/Chongqing /etc/localtime \
 	&& echo "root:123456" | chpasswd \
-    \
-	##&& ssh-keygen -q -t rsa -b 2048 -f /etc/ssh/ssh_host_rsa_key -N '' \ 
-	##&& ssh-keygen -q -t ecdsa -f /etc/ssh/ssh_host_ecdsa_key -N '' \
-	##&& ssh-keygen -t dsa -f /etc/ssh/ssh_host_ed25519_key -N '' \
-    # && ssh-keygen -t rsa -f /etc/ssh/ssh_host_rsa_key \
-    # && ssh-keygen -t ecdsa -f  /etc/ssh/ssh_host_ecdsa_key \
-    # && ssh-keygen -t ed25519 -f /etc/ssh/ssh_host_ed25519_key \
     && ssh-keygen -q -t rsa -b 4096 -f /etc/ssh/ssh_host_rsa_key -N '' \ 
 	&& ssh-keygen -q -t ecdsa -f /etc/ssh/ssh_host_ecdsa_key -N '' \
 	&& ssh-keygen -t ed25519 -f /etc/ssh/ssh_host_ed25519_key -N '' \
-    \
 	&& sed -i "s/GSSAPIAuthentication yes/GSSAPIAuthentication no/g" /etc/ssh/ssh_config \
     && adduser super \
     && echo "super:123456" | chpasswd \
@@ -168,7 +159,7 @@ RUN ln -sf /usr/share/zoneinfo/Asia/Chongqing /etc/localtime \
 # -----------------------------------------------------------------------------
 # Install Nginx
 # ----------------------------------------------------------------------------- 
-ENV nginxVersion 1.29.2
+ENV nginxVersion 1.30.0
 ENV NGINX_INSTALL_DIR ${HOME}/nginx
 RUN cd ${SRC_DIR} \
     && wget -q -O nginx-${nginxVersion}.tar.gz  http://nginx.org/download/nginx-${nginxVersion}.tar.gz \
@@ -423,7 +414,7 @@ RUN cd $SRC_DIR \
 # -----------------------------------------------------------------------------
 # Install PHP
 # -----------------------------------------------------------------------------
-ENV phpVersion 8.2.29
+ENV phpVersion 8.5.5
 # ENV phpVersion 8.1.29 
 ENV PHP_INSTALL_DIR ${HOME}/php
 RUN cd ${SRC_DIR} \
@@ -695,7 +686,7 @@ RUN cd ${SRC_DIR} \
 # Install PHP swoole extensions
 # -----------------------------------------------------------------------------
 
-ENV swooleExtVersion 6.1.0
+ENV swooleExtVersion 6.2.0
 RUN cd ${SRC_DIR} \
     && ls /usr/local/include/ \
     && wget -q -O swoole-${swooleExtVersion}.tar.gz https://github.com/swoole/swoole-src/archive/v${swooleExtVersion}.tar.gz \
@@ -703,7 +694,15 @@ RUN cd ${SRC_DIR} \
     && cd swoole-src-${swooleExtVersion}/ \
     && ${PHP_INSTALL_DIR}/bin/phpize \
     # && ./configure --with-php-config=${PHP_INSTALL_DIR}/bin/php-config --enable-async-redis --enable-openssl --with-openssl-dir=/usr/local/openssl/ --enable-mysqlnd --enable-swoole-curl  1>/dev/null\
-    && ./configure --with-php-config=${PHP_INSTALL_DIR}/bin/php-config --enable-async-redis --enable-openssl --with-openssl-dir=/usr/local/openssl/ --enable-mysqlnd  1>/dev/null\
+    && ./configure --with-php-config=${PHP_INSTALL_DIR}/bin/php-config  \
+    --enable-async-redis \
+    --enable-openssl \
+    --with-openssl-dir=/usr/local/openssl/ \
+    --enable-mysqlnd  \
+    --enable-swoole-ftp \
+    --with-swoole-ssh2 \
+    --enable-uring_socket \
+    1>/dev/null\
     && make clean 1>/dev/null \
     && make 1>/dev/null \
     && make install \
@@ -775,7 +774,7 @@ RUN \
 # -----------------------------------------------------------------------------
 # Install PHP skywalking_agent extensions
 # -----------------------------------------------------------------------------
-ENV skywalkingAgentExtVersion 0.8.0
+ENV skywalkingAgentExtVersion 1.1.0
 RUN \
     # if [ "$ARCH" = "arm64" ]; then \
         # echo "Building for arm64 architecture"; \
