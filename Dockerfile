@@ -114,7 +114,9 @@ RUN \
     oniguruma oniguruma-devel \
     libmemcached libmemcached-devel \
     libmcrypt libmcrypt-devel \
-    libicu libicu-devel 
+    libicu libicu-devel \
+    liburing liburing-devel \
+    libssh2 libssh2-devel
     # gmp gmp-devel  #大数据 parquet 
     # && find / -name "libicu*" 
 
@@ -145,7 +147,7 @@ RUN curl --silent --location https://dl.yarnpkg.com/rpm/yarn.repo | tee /etc/yum
 # Configure, timezone/sshd/passwd/networking , Config root , add super
 # -----------------------------------------------------------------------------
 # WARNING: 'UsePAM no' is not supported in Red Hat Enterprise Linux and may cause several problems.
-RUN ln -sf /usr/share/zoneinfo/Asia/Chongqing /etc/localtime \
+RUN ln -sf /usr/share/zoneinfo/Asia/Singapore /etc/localtime \
 	&& echo "root:123456" | chpasswd \
     && ssh-keygen -q -t rsa -b 4096 -f /etc/ssh/ssh_host_rsa_key -N '' \ 
 	&& ssh-keygen -q -t ecdsa -f /etc/ssh/ssh_host_ecdsa_key -N '' \
@@ -419,11 +421,9 @@ ENV phpVersion 8.5.5
 ENV PHP_INSTALL_DIR ${HOME}/php
 RUN cd ${SRC_DIR} \
     && export PKG_CONFIG_PATH="/usr/lib64/pkgconfig" \
-    # && export PKG_CONFIG_PATH=${PKG_CONFIG_PATH}:"/usr/local/lib/pkgconfig/" \
     && wget -q -O php-${phpVersion}.tar.gz https://www.php.net/distributions/php-${phpVersion}.tar.gz \
     && tar xzf php-${phpVersion}.tar.gz \
     && cd php-${phpVersion} \
-    # && make clean \
     && ./configure \
     #    --disable-shared \
     #    --enable-static \
@@ -449,39 +449,43 @@ RUN cd ${SRC_DIR} \
        --enable-sysvmsg \
        --enable-sysvsem \
        --enable-sysvshm \
-       --enable-opcache \
+    #    --enable-opcache \
+    #    --disable-opcache-jit \
        # magento
        --enable-intl \ 
        --with-gettext \
        --with-xsl \
-       --with-xmlrpc \
+    #    --with-xmlrpc \
        --with-snmp \
        --with-ldap \
        --enable-mysqlnd \
        --with-mysqli=mysqlnd \
        --with-pdo-mysql=mysqlnd \
-       --with-pdo-odbc=unixODBC,/usr \
+    #    --with-pdo-odbc=unixODBC,/usr \
        --enable-gd \
        --with-webp \
        --with-jpeg \
-       --with-zlib-dir \
+    #    --with-zlib-dir \
        --with-freetype \
        --with-zlib \
        --with-bz2 \
        --with-openssl \
     #    --with-openssl-dir \ 
-       --with-curl=/usr/bin/curl \
+       --with-curl \
     #    --with-curl  \
-       --with-imap \
-       --with-imap-ssl \
-       --with-kerberos \
+    #    --with-imap \
+    #    --with-imap-ssl \
+    #    --with-kerberos \
        #magento
-       --with-icu-dir=/usr/lib/icu/ \ 
+    #    --with-icu-dir=/usr/lib/icu/ \ 
        --with-mhash \
-       --enable-inline-optimization \
+       CFLAGS="-fPIC -O2 -ffp-contract=off" \
+       CXXFLAGS="-fPIC -O2" \
+       LDFLAGS="-pie" \
+    #    --enable-inline-optimization \
     #    --with-gmp  \  #大数据 parquet
     # && make --quiet prof-gen LIBS="-lssl -lcrypto -llber -lzip" 1>/dev/null \
-    && make --quiet prof-gen LIBS="-lssl -lcrypto" 1>/dev/null \
+    # && make --quiet prof-gen LIBS="-lssl -lcrypto" 1>/dev/null \
     && make install \
     && rm -rf ${PHP_INSTALL_DIR}/lib/php.ini \
     && cp -f php.ini-development ${PHP_INSTALL_DIR}/lib/php.ini \
@@ -492,7 +496,7 @@ RUN cd ${SRC_DIR} \
 # -----------------------------------------------------------------------------
 # Install yaml and PHP yaml extension
 # -----------------------------------------------------------------------------
-ENV yamlExtVersion 2.2.2
+ENV yamlExtVersion 2.2.5
 RUN cd ${SRC_DIR} \
     && wget -q -O yaml-${yamlExtVersion}.tgz https://pecl.php.net/get/yaml-${yamlExtVersion}.tgz \
     && tar xzf yaml-${yamlExtVersion}.tgz \
@@ -529,7 +533,7 @@ RUN cd ${SRC_DIR} \
 # -----------------------------------------------------------------------------
 # Install PHP amqp extensions
 # -----------------------------------------------------------------------------
-ENV amqpExtVersion 1.11.0
+ENV amqpExtVersion 2.2.0
 RUN cd ${SRC_DIR} \
     # && yum install -y librabbitmq-devel \ 
     && wget -q -O amqp-${amqpExtVersion}.tgz https://pecl.php.net/get/amqp-${amqpExtVersion}.tgz\
@@ -548,7 +552,7 @@ RUN cd ${SRC_DIR} \
 # -----------------------------------------------------------------------------
 # Install PHP redis extensions
 # -----------------------------------------------------------------------------
-ENV redisExtVersion 5.3.7
+ENV redisExtVersion 6.3.0
 RUN cd ${SRC_DIR} \
     && wget -q -O redis-${redisExtVersion}.tgz https://pecl.php.net/get/redis-${redisExtVersion}.tgz \
     && tar zxf redis-${redisExtVersion}.tgz \
@@ -563,7 +567,7 @@ RUN cd ${SRC_DIR} \
 # -----------------------------------------------------------------------------
 # Install PHP imagick extensions
 # -----------------------------------------------------------------------------
-ENV imagickExtVersion 3.7.0
+ENV imagickExtVersion 3.8.1
 RUN cd ${SRC_DIR} \
     && wget -q -O imagick-${imagickExtVersion}.tgz https://pecl.php.net/get/imagick-${imagickExtVersion}.tgz \
     && tar zxf imagick-${imagickExtVersion}.tgz \
@@ -593,7 +597,7 @@ RUN cd ${SRC_DIR} \
 # -----------------------------------------------------------------------------
 # Install PHP igbinary extensions
 # -----------------------------------------------------------------------------
-ENV igbinaryExtVersion 3.2.10
+ENV igbinaryExtVersion 3.2.17RC1
 RUN cd ${SRC_DIR} \
     && wget -q -O igbinary-${igbinaryExtVersion}.tgz https://pecl.php.net/get/igbinary-${igbinaryExtVersion}.tgz \
     && tar zxf igbinary-${igbinaryExtVersion}.tgz \
@@ -624,7 +628,7 @@ RUN cd ${SRC_DIR} \
 # -----------------------------------------------------------------------------
 # Install PHP memcached extensions
 # -----------------------------------------------------------------------------
-ENV memcachedExtVersion 3.2.0
+ENV memcachedExtVersion 3.4.0
 RUN cd ${SRC_DIR} \
     && mkdir -p /usr/lib/x86_64-linux-gnu/include/libmemcached \
     && ln -s /usr/include/libmemcached/memcached.h /usr/lib/x86_64-linux-gnu/include/libmemcached/memcached.h \
@@ -641,7 +645,7 @@ RUN cd ${SRC_DIR} \
 # -----------------------------------------------------------------------------
 # Install PHP yac extensions
 # -----------------------------------------------------------------------------
-ENV yacExtVersion 2.2.0
+ENV yacExtVersion 2.3.1
 RUN cd ${SRC_DIR} \
     && wget -q -O yac-${yacExtVersion}.tgz https://pecl.php.net/get/yac-${yacExtVersion}.tgz \
     && tar zxf yac-${yacExtVersion}.tgz\
@@ -686,22 +690,29 @@ RUN cd ${SRC_DIR} \
 # Install PHP swoole extensions
 # -----------------------------------------------------------------------------
 
+# Build liburing >= 2.8 from source (required by Swoole 6.2 --enable-iouring)
+RUN cd ${SRC_DIR} \
+    && wget -q -O liburing-2.9.tar.gz https://github.com/axboe/liburing/archive/refs/tags/liburing-2.9.tar.gz \
+    && tar zxf liburing-2.9.tar.gz \
+    && cd liburing-liburing-2.9 \
+    && make -j$(nproc) \
+    && make install \
+    && ldconfig \
+    && rm -rf ${SRC_DIR}/liburing-*
+
 ENV swooleExtVersion 6.2.0
 RUN cd ${SRC_DIR} \
-    && ls /usr/local/include/ \
     && wget -q -O swoole-${swooleExtVersion}.tar.gz https://github.com/swoole/swoole-src/archive/v${swooleExtVersion}.tar.gz \
     && tar zxf swoole-${swooleExtVersion}.tar.gz \
     && cd swoole-src-${swooleExtVersion}/ \
     && ${PHP_INSTALL_DIR}/bin/phpize \
-    # && ./configure --with-php-config=${PHP_INSTALL_DIR}/bin/php-config --enable-async-redis --enable-openssl --with-openssl-dir=/usr/local/openssl/ --enable-mysqlnd --enable-swoole-curl  1>/dev/null\
+    && export PKG_CONFIG_PATH="/usr/lib/pkgconfig:/usr/lib64/pkgconfig" \
     && ./configure --with-php-config=${PHP_INSTALL_DIR}/bin/php-config  \
-    --enable-async-redis \
-    --enable-openssl \
-    --with-openssl-dir=/usr/local/openssl/ \
     --enable-mysqlnd  \
     --enable-swoole-ftp \
     --with-swoole-ssh2 \
-    --enable-uring_socket \
+    --enable-iouring \
+    --enable-swoole-curl \
     1>/dev/null\
     && make clean 1>/dev/null \
     && make 1>/dev/null \
@@ -712,7 +723,7 @@ RUN cd ${SRC_DIR} \
 # -----------------------------------------------------------------------------
 # Install PHP inotify extensions
 # -----------------------------------------------------------------------------
-ENV inotifyExtVersion 3.0.0
+ENV inotifyExtVersion 3.0.1
 RUN cd ${SRC_DIR} \
     && wget -q -O inotify-${inotifyExtVersion}.tgz https://pecl.php.net/get/inotify-${inotifyExtVersion}.tgz \
     && tar zxf inotify-${inotifyExtVersion}.tgz \
@@ -727,7 +738,7 @@ RUN cd ${SRC_DIR} \
 # -----------------------------------------------------------------------------
 # Install PHP mongodb extensions
 # -----------------------------------------------------------------------------
-ENV mongodbExtVersion 1.13.0
+ENV mongodbExtVersion 1.21.5
 RUN cd ${SRC_DIR} \
     # && export PATH=$PATH:/vue-msf/php/bin \/
     # && ln -s /usr/openssl/include/openssl /usr/local/include \
@@ -792,8 +803,7 @@ RUN \
         && make clean \
         && make \
         && make install \
-        && rm -rf /vue-msf/.rustup \
-    fi
+        && rm -rf /vue-msf/.rustup
 
 # -----------------------------------------------------------------------------
 # Install PHP SkyAPM-php-sdk extensions
@@ -994,7 +1004,7 @@ RUN chmod a+x /run.sh \
     && ln -s /usr/libexec/git-core/git-remote-https /bin/ \
     && git config --global user.email "vue-msf@admin.com" \
     && git config --global user.name "vue-msf" \
-    && curl -s -L http://github.com/micha/jsawk/raw/master/jsawk > /usr/local/bin/jsawk \
+    && curl -s -L https://raw.githubusercontent.com/micha/jsawk/master/jsawk > /usr/local/bin/jsawk \
 	&& chmod 755 /usr/local/bin/jsawk \
     && rm -rf ${SRC_DIR}/* \
     && yum --enablerepo=powertools install -y \
