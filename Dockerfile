@@ -708,11 +708,17 @@ RUN cd ${SRC_DIR} \
     && ${PHP_INSTALL_DIR}/bin/phpize \
     && export PKG_CONFIG_PATH="/usr/lib/pkgconfig:/usr/lib64/pkgconfig" \
     && ./configure --with-php-config=${PHP_INSTALL_DIR}/bin/php-config  \
+    --enable-http2 \
+    # --enable-sockets \
+    --enable-openssl \
+    --with-openssl-dir=/usr/local/openssl/ \
     --enable-mysqlnd  \
-    --enable-swoole-ftp \
     --with-swoole-ssh2 \
     --enable-iouring \
+    --enable-uring-socket \
     --enable-swoole-curl \
+    # --enable-cares \
+    --enable-swoole-json \
     1>/dev/null\
     && make clean 1>/dev/null \
     && make 1>/dev/null \
@@ -984,10 +990,10 @@ RUN chmod a+x -R ${HOME}/gocronx/
 # Copy Config   Git-Core  jsawk
 # -----------------------------------------------------------------------------
 ADD run.sh /
-ADD config /vue-msf/
 ADD config/.bash_profile /home/super/
 ADD config/.bashrc /home/super/
 ADD config/.vimrc /home/super/
+ADD config /vue-msf/
 
 ADD config/.bash_profile /root/
 ADD config/.bashrc /root/
