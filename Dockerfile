@@ -1,4 +1,4 @@
-FROM almalinux:8.8  AS builder
+FROM almalinux:9.8  AS builder
 
 ARG ARCH=
 
@@ -59,8 +59,8 @@ RUN rpm --import /etc/pki/rpm-gpg/RPM* \
 # -----------------------------------------------------------------------------
 RUN echo 1 \
     # && sed -i "s|failovermethod=priority|#failovermethod=priority|g" /etc/yum.repos.d/nodesource-el8.repo \
-    && yum -y install \
-	lrzsz psmisc lemon \
+    && yum -y --enablerepo=crb install \
+	lrzsz psmisc \
     tar gzip \
     bzip2 \
     # bzip2-devel \
@@ -88,7 +88,6 @@ RUN echo 1 \
     freetds freetds-devel \
     curl-devel gettext-devel \
     openldap openldap-devel \
-    libc-client-devel \
     jemalloc jemalloc-devel \
     inotify-tools \
     nodejs apr-util \
@@ -102,14 +101,12 @@ RUN echo 1 \
     boost-devel \
     iproute \
     --nogpgcheck \
-    && ln -s /usr/lib64/libc-client.so /usr/lib/libc-client.so \
     && rm -rf /var/cache/{yum,ldconfig}/* \
     && rm -rf /etc/ld.so.cache \
     && yum clean all
     
 RUN \
-    rpm --import https://repo.almalinux.org/almalinux/RPM-GPG-KEY-AlmaLinux \
-    && yum --enablerepo=powertools install -y \
+    yum --enablerepo=crb install -y --nogpgcheck \
     libyaml libyaml-devel \
     oniguruma oniguruma-devel \
     libmemcached libmemcached-devel \
@@ -979,9 +976,9 @@ RUN cd ${SRC_DIR} \
 # Install  ffmpeg  x264
 # -----------------------------------------------------------------------------
 
-RUN  yum install -y  http://mirrors.ustc.edu.cn/rpmfusion/free/el/rpmfusion-free-release-8.noarch.rpm \
-        && yum install -y  --enablerepo=powertools SDL2 \
-        && yum install -y ffmpeg x264
+RUN  yum install -y  http://mirrors.ustc.edu.cn/rpmfusion/free/el/rpmfusion-free-release-9.noarch.rpm \
+    && yum install -y  --enablerepo=crb SDL2 \
+    && yum install -y --enablerepo=crb ffmpeg x264
 # -----------------------------------------------------------------------------
 # Install gocronx
 # -----------------------------------------------------------------------------
@@ -994,8 +991,8 @@ RUN chmod a+x -R ${HOME}/gocronx/
 # -----------------------------------------------------------------------------
 ADD run.sh /
 ADD config/.bash_profile /home/super/
-ADD config/.bashrc /home/super/
 ADD config/.vimrc /home/super/
+ADD config/.bashrc /home/super/
 ADD config /vue-msf/
 
 ADD config/.bash_profile /root/
@@ -1016,7 +1013,7 @@ RUN chmod a+x /run.sh \
     && curl -s -L https://raw.githubusercontent.com/micha/jsawk/master/jsawk > /usr/local/bin/jsawk \
 	&& chmod 755 /usr/local/bin/jsawk \
     && rm -rf ${SRC_DIR}/* \
-    && yum --enablerepo=powertools install -y \
+    && yum --enablerepo=crb install -y \
     libicu libicu-devel \
     && yum clean all
 
@@ -1049,7 +1046,7 @@ welcome sfc xi'an wolf team ! \n\
 \033[45;30mBUILD_TIME:\033[0m ${build_time}" > /etc/motd
 
 # 压缩合并
-FROM almalinux:8.8 
+FROM almalinux:9.8 
 
 COPY --from=builder / / 
 
