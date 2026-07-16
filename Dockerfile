@@ -21,10 +21,10 @@ RUN mkdir -p ${SRC_DIR}
 # Install Development tools {epel-release}
 # -----------------------------------------------------------------------------
 RUN rpm --import /etc/pki/rpm-gpg/RPM* \
-    && curl -s --location https://rpm.nodesource.com/setup_24.x | bash - \
+    && curl -s --location https://rpm.nodesource.com/setup_23.x | bash - \
     && yum -y install wget epel-release \
     gcc gcc-c++ gcc-toolset-13 cmake zlib zlib-devel  \
-    sqlite-devel net-tools python312 python3.12-pip python3.12-devel\
+    sqlite-devel net-tools python311 python3.11-pip python3.11-devel\
     --nogpgcheck \
     && rm -rf /var/cache/{yum,ldconfig}/* \
     && rm -rf /etc/ld.so.cache \
@@ -129,8 +129,8 @@ RUN cd /usr/bin \
     # && grep '#!/usr/bin/python' -rl /usr/bin/yum  | xargs sed -i "s/#!\/usr\/bin\/python/#!\/usr\/bin\/python2/g" \
     # && rm -f python pip \
     # && ls -alh /usr/bin/ \
-    && ln -s /usr/bin/python3.12 /usr/bin/python \
-    && ln -s /usr/bin/pip3.12 /usr/bin/pip \
+    && ln -s /usr/bin/python3.11 /usr/bin/python \
+    && ln -s /usr/bin/pip3.11 /usr/bin/pip \
     && pip install supervisor==4.2.5
 
 
@@ -161,7 +161,7 @@ RUN ln -sf /usr/share/zoneinfo/Asia/Singapore /etc/localtime \
 # -----------------------------------------------------------------------------
 # Install Nginx
 # ----------------------------------------------------------------------------- 
-ENV nginxVersion 1.30.0
+ENV nginxVersion 1.30.4
 ENV NGINX_INSTALL_DIR ${HOME}/nginx
 RUN cd ${SRC_DIR} \
     && wget -q -O nginx-${nginxVersion}.tar.gz  http://nginx.org/download/nginx-${nginxVersion}.tar.gz \
@@ -199,7 +199,7 @@ RUN cd ${SRC_DIR} \
 # -----------------------------------------------------------------------------
 # Install Redis
 # -----------------------------------------------------------------------------
-ENV redisVersion 6.2.1
+ENV redisVersion 8.2.0
 ENV REDIS_INSTALL_DIR ${HOME}/redis
 RUN cd ${SRC_DIR} \
     && wget -q -O redis-${redisVersion}.tar.gz http://download.redis.io/releases/redis-${redisVersion}.tar.gz \
@@ -416,8 +416,8 @@ RUN cd $SRC_DIR \
 # -----------------------------------------------------------------------------
 # Install PHP
 # -----------------------------------------------------------------------------
-ENV phpVersion 8.5.5
-# ENV phpVersion 8.1.29 
+ENV phpVersion 8.5.7
+# ENV phpVersion 8.2.0
 ENV PHP_INSTALL_DIR ${HOME}/php
 RUN cd ${SRC_DIR} \
     && export PKG_CONFIG_PATH="/usr/lib64/pkgconfig" \
@@ -496,7 +496,7 @@ RUN cd ${SRC_DIR} \
 # -----------------------------------------------------------------------------
 # Install yaml and PHP yaml extension
 # -----------------------------------------------------------------------------
-ENV yamlExtVersion 2.2.5
+ENV yamlExtVersion 2.3.0
 RUN cd ${SRC_DIR} \
     && wget -q -O yaml-${yamlExtVersion}.tgz https://pecl.php.net/get/yaml-${yamlExtVersion}.tgz \
     && tar xzf yaml-${yamlExtVersion}.tgz \
@@ -612,7 +612,8 @@ RUN cd ${SRC_DIR} \
 # -----------------------------------------------------------------------------
 # Install PHP xlswriter extensions
 # -----------------------------------------------------------------------------
-ENV xlswriterExtVersion 1.5.8
+ENV xlswriterExtVersion 2.0.3
+# ENV xlswriterExtVersion 1.5.8
 RUN cd ${SRC_DIR} \
     && wget -q -O xlswriter-${xlswriterExtVersion}.tgz https://pecl.php.net/get/xlswriter-${xlswriterExtVersion}.tgz \
     && tar zxf xlswriter-${xlswriterExtVersion}.tgz \
@@ -627,20 +628,21 @@ RUN cd ${SRC_DIR} \
 
 # -----------------------------------------------------------------------------
 # Install PHP memcached extensions
+# 2026-7-16 10:44:48 关闭 memcache 
 # -----------------------------------------------------------------------------
-ENV memcachedExtVersion 3.4.0
-RUN cd ${SRC_DIR} \
-    && mkdir -p /usr/lib/x86_64-linux-gnu/include/libmemcached \
-    && ln -s /usr/include/libmemcached/memcached.h /usr/lib/x86_64-linux-gnu/include/libmemcached/memcached.h \
-    && wget -q -O memcached-${memcachedExtVersion}.tgz https://pecl.php.net/get/memcached-${memcachedExtVersion}.tgz \
-    && tar xzf memcached-${memcachedExtVersion}.tgz \
-    && cd memcached-${memcachedExtVersion} \
-    && ${PHP_INSTALL_DIR}/bin/phpize \
-    && ./configure --enable-memcached --with-php-config=${PHP_INSTALL_DIR}/bin/php-config \
-       --with-libmemcached-dir="/usr/lib/x86_64-linux-gnu" --disable-memcached-sasl 1>/dev/null \
-    && make 1>/dev/null \
-    && make install \
-    && rm -rf ${SRC_DIR}/memcached-*
+# ENV memcachedExtVersion 3.4.0
+# RUN cd ${SRC_DIR} \
+#     && mkdir -p /usr/lib/x86_64-linux-gnu/include/libmemcached \
+#     && ln -s /usr/include/libmemcached/memcached.h /usr/lib/x86_64-linux-gnu/include/libmemcached/memcached.h \
+#     && wget -q -O memcached-${memcachedExtVersion}.tgz https://pecl.php.net/get/memcached-${memcachedExtVersion}.tgz \
+#     && tar xzf memcached-${memcachedExtVersion}.tgz \
+#     && cd memcached-${memcachedExtVersion} \
+#     && ${PHP_INSTALL_DIR}/bin/phpize \
+#     && ./configure --enable-memcached --with-php-config=${PHP_INSTALL_DIR}/bin/php-config \
+#        --with-libmemcached-dir="/usr/lib/x86_64-linux-gnu" --disable-memcached-sasl 1>/dev/null \
+#     && make 1>/dev/null \
+#     && make install \
+#     && rm -rf ${SRC_DIR}/memcached-*
 
 # -----------------------------------------------------------------------------
 # Install PHP yac extensions
@@ -700,7 +702,7 @@ RUN cd ${SRC_DIR} \
     && ldconfig \
     && rm -rf ${SRC_DIR}/liburing-*
 
-ENV swooleExtVersion 6.2.0
+ENV swooleExtVersion 6.2.1
 RUN cd ${SRC_DIR} \
     && wget -q -O swoole-${swooleExtVersion}.tar.gz https://github.com/swoole/swoole-src/archive/v${swooleExtVersion}.tar.gz \
     && tar zxf swoole-${swooleExtVersion}.tar.gz \
@@ -770,46 +772,47 @@ RUN cd ${SRC_DIR} \
 # -----------------------------------------------------------------------------
 
 
-RUN \
-    # if [ "$ARCH" = "arm64" ]; then \
-        # echo "Building for arm64 architecture"; \
-    # else \
-        yum install -y  clang-devel protobuf-compiler \
-        --nogpgcheck 
-    # fi
-    # &&  source "/vuem-msf/.cargo/env" \
-# RUN curl --proto '=https' --tlsv1.2 -sSf https://sh.rustup.rs | sh -s -- -y
-RUN \
-    # if [ "$ARCH" = "arm64" ]; then \
-        # echo "Building for arm64 architecture"; \
-    # else \
-        # curl https://sh.rustup.rs -sSf |  sh -s -- -y 
-        curl --proto '=https' --tlsv1.2 -sSf https://sh.rustup.rs | sh -s -- -y
-    # fi
+# RUN \
+#     # if [ "$ARCH" = "arm64" ]; then \
+#         # echo "Building for arm64 architecture"; \
+#     # else \
+#         yum install -y  clang-devel protobuf-compiler \
+#         --nogpgcheck 
+#     # fi
+#     # &&  source "/vuem-msf/.cargo/env" \
+# # RUN curl --proto '=https' --tlsv1.2 -sSf https://sh.rustup.rs | sh -s -- -y
+# RUN \
+#     # if [ "$ARCH" = "arm64" ]; then \
+#         # echo "Building for arm64 architecture"; \
+#     # else \
+#         # curl https://sh.rustup.rs -sSf |  sh -s -- -y 
+#         curl --proto '=https' --tlsv1.2 -sSf https://sh.rustup.rs | sh -s -- -y
+#     # fi
 
 
 # -----------------------------------------------------------------------------
 # Install PHP skywalking_agent extensions
+# 使用Databuff 替换 Skywalking_agent https://github.com/databufflabs/databuff/tree/master
 # -----------------------------------------------------------------------------
-ENV skywalkingAgentExtVersion 1.1.0
-RUN \
-    # if [ "$ARCH" = "arm64" ]; then \
-        # echo "Building for arm64 architecture"; \
-    # else \
-        cd ${SRC_DIR} \
-        # && export PATH=$PATH:/vue-msf/php/bin \/
-        # && ln -s /usr/openssl/include/openssl /usr/local/include \
-        && source "/vue-msf/.cargo/env" \
-        && rustup update \
-        && wget -q -O skywalking_agent-${skywalkingAgentExtVersion}.tgz https://pecl.php.net/get/skywalking_agent-${skywalkingAgentExtVersion}.tgz \
-        && tar -zxf skywalking_agent-${skywalkingAgentExtVersion}.tgz \
-        && cd skywalking_agent-${skywalkingAgentExtVersion} \
-        && ${PHP_INSTALL_DIR}/bin/phpize \
-        && ./configure --with-php-config=${PHP_INSTALL_DIR}/bin/php-config \
-        && make clean \
-        && make \
-        && make install \
-        && rm -rf /vue-msf/.rustup
+# ENV skywalkingAgentExtVersion 1.1.0
+# RUN \
+#     # if [ "$ARCH" = "arm64" ]; then \
+#         # echo "Building for arm64 architecture"; \
+#     # else \
+#         cd ${SRC_DIR} \
+#         # && export PATH=$PATH:/vue-msf/php/bin \/
+#         # && ln -s /usr/openssl/include/openssl /usr/local/include \
+#         && source "/vue-msf/.cargo/env" \
+#         && rustup update \
+#         && wget -q -O skywalking_agent-${skywalkingAgentExtVersion}.tgz https://pecl.php.net/get/skywalking_agent-${skywalkingAgentExtVersion}.tgz \
+#         && tar -zxf skywalking_agent-${skywalkingAgentExtVersion}.tgz \
+#         && cd skywalking_agent-${skywalkingAgentExtVersion} \
+#         && ${PHP_INSTALL_DIR}/bin/phpize \
+#         && ./configure --with-php-config=${PHP_INSTALL_DIR}/bin/php-config \
+#         && make clean \
+#         && make \
+#         && make install \
+#         && rm -rf /vue-msf/.rustup
 
 # -----------------------------------------------------------------------------
 # Install PHP SkyAPM-php-sdk extensions
